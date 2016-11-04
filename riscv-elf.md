@@ -20,7 +20,9 @@
   linker to disallow linking ELF files with incompatible ABIs together.
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
     which allows instructions to be aligned to 16-bit boundries (the base RV32
-    and RV64 ISAs only allow 32-bit instruction alignment).
+    and RV64 ISAs only allow 32-bit instruction alignment).  When linking
+    objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
+    instructions such as C.JAL in the relaxation process.
   * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
   * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
   * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
@@ -30,7 +32,8 @@
     that if you have a floating-point type in a register, then you also have
     all smaller floating-point types in registers.  For example _DOUBLE would
     store "float" and "double" values in F registers, but would not store "long
-    double" values in F registers.
+    double" values in F registers.  If none of the float ABI flags are set, the
+    object is taken to use the soft-float ABI.
 
 # Sections
 
