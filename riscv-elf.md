@@ -18,6 +18,12 @@
 
 * e_flags: Describes the format of this ELF file.  These flags are used by the
   linker to disallow linking ELF files with incompatible ABIs together.
+
+   Bit 0 | Bit  1 - 2 | Bit 3 - 31
+  -------|------------|-----------
+   RVC   | Float ABI  |   UNUSED
+
+
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
     which allows instructions to be aligned to 16-bit boundries (the base RV32
     and RV64 ISAs only allow 32-bit instruction alignment).  When linking
