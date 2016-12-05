@@ -134,8 +134,8 @@ treated the same.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
-argument register is available.  Otherwise, it is passed the same way as an
-integral argument of the same size.
+argument register is available.  Otherwise, it is passed according to the
+integer calling convention.
 
 A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
