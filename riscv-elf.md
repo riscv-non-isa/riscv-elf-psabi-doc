@@ -75,30 +75,32 @@ The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
-register, or on the stack if none is available.  When passed in registers,
-scalars narrower than XLEN bits are widened according to the sign of their
-type up to 32 bits, then sign-extended to XLEN bits.
+register, or on the stack by value if none is available.  When passed in
+registers, scalars narrower than XLEN bits are widened according to the sign
+of their type up to 32 bits, then sign-extended to XLEN bits.
 
 Scalars that are 2✕XLEN bits wide are passed in an aligned pair of argument
-registers, or on the stack if none is available.  Wider scalars are passed by
-reference and are replaced in the argument list with the address.
+registers (i.e., the first register in the pair is even-numbered), or on the
+stack by value if none is available.  Wider scalars are passed by reference
+and are replaced in the argument list with the address.
 
 Aggregates whose total size is no more than XLEN bits are passed in
 a register, with the fields laid out as though they were passed in memory.
 Aggregates whose total size is no more than 2✕XLEN bits are passed in a pair
 of registers; if only one register is available, the first half is passed in
-a7 and the second half is passed on the stack.  If an aggregate's size in bits
-is not divisible by XLEN, the unused bits in the final register are undefined.
+a register and the second half is passed on the stack.  Bits unused due to
+padding, and bits past the end of an aggregate whose size in bits is not
+divisible by XLEN, are undefined.
 
 Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
 constructors, destructors, or vtables.
 
-Arguments passed by implicit reference may be modified by the callee.
+Arguments passed by reference may be modified by the callee.
 
-If an aggregate to be passed in registers has 2✕XLEN-bit alignment, it is
-passed in an aligned pair of argument registers, or on the stack if none is
-available.
+If an aggregate no larger than 2✕XLEN bits has 2✕XLEN-bit alignment, it is
+passed in an aligned pair of argument registers, or on the stack by value if
+none is available.
 
 Floating-point reals are passed the same way as integers of the same size, and
 complex floating-point numbers are passed the same way as a struct containing
@@ -123,7 +125,7 @@ the integer calling convention.
 
 For the purposes of this section, FLEN refers to the width of a
 floating-point register in the ABI.  The ISA might have wider
-floating-point registers than than ABI.
+floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, struct { struct
@@ -136,14 +138,14 @@ argument register is available.  Otherwise, it is passed the same way as an
 integral argument of the same size.
 
 A struct containing just one floating-point real is passed as though it were
-standalone a floating-point real.
+a standalone floating-point real.
 
 A struct containing two floating-point reals is passed in two floating-point
 registers, if neither is more than FLEN bits wide and at least two floating-point
 argument registers are available.  (The registers need not be an aligned pair.)
 Otherwise, it is passed according to the integer calling convention.
 
-A complex floating-piont number, or a struct containing just one complex
+A complex floating-point number, or a struct containing just one complex
 floating-point number, is passed as though it were a struct containing two
 floating-point reals.
 
