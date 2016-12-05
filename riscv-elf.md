@@ -42,6 +42,121 @@
     object is taken to use the soft-float ABI.
   * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
 
+# Register Map
+
+Integer Registers
+--------------------------------
+Name    | ABI Mnemonic | Meaning
+--------|--------------|--------
+x0      | zero         | Zero
+x1      | ra           | Return address
+x2      | sp           | Stack pointer
+x3      | gp           | Global pointer
+x4      | tp           | Thread pointer
+x5-x7   | t0-t2        | Temporary registers
+x8-x9   | s0-s1        | Callee-saved registers
+x10-x17 | a0-a7        | Argument registers
+x18-x27 | s2-s11       | Callee-saved registers
+x28-x31 | t3-t6        | Temporary registers
+
+Floating-point Registers
+--------------------------------
+Name    | ABI Mnemonic | Meaning
+--------|--------------|--------
+f0-f7   | ft0-ft7      | Temporary registers
+f8-f9   | fs0-fs1      | Callee-saved registers
+f10-f17 | fa0-fa7      | Argument registers
+f18-f27 | fs2-fs11     | Callee-saved registers
+f28-f31 | ft8-ft11     | Temporary registers
+
+# Procedure Calling Convention
+
+The base integer calling convention provides eight argument registers,
+a0-a7, the first two of which are also used to return values.
+
+Scalars that are at most XLEN bits wide are passed in a single argument
+register, or on the stack if none is available.  When passed in registers,
+scalars narrower than XLEN bits are widened according to the sign of their
+type up to 32 bits, then sign-extended to XLEN bits.
+
+Scalars that are 2✕XLEN bits wide are passed in an aligned pair of argument
+registers, or on the stack if none is available.  Wider scalars are passed by
+reference and are replaced in the argument list with the address.
+
+Aggregates whose total size is no more than XLEN bits are passed in
+a register, with the fields laid out as though they were passed in memory.
+Aggregates whose total size is no more than 2✕XLEN bits are passed in a pair
+of registers; if only one register is available, the first half is passed in
+a7 and the second half is passed on the stack.  If an aggregate's size in bits
+is not divisible by XLEN, the unused bits in the final register are undefined.
+
+Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
+the argument list with the address, as are C++ aggregates with nontrivial copy
+constructors, destructors, or vtables.
+
+Arguments passed by implicit reference may be modified by the callee.
+
+If an aggregate to be passed in registers has 2✕XLEN-bit alignment, it is
+passed in an aligned pair of argument registers, or on the stack if none is
+available.
+
+Floating-point reals are passed the same way as integers of the same size, and
+complex floating-point numbers are passed the same way as a struct containing
+two floating-point reals.
+
+In the base integer calling convention, variadic arguments are passed in the
+same manner as named arguments.
+
+Values are returned in the same manner as a first named argument of the same
+type would be passed.  If such an argument would have been passed by
+reference, the caller allocates memory for the return value, and passes the
+address as an implicit first parameter.
+
+## Hardware floating-point calling convention
+
+The hardware floating-point calling convention adds eight floating-point
+argument registers, fa0-fa7, the first two of which are also used to return
+values.  Values are passed in floating-point registers whenever possible, even
+if all integer registers have been exhausted.  The remainder of this section
+applies only to named arguments.  Variadic arguments are passed according to
+the integer calling convention.
+
+For the purposes of this section, FLEN refers to the width of a
+floating-point register in the ABI.  The ISA might have wider
+floating-point registers than than ABI.
+
+For the purposes of this section, "struct" refers to a C struct with its
+hierarchy flattened, including any array fields.  That is, struct { struct
+{ float f[1]; } g[2]; int h; } and struct { float f; float g; int h; } are
+treated the same.
+
+A real floating-point argument is passed in a floating-point argument
+register if it is no more than FLEN bits wide and at least one floating-point
+argument register is available.  Otherwise, it is passed the same way as an
+integral argument of the same size.
+
+A struct containing just one floating-point real is passed as though it were
+standalone a floating-point real.
+
+A struct containing two floating-point reals is passed in two floating-point
+registers, if neither is more than FLEN bits wide and at least two floating-point
+argument registers are available.  (The registers need not be an aligned pair.)
+Otherwise, it is passed according to the integer calling convention.
+
+A complex floating-piont number, or a struct containing just one complex
+floating-point number, is passed as though it were a struct containing two
+floating-point reals.
+
+A struct containing one floating-point real and one integer, in either
+order, is passed in a floating-point register and an integer register,
+provided the floating-point real is no more than FLEN bits wide and the
+integer is no more than XLEN bits wide, and at least one floating-point
+argument register and at least one integer argument register is available.
+Otherwise, it is passed according to the integer calling convention.
+
+Values are returned in the same manner as a first named argument of the same
+type would be passed.
+
 # Sections
 
 # String Tables
