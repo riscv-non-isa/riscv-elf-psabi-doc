@@ -199,7 +199,7 @@ R_RISCV_LO12_S       | Absolute address           | %lo(symbol)         | S-Type
 R_RISCV_TPREL_HI20   | TLS LE thread offset       | %tprel_hi(symbol)   | U-Type (auipc)
 R_RISCV_TPREL_LO12_I | TLS LE thread offset       | %tprel_lo(label)    | I-Type (lb,lbu,lh,lhu,lw,lwu,flw,fld,addi,addiw)
 R_RISCV_TPREL_LO12_S | TLS LE thread offset       | %tprel_lo(label)    | S-Type (sb,sh,sw,fsw,fsd)
-R_RISCV_TPREL_ADD    | TLS LE thread usage        | %tprel_add(label)   | internal assembler expansion
+R_RISCV_TPREL_ADD    | TLS LE thread usage        | %tprel_add(label)   | I-Type (addi)
 R_RISCV_ADD8         | 8-bit label addition       |                     | word8 = S + A
 R_RISCV_ADD16        | 16-bit label addition      |                     | word16 = S + A
 R_RISCV_ADD32        | 32-bit label addition      |                     | word32 = S + A
