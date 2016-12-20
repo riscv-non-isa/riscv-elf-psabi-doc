@@ -221,10 +221,10 @@ The following table provides details on the variables used in address calculatio
 
 Variable       | Description
 :------------- | :----------------
-A              | addend field in the relocation entry associated with the symbol
-B              | base address of a shared object loaded into memory
-G              | offset of the symbol into the GOT (Global Offset Table)
-S              | the value of the symbol in the symbol table
+A              | Addend field in the relocation entry associated with the symbol
+B              | Base address of a shared object loaded into memory
+G              | Offset of the symbol into the GOT (Global Offset Table)
+S              | Value of the symbol in the symbol table
 GP             | Global Pointer register (x3)
 
 # Program Header Table
