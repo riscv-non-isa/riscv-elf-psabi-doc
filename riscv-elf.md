@@ -214,8 +214,8 @@ R_RISCV_ALIGN        | Alignment statement        |                     |
 R_RISCV_RVC_BRANCH   | PC-relative branch offset  |                     | CB-Type (c.beqz,c.bnez)
 R_RISCV_RVC_JUMP     | PC-relative jump offset    |                     | CJ-Type (c.j)
 R_RISCV_RVC_LUI      | Absolute address           |                     | CI-Type (c.lui)
-R_RISCV_GPREL_I      | PC-relative reference      | %gprel(symbol)      | I-Type (lb,lbu,lh,lhu,lw,lwu,flw,fld,addi,addiw)
-R_RISCV_GPREL_S      | PC-relative reference      | %gprel(symbol)      | S-Type (sb,sh,sw,fsw,fsd)
+R_RISCV_GPREL_I      | GP-relative reference      | %gprel(symbol)      | I-Type (lb,lbu,lh,lhu,lw,lwu,flw,fld,addi,addiw)
+R_RISCV_GPREL_S      | GP-relative reference      | %gprel(symbol)      | S-Type (sb,sh,sw,fsw,fsd)
 
 The following table provides details on the variables used in address calculation:
 
@@ -225,6 +225,7 @@ A              | addend field in the relocation entry associated with the symbol
 B              | base address of a shared object loaded into memory
 G              | offset of the symbol into the GOT (Global Offset Table)
 S              | the value of the symbol in the symbol table
+GP             | Global Pointer register (x3)
 
 # Program Header Table
 
