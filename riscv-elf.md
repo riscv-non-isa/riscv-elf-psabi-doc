@@ -79,10 +79,13 @@ register, or on the stack by value if none is available.  When passed in
 registers, scalars narrower than XLEN bits are widened according to the sign
 of their type up to 32 bits, then sign-extended to XLEN bits.
 
-Scalars that are 2✕XLEN bits wide are passed in an aligned pair of argument
-registers (i.e., the first register in the pair is even-numbered), or on the
-stack by value if none is available.  Wider scalars are passed by reference
-and are replaced in the argument list with the address.
+Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
+or on the stack by value if none are available.  If exactly one register is
+available, the low-order XLEN bits are passed in the register and the
+high-order XLEN bits are passed on the stack.
+
+Scalars wider than 2✕XLEN are passed by reference and are replaced in the
+argument list with the address.
 
 Aggregates whose total size is no more than XLEN bits are passed in
 a register, with the fields laid out as though they were passed in memory.
@@ -98,16 +101,15 @@ constructors, destructors, or vtables.
 
 Arguments passed by reference may be modified by the callee.
 
-If an aggregate no larger than 2✕XLEN bits has 2✕XLEN-bit alignment, it is
-passed in an aligned pair of argument registers, or on the stack by value if
-none is available.
-
 Floating-point reals are passed the same way as integers of the same size, and
 complex floating-point numbers are passed the same way as a struct containing
 two floating-point reals.
 
 In the base integer calling convention, variadic arguments are passed in the
-same manner as named arguments.
+same manner as named arguments, with one exception.  Variadic arguments with
+2✕XLEN-bit alignment and size at most 2✕XLEN bits are passed in an
+*aligned* register pair (i.e., the first register in the pair is
+even-numbered), or on the stack by value if none is available.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.  If such an argument would have been passed by
