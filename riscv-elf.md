@@ -240,6 +240,22 @@ relocations are designed for use with specific instructions or instruction
 sequences. For clarity, the description of those relocations assumes they
 are used in the intended context.
 
+### Absolute Addresses
+
+Absolute addresses in position dependent code are loaded with a pair
+of instructions which have an associated pair of relocations:
+`R_RISCV_HI20` plus `R_RISCV_LO12_I` or `R_RISCV_LO12_S`.
+
+The `R_RISCV_HI20` refers to an `LUI` instruction containing the high
+20-bits to be relocated to an absolute symbol address. The `LUI` instruction
+is followed by an I-Type instruction (add immediate or load) with an
+`R_RISCV_LO12_I` relocation or an S-Type instruction (store) and an
+`R_RISCV_LO12_S` relocation. The addresses for pair of relocations are
+calculated like this:
+
+ - `hi20 = ((symbol_address + 0x800) >> 12);`
+ - `lo12 = symbol_address - hi20;`
+
 ### PC-Relative Jumps and Branches
 
 Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
