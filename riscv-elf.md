@@ -235,6 +235,25 @@ G              | Offset of the symbol into the GOT (Global Offset Table)
 S              | Value of the symbol in the symbol table
 GP             | Global Pointer register (x3)
 
+
+### Position Independent Code
+
+PC-relative relocations on bit sequences for symbol addresses (such as the bit sequence emitted by the `auipc+addi` instruction pair expanded from the `la` pseudo-instruction) in position independent code are typically comprised of a pair of relocations: `R_RISCV_PCREL_HI20` plus `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
+
+The `R_RISCV_PCREL_HI20` relocation refers to a bit sequence where the high 20-bits are relocated to the symbol relative to the program counter. The `R_RISCV_PCREL_HI20` relocation is generally followed by an I-Type instruction (add immediate or load) with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store) and an `R_RISCV_PCREL_LO12_S` relocation.
+
+The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain a label pointing to a bit-sequence with a `R_RISCV_PCREL_HI20` relocation entry that points to the target symbol:
+
+ - At label: `R_RISCV_PCREL_HI20` relocation entry ⟶ symbol
+ - `R_RISCV_PCREL_LO12_I` relocation entry ⟶ label
+
+To get the symbol address to perform the calculation to fill the 12-bit immediate, the linker finds the symbol in the `R_RISCV_PCREL_HI20` relocation entry at the label. The addresses for pair of relocations are calculated like this:
+
+ - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
+ - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
+
+The successive bit sequence has a signed 12-bit immediate so the value of the preceding high 20-bit relocation may have 1 added to it.
+
 # Program Header Table
 
 # Note Sections
