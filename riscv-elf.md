@@ -214,8 +214,8 @@ Enum | ELF Reloc Type       | Description                | Assembler           |
 44   | R_RISCV_RVC_BRANCH   | PC-relative branch offset  |                     | CB-Type (c.beqz,c.bnez)
 45   | R_RISCV_RVC_JUMP     | PC-relative jump offset    |                     | CJ-Type (c.j)
 46   | R_RISCV_RVC_LUI      | Absolute address           |                     | CI-Type (c.lui)
-47   | R_RISCV_GPREL_I      | GP-relative reference      | %gprel(symbol)      | I-Type (lb,lbu,lh,lhu,lw,lwu,ld,flw,fld,addi,addiw)
-48   | R_RISCV_GPREL_S      | GP-relative reference      | %gprel(symbol)      | S-Type (sb,sh,sw,sd,fsw,fsd)
+47   | R_RISCV_GPREL_I      | GP-relative reference      |                     | I-Type (lb,lbu,lh,lhu,lw,lwu,ld,flw,fld,addi,addiw)
+48   | R_RISCV_GPREL_S      | GP-relative reference      |                     | S-Type (sb,sh,sw,sd,fsw,fsd)
 49   | R_RISCV_TPREL_I      | TP-relative TLS LE load    |
 50   | R_RISCV_TPREL_S      | TP-relative TLS LE store   |
 51   | R_RISCV_RELAX        | Reloc pair can be relaxed  |
