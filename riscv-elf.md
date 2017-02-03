@@ -240,11 +240,17 @@ relocations are designed for use with specific instructions or instruction
 sequences. For clarity, the description of those relocations assumes they
 are used in the intended context.
 
-## Position Independent Code
+### PC-Relative Jumps and Branches
+
+Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
+that can represent an even signed 21-bit offset (-2MiB to +2MiB-1).
+
+Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
+can represent an even signed 13-bit offset (-4096 to +4095).
 
 ### PC-Relative Procedure Calls
 
-### PC-Relative Jumps and Branches
+Describe `R_RISCV_CALL`, `R_RISCV_CALL_PLT` and `R_RISCV_RELAX` ...
 
 ### PC-Relative Symbol Addresses
 
