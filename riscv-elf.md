@@ -262,7 +262,7 @@ with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store)
 and an `R_RISCV_PCREL_LO12_S` relocation.
 
 The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
-a label pointing to a bit-sequence with a `R_RISCV_PCREL_HI20` relocation
+a label pointing to an instruction with a `R_RISCV_PCREL_HI20` relocation
 entry that points to the target symbol:
 
  - At label: `R_RISCV_PCREL_HI20` relocation entry ⟶ symbol
@@ -276,7 +276,7 @@ instruction. The addresses for pair of relocations are calculated like this:
  - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
  - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
 
-The successive bit sequence has a signed 12-bit immediate so the value of the
+The successive instruction has a signed 12-bit immediate so the value of the
 preceding high 20-bit relocation may have 1 added to it.
 
 # Program Header Table
