@@ -285,10 +285,10 @@ can represent an even signed 13-bit offset (-4096 to +4095).
 
 ### PC-Relative Symbol Addresses
 
-32-bit PC-relative relocations for symbol addresses on pairs of instructions
-such as the `AUIPC+ADDI` instruction pair expanded from the `la`
-pseudo-instruction, in position independent code typically have an
-associated pair of relocations: `R_RISCV_PCREL_HI20` plus
+32-bit PC-relative relocations for symbol addresses on sequences of
+instructions such as the `AUIPC+ADDI` instruction pair expanded from
+the `la` pseudo-instruction, in position independent code typically
+have an associated pair of relocations: `R_RISCV_PCREL_HI20` plus
 `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
 
 The `R_RISCV_PCREL_HI20` relocation refers to an `AUIPC` instruction
@@ -315,6 +315,23 @@ instruction. The addresses for pair of relocations are calculated like this:
 
 The successive instruction has a signed 12-bit immediate so the value of the
 preceding high 20-bit relocation may have 1 added to it.
+
+Note the compiler emitted instructions for PC-relative symbol addresses are
+not necessarily sequential or in pairs. There is a constraint is that the
+instruction with the `RISCV_R_PCREL_LO12_I` or `RISCV_R_PCREL_LO12_S`
+relocation label points to a `R_RISCV_PCREL_HI20` relocation pointing to the
+symbol. e.g.
+
+```
+0000000000000000 <.L11>:
+   0: 00000297            auipc t0,0x0
+      0: R_RISCV_PCREL_HI20 foo
+   4: 0002a383            lw  t2,0(t0)
+      4: R_RISCV_PCREL_LO12_I .L11
+   8: 006383b3            add t2,t2,t1
+   c: 0072a023            sw  t2,0(t0)
+      c: R_RISCV_PCREL_LO12_S .L11
+```
 
 # Program Header Table
 
