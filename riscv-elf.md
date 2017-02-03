@@ -250,8 +250,8 @@ are used in the intended context.
 
 PC-relative relocations for symbol addresses on pairs of instructions
 (such as the `auipc+addi` instruction pair expanded from the `la`
-pseudo-instruction) in position independent code are typically
-comprised of a pair of relocations: `R_RISCV_PCREL_HI20` plus
+pseudo-instruction) in position independent code typically have an
+associated pair of relocations: `R_RISCV_PCREL_HI20` plus
 `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
 
 The `R_RISCV_PCREL_HI20` relocation refers to an `AUIPC` instruction
