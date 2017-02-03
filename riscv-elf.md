@@ -323,14 +323,12 @@ relocation label points to a `R_RISCV_PCREL_HI20` relocation pointing to the
 symbol. e.g.
 
 ```
-0000000000000000 <.L11>:
-   0: 00000297            auipc t0,0x0
-      0: R_RISCV_PCREL_HI20 foo
-   4: 0002a383            lw  t2,0(t0)
-      4: R_RISCV_PCREL_LO12_I .L11
-   8: 006383b3            add t2,t2,t1
-   c: 0072a023            sw  t2,0(t0)
-      c: R_RISCV_PCREL_LO12_S .L11
+label:
+   auipc t0, %pcrel_hi(sym)      # t0 := label + (sym - label + 0x800)[31:12]
+   lui t1, 1
+   lw t2, t0, %pcrel_lo(label)   # t0 := t0 + (sym - label)[11:0]
+   add t2, t2, t1
+   sw t2, t0, %pcrel_lo(label)   # t0 := t0 + (sym - label)[11:0]
 ```
 
 # Program Header Table
