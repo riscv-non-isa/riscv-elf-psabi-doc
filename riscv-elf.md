@@ -235,24 +235,49 @@ G              | Offset of the symbol into the GOT (Global Offset Table)
 S              | Value of the symbol in the symbol table
 GP             | Global Pointer register (x3)
 
+While the linker can make relocations on arbitrary memory locations, many
+relocations are designed for use with specific instructions or instruction
+sequences. For clarity, the description of those relocations assumes they
+are used in the intended context.
 
-### Position Independent Code
+## Position Independent Code
 
-PC-relative relocations on bit sequences for symbol addresses (such as the bit sequence emitted by the `auipc+addi` instruction pair expanded from the `la` pseudo-instruction) in position independent code are typically comprised of a pair of relocations: `R_RISCV_PCREL_HI20` plus `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
+### PC-Relative Procedure Calls
 
-The `R_RISCV_PCREL_HI20` relocation refers to a bit sequence where the high 20-bits are relocated to the symbol relative to the program counter. The `R_RISCV_PCREL_HI20` relocation is generally followed by an I-Type instruction (add immediate or load) with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store) and an `R_RISCV_PCREL_LO12_S` relocation.
+### PC-Relative Jumps and Branches
 
-The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain a label pointing to a bit-sequence with a `R_RISCV_PCREL_HI20` relocation entry that points to the target symbol:
+### PC-Relative Symbol Addresses
+
+PC-relative relocations for symbol addresses on pairs of instructions
+(such as the `auipc+addi` instruction pair expanded from the `la`
+pseudo-instruction) in position independent code are typically
+comprised of a pair of relocations: `R_RISCV_PCREL_HI20` plus
+`R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
+
+The `R_RISCV_PCREL_HI20` relocation refers to an `AUIPC` instruction
+containing the high 20-bits to be relocated to a symbol relative to the
+program counter address of the `AUIPC` instruction. The `AUIPC`
+instruction is followed by an I-Type instruction (add immediate or load)
+with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store)
+and an `R_RISCV_PCREL_LO12_S` relocation.
+
+The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
+a label pointing to a bit-sequence with a `R_RISCV_PCREL_HI20` relocation
+entry that points to the target symbol:
 
  - At label: `R_RISCV_PCREL_HI20` relocation entry ⟶ symbol
  - `R_RISCV_PCREL_LO12_I` relocation entry ⟶ label
 
-To get the symbol address to perform the calculation to fill the 12-bit immediate, the linker finds the symbol in the `R_RISCV_PCREL_HI20` relocation entry at the label. The addresses for pair of relocations are calculated like this:
+To get the symbol address to perform the calculation to fill the 12-bit
+immediate on the add, load or store instruction the linker finds the
+`R_RISCV_PCREL_HI20` relocation entry associated with the `AUIPC`
+instruction. The addresses for pair of relocations are calculated like this:
 
  - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
  - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
 
-The successive bit sequence has a signed 12-bit immediate so the value of the preceding high 20-bit relocation may have 1 added to it.
+The successive bit sequence has a signed 12-bit immediate so the value of the
+preceding high 20-bit relocation may have 1 added to it.
 
 # Program Header Table
 
