@@ -242,7 +242,7 @@ are used in the intended context.
 
 ### Absolute Addresses
 
-Absolute addresses in position dependent code are loaded with a pair
+32-bit absolute addresses in position dependent code are loaded with a pair
 of instructions which have an associated pair of relocations:
 `R_RISCV_HI20` plus `R_RISCV_LO12_I` or `R_RISCV_LO12_S`.
 
@@ -270,7 +270,7 @@ Describe `R_RISCV_CALL`, `R_RISCV_CALL_PLT` and `R_RISCV_RELAX` ...
 
 ### PC-Relative Symbol Addresses
 
-PC-relative relocations for symbol addresses on pairs of instructions
+32-bit PC-relative relocations for symbol addresses on pairs of instructions
 (such as the `auipc+addi` instruction pair expanded from the `la`
 pseudo-instruction) in position independent code typically have an
 associated pair of relocations: `R_RISCV_PCREL_HI20` plus
