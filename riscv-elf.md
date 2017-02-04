@@ -319,8 +319,8 @@ preceding high 20-bit relocation may have 1 added to it.
 Note the compiler emitted instructions for PC-relative symbol addresses are
 not necessarily sequential or in pairs. There is a constraint is that the
 instruction with the `RISCV_R_PCREL_LO12_I` or `RISCV_R_PCREL_LO12_S`
-relocation label points to a `R_RISCV_PCREL_HI20` relocation pointing to the
-symbol. e.g.
+relocation label points to a valid HI20 PC-relative relocation pointing to
+the symbol. e.g.
 
 ```
 label:
