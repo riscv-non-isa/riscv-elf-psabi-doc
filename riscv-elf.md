@@ -256,6 +256,55 @@ calculated like this:
  - `hi20 = ((symbol_address + 0x800) >> 12);`
  - `lo12 = symbol_address - hi20;`
 
+### Global Offset Table
+
+For position independent code in dynamically linked objects, each shared
+object contains a GOT (Global Offset Table) which contains addresses of
+global symbols (objects and functions) referred to by the dynamically
+linked shared object.
+
+...
+
+### Program Linkage Table
+
+The PLT (Program Linkage Table) exists to allow function calls between
+dynamically linked shared objects. Each dynamic object has its own
+GOT (Global Offset Table) and PLT (Program Linkage Table).
+
+The first entry of a shared objects PLT is a special entry that calls
+`_dl_runtime_resolve` to resolve the GOT offset for the called function.
+The ``_dl_runtime_resolve` function in the dynamic loader resolves the
+GOT offsets lazily on the first call to the function except when
+`LD_BIND_NOW` is set in which case the GOT entries are populated by the
+dynamic linker before the exutable is started. Lazy resolution of GOT
+entries is intended to speed up program loading by deferring the symbol
+resolution to the first time the function is called. The first entry in
+the PLT which corresponds to an unpopulated GOT entry for the symbol is
+a resolver stub entry which takes up 32 bytes (two 16 byte entries):
+
+```
+1:   auipc  t2, %pcrel_hi(.got.plt)
+     sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+     l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+     addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
+     addi   t0, t2, %lo(.got.plt)    # &.got.plt
+     srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
+     l[w|d] t0, PTRSIZE(t0)          # link map
+     jr     t3
+```
+
+Subsequent function entry stubs in the PLT take up 16 bytes and load
+the function pointer from the GOT. On first call the GOT entry is zero
+and the first PLT entry is called which calls `_dl_runtime_resolve`
+and fills in the GOT entry for subsequent calls to the function:
+
+```
+1:  auipc   t3, %pcrel_hi(function@.got.plt)
+    l[w|d]  t3, %pcrel_lo(1b)(t3)
+    jalr    t1, t3
+    nop
+```
+
 ### Procedure Calls
 
 `R_RISCV_CALL` or `R_RISCV_CALL_PLT` and `R_RISCV_RELAX` relocations are
