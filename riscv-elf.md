@@ -438,7 +438,7 @@ Example assembler load and store with the relocations in comments:
   sw   t0,0(a5)
 ```
 
-### Local and Global Dynamic
+### Global Dynamic
 
 On RISC-V the local dynamic and global dynamic thread models generate equivalent
 code. The Global dynamic thread local storage model is used for PIC Shared
