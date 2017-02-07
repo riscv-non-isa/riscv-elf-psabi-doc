@@ -241,6 +241,23 @@ sequences. For clarity, the description of those relocations assumes they
 are used in the intended context.
 
 
+### Assembler Relocation Functions
+
+The following table lists assembler functions for emitting relocations:
+
+Assembler Notation       | Description                          | Instruction / Macro
+:----------------------  | :---------------                     | :-------------------
+%hi(symbol)              | Absolute (HI20)                      | lui
+%lo(symbol)              | Absolute (LO12)                      | load, store, add
+%pcrel_hi(symbol)        | PC-relative (HI20)                   | auipc
+%pcrel_lo(label)         | PC-relative (LO12)                   | load, store, add
+%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie
+%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD GOT reference     | la.tls.gd
+%tprel_hi(symbol)        | TLS LE thread offset (U-Type)        | auipc
+%tprel_lo(symbol)        | TLS LE thread offset (I-Type,S-Type) | load, store
+%tprel_add(offset)       | TLS LE "Local Exec"  (Add)           | add
+
+
 ### Absolute Addresses
 
 32-bit absolute addresses in position dependent code are loaded with a pair
