@@ -218,7 +218,7 @@ Enum | ELF Reloc Type       | Description                         | Details
 48   | R_RISCV_GPREL_S      | GP-relative reference (S-Type)      |
 49   | R_RISCV_TPREL_I      | TP-relative TLS LE load (I-Type)    |
 50   | R_RISCV_TPREL_S      | TP-relative TLS LE store (S-Type)   |
-51   | R_RISCV_RELAX        | Instruction pair can be relaxed     | (auipc+jalr pair)
+51   | R_RISCV_RELAX        | Instruction pair can be relaxed     |
 52   | R_RISCV_SUB6         | Local label subtraction             |
 53   | R_RISCV_SET6         | Local label subtraction             |
 54   | R_RISCV_SET8         | Local label subtraction             |
