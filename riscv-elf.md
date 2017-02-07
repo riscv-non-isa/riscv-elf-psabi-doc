@@ -188,8 +188,8 @@ Enum | ELF Reloc Type       | Description                         | Details
 18   | R_RISCV_CALL         | PC-relative function call           | MACRO call,tail (auipc+jalr pair)
 19   | R_RISCV_CALL_PLT     | PC-relative function call           | MACRO call,tail (auipc+jalr pair) PIC
 20   | R_RISCV_GOT_HI20     | PC-relative GOT offset              | MACRO la
-21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT reference    | MACRO la.tls.ie %tls_ie_pcrel_hi(x)
-22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference        | MACRO la.tls.gd %tls_gd_pcrel_hi(x)
+21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT reference    | MACRO la.tls.ie
+22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference        | MACRO la.tls.gd
 23   | R_RISCV_PCREL_HI20   | PC-relative reference  (U-Type)     | %pcrel_hi(symbol)
 24   | R_RISCV_PCREL_LO12_I | PC-relative reference (I-Type)      | %pcrel_lo(symbol)
 25   | R_RISCV_PCREL_LO12_S | PC-relative reference (S-Type)      | %pcrel_lo(symbol)
@@ -225,6 +225,26 @@ Enum | ELF Reloc Type       | Description                         | Details
 55   | R_RISCV_SET16        | Local label subtraction             |
 56   | R_RISCV_SET32        | Local label subtraction             |
 
+
+### Assembler Relocation Functions
+
+The following table lists assembler functions for emitting relocatable symbol references:
+
+Assembler Notation       | Description                          | Instruction / Macro
+:----------------------  | :---------------                     | :-------------------
+%hi(symbol)              | Absolute (HI20)                      | lui
+%lo(symbol)              | Absolute (LO12)                      | load, store, add
+%pcrel_hi(symbol)        | PC-relative (HI20)                   | auipc
+%pcrel_lo(label)         | PC-relative (LO12)                   | load, store, add
+%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie (auipc+{ld,lw})
+%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD reference         | la.tls.gd (auipc+addi)
+%tprel_hi(symbol)        | TLS LE thread offset (U-Type)        | auipc
+%tprel_lo(symbol)        | TLS LE thread offset (I-Type,S-Type) | load, store
+%tprel_add(offset)       | TLS LE "Local Exec"  (Add)           | add
+
+
+### Address Calculation Symbols
+
 The following table provides details on the variables used in address calculation:
 
 Variable       | Description
@@ -239,23 +259,6 @@ While the linker can make relocations on arbitrary memory locations, many
 relocations are designed for use with specific instructions or instruction
 sequences. For clarity, the description of those relocations assumes they
 are used in the intended context.
-
-
-### Assembler Relocation Functions
-
-The following table lists assembler functions for emitting relocations:
-
-Assembler Notation       | Description                          | Instruction / Macro
-:----------------------  | :---------------                     | :-------------------
-%hi(symbol)              | Absolute (HI20)                      | lui
-%lo(symbol)              | Absolute (LO12)                      | load, store, add
-%pcrel_hi(symbol)        | PC-relative (HI20)                   | auipc
-%pcrel_lo(label)         | PC-relative (LO12)                   | load, store, add
-%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie (auipc+{ld,lw})
-%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD reference         | la.tls.gd (auipc+addi)
-%tprel_hi(symbol)        | TLS LE thread offset (U-Type)        | auipc
-%tprel_lo(symbol)        | TLS LE thread offset (I-Type,S-Type) | load, store
-%tprel_add(offset)       | TLS LE "Local Exec"  (Add)           | add
 
 
 ### Absolute Addresses
