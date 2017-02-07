@@ -240,6 +240,7 @@ relocations are designed for use with specific instructions or instruction
 sequences. For clarity, the description of those relocations assumes they
 are used in the intended context.
 
+
 ### Absolute Addresses
 
 32-bit absolute addresses in position dependent code are loaded with a pair
@@ -256,6 +257,7 @@ calculated like this:
  - `hi20 = ((symbol_address + 0x800) >> 12);`
  - `lo12 = symbol_address - hi20;`
 
+
 ### Global Offset Table
 
 For position independent code in dynamically linked objects, each shared
@@ -264,6 +266,7 @@ global symbols (objects and functions) referred to by the dynamically
 linked shared object.
 
 ...
+
 
 ### Program Linkage Table
 
@@ -305,6 +308,7 @@ and fills in the GOT entry for subsequent calls to the function:
     nop
 ```
 
+
 ### Procedure Calls
 
 `R_RISCV_CALL` or `R_RISCV_CALL_PLT` and `R_RISCV_RELAX` relocations are
@@ -324,6 +328,7 @@ Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
 to the `JAL` instruction when the prodecure or PLT entry is within (-2MiB to
 +2MiB-1) of the instruction pair.
 
+
 ### PC-Relative Jumps and Branches
 
 Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
@@ -331,6 +336,7 @@ that can represent an even signed 21-bit offset (-2MiB to +2MiB-1).
 
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
 can represent an even signed 13-bit offset (-4096 to +4095).
+
 
 ### PC-Relative Symbol Addresses
 
@@ -382,14 +388,21 @@ label:
 
 ## Thread Local Storage
 
-RISC-V adopts the ELF Thread Local Storage Model where objects define
-`.tbss` and `.tdata` sections containing templates for thread local storage.
+RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
+`.tbss` and `.tdata` sections and `PT_TLS` program headers that contain the
+TLS "initialization images" for new threads. The `.tbss` and `.tdata` sections
+are not referenced directly like regular segments, rather they are copied or
+allocated to the thread local storage space of newly created threads.
 See [https://www.akkadia.org/drepper/tls.pdf](https://www.akkadia.org/drepper/tls.pdf).
-In The ELF Thread Local Storage Model, instead of pointers, TLS offsets are used.
-A TLS offset defines an offset into the thread vector. There are various
-thread local storage models for static or dynamic thread local storage.
 
-The following table lists the thread local storage models:
+In The ELF Thread Local Storage Model, TLS offsets are used instead of pointers.
+The ELF TLS sections are initialization images for the thread local variables of
+each new thread. A TLS offset defines an offset into the dynamic thread vector
+which is pointed to by the TCB (Thread Control Block) held in the `tp` register.
+
+There are various thread local storage models for statically allocated or
+dynamically allocated thread local storage. The following table lists the
+thread local storage models:
 
 Mnemonic | Model          | Compiler flags
 :------- | :---------     | :-------------------
@@ -397,6 +410,10 @@ TLS LE   | Local Exec     | `-ftls-model=local-exec`
 TLS IE   | Initial Exec   | `-ftls-model=initial-exec`
 TLS LD   | Local Dynamic  | `-ftls-model=local-dynamic`
 TLS GD   | Global Dynamic | `-ftls-model=global-dynamic`
+
+The program linker in the case of static TLS or the dynamic linker in the case
+of dynamic TLS allocate TLS offsets for storage of thread local variables.
+
 
 ### Local Exec
 
@@ -406,7 +423,9 @@ when static linking as the TLS offsets are resolved during program linking.
 - Compiler flag `-ftls-model=local-exec`
 - Variable attribute: `__thread int i __attribute__((tls_model("local-exec")));`
 
-Example assembler load and store with the relocations in comments:
+Example assembler load and store of a thread local variable `i` using the
+`%tprel_hi`, `%tprel_add` and `%tprel_lo` assembler functions. The emitted
+relocations are in comments.
 
 ```
   lui  a5,%tprel_hi(i)         # R_RISCV_TPREL_HI20
@@ -415,6 +434,10 @@ Example assembler load and store with the relocations in comments:
   addi t0,a0,1
   sw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_S
 ```
+
+The `%tprel_add` assembler function does not return a value and is used purely
+to associate the `R_RISCV_TPREL_ADD` relocation with the `add` instruction.
+
 
 ### Initial Exec
 
@@ -428,7 +451,8 @@ be resolved at load time. This model uses the GOT to resolve TLS offsets.
 - Variable attribute: `__thread int i __attribute__((tls_model("initial-exec")));`
 - ELF flags: DF_STATIC_TLS
 
-Example assembler load and store with the relocations in comments:
+Example assembler load and store of a thread local variable `i` using the
+`la.tls.ie` psuedo-instruction, with the emitted TLS relocations in comments:
 
 ```
   la.tls.ie a5,i    # auipc+{ld,lw}  R_RISCV_TLS_GOT_HI20, R_RISCV_PCREL_LO12_I
@@ -438,20 +462,21 @@ Example assembler load and store with the relocations in comments:
   sw   t0,0(a5)
 ```
 
+
 ### Global Dynamic
 
-On RISC-V the local dynamic and global dynamic thread models generate equivalent
-code. The Global dynamic thread local storage model is used for PIC Shared
-Libraries in the case where more than one library may use thread local variables
-and libraries may be loaded and unloaded at runtime using `dlopen`. In the global
-dynamic model, the `tp` thread pointer register points to a TCB (Thread Control Block)
-which has a pointer to the DTV (Dynamic Thread Vector). Application code calls the
-dynamic linker function `__tls_get_addr` to locate offsets in the dynamic thread vector.
+RISC-V local dynamic and global dynamic TLS models generate equivalent object code.
+The Global dynamic thread local storage model is used for PIC Shared libraries and
+handles the case where more than one library uses thread local variables, and
+additionally allows libraries may be loaded and unloaded at runtime using `dlopen`.
+In the global dynamic model, application code calls the dynamic linker function
+`__tls_get_addr` to locate TLS offsets into the dynamic thread vector at runtime.
 
 - Compiler flag `-ftls-model=global-dynamic`
 - Variable attribute: `__thread int i __attribute__((tls_model("global-dynamic")));`
 
-Example assembler load and store with the relocations in comments:
+Example assembler load and store of a thread local variable `i` using the
+`la.tls.gd` pseudo-instruction, with the emitted TLS relocations in comments:
 
 ```
   la.tls.gd a0,i    # auipc+addi  R_RISCV_TLS_GD_HI20,  R_RISCV_PCREL_LO12_I
@@ -462,7 +487,7 @@ Example assembler load and store with the relocations in comments:
   sw   t0,0(a5)
 ```
 
-In the Global Dynamic model, the runtime library provides this function:
+In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
 
 ```
 extern void *__tls_get_addr (tls_index *ti);
@@ -477,6 +502,7 @@ typedef struct
   unsigned long int ti_offset;
 } tls_index;
 ```
+
 
 # Program Header Table
 
