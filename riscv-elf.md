@@ -380,6 +380,104 @@ label:
    sw t2, t0, %pcrel_lo(label)   # t0 := t0 + (sym - label)[11:0]
 ```
 
+## Thread Local Storage
+
+RISC-V adopts the ELF Thread Local Storage Model where objects define
+`.tbss` and `.tdata` sections containing templates for thread local storage.
+See [https://www.akkadia.org/drepper/tls.pdf](https://www.akkadia.org/drepper/tls.pdf).
+In The ELF Thread Local Storage Model, instead of pointers, TLS offsets are used.
+A TLS offset defines an offset into the thread vector. There are various
+thread local storage models for static or dynamic thread local storage.
+
+The following table lists the thread local storage models:
+
+Mnemonic | Model          | Compiler flags
+:------- | :---------     | :-------------------
+TLS LE   | Local Exec     | `-ftls-model=local-exec`
+TLS IE   | Initial Exec   | `-ftls-model=initial-exec`
+TLS LD   | Local Dynamic  | `-ftls-model=local-dynamic`
+TLS GD   | Global Dynamic | `-ftls-model=global-dynamic`
+
+### Local Exec
+
+Local exec is a form of static thread local storage. This model is used
+when static linking as the TLS offsets are resolved during program linking.
+
+- Compiler flag `-ftls-model=local-exec`
+- Variable attribute: `__thread int i __attribute__((tls_model("local-exec")));`
+
+Example assembler load and store with the relocations in comments:
+
+```
+  lui  a5,%tprel_hi(i)         # R_RISCV_TPREL_HI20
+  add  a5,a5,tp,%tprel_add(i)  # R_RISCV_TPREL_ADD
+  lw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_I
+  addi t0,a0,1
+  sw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_S
+```
+
+### Initial Exec
+
+Initial exec is is a form of static thread local storage that can be used in
+shared libraries that use thread local storage. TLS relocations are performed
+at load time. `dlopen` calls to libraries that use thread local storage may fail
+when using the initial exec thread local storage model as TLS offsets must all
+be resolved at load time. This model uses the GOT to resolve TLS offsets.
+
+- Compiler flag `-ftls-model=initial-exec`
+- Variable attribute: `__thread int i __attribute__((tls_model("initial-exec")));`
+- ELF flags: DF_STATIC_TLS
+
+Example assembler load and store with the relocations in comments:
+
+```
+  la.tls.ie a5,i    # auipc+{ld,lw}  R_RISCV_TLS_GOT_HI20, R_RISCV_PCREL_LO12_I
+  add  a5,a5,tp
+  lw   t0,0(a5)
+  addi t0,a0,1
+  sw   t0,0(a5)
+```
+
+### Local and Global Dynamic
+
+On RISC-V the local dynamic and global dynamic thread models generate equivalent
+code. The Global dynamic thread local storage model is used for PIC Shared
+Libraries in the case where more than one library may use thread local variables
+and libraries may be loaded and unloaded at runtime using `dlopen`. In the global
+dynamic model, the `tp` thread pointer register points to a TCB (Thread Control Block)
+which has a pointer to the DTV (Dynamic Thread Vector). Application code calls the
+dynamic linker function `__tls_get_addr` to locate offsets in the dynamic thread vector.
+
+- Compiler flag `-ftls-model=global-dynamic`
+- Variable attribute: `__thread int i __attribute__((tls_model("global-dynamic")));`
+
+Example assembler load and store with the relocations in comments:
+
+```
+  la.tls.gd a0,i    # auipc+addi  R_RISCV_TLS_GD_HI20,  R_RISCV_PCREL_LO12_I
+  call  __tls_get_addr@plt
+  mv   a5,a0
+  lw   t0,0(a5)
+  addi t0,a0,1
+  sw   t0,0(a5)
+```
+
+In the Global Dynamic model, the runtime library provides this function:
+
+```
+extern void *__tls_get_addr (tls_index *ti);
+```
+
+where the type tls index are defined as:
+
+```
+typedef struct
+{
+  unsigned long int ti_module;
+  unsigned long int ti_offset;
+} tls_index;
+```
+
 # Program Header Table
 
 # Note Sections
@@ -388,12 +486,3 @@ label:
 
 # Hash Table
 
-# Thread Local Storage
-
-The following table lists the thread local storage models:
-
-Mnemonic | Model          | Compiler flags
-:------- | :---------     | :-------------------
-TLS LE   | Local Exec     | `-ftls-model=local-exec`
-TLS IE   | Initial Exec   | `-ftls-model=initial-exec`
-TLS GD   | Global Dynamic | `-ftls-model=global-dynamic`
