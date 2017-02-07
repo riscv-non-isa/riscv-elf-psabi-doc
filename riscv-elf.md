@@ -296,7 +296,7 @@ GOT (Global Offset Table) and PLT (Program Linkage Table).
 
 The first entry of a shared objects PLT is a special entry that calls
 `_dl_runtime_resolve` to resolve the GOT offset for the called function.
-The ``_dl_runtime_resolve` function in the dynamic loader resolves the
+The `_dl_runtime_resolve` function in the dynamic loader resolves the
 GOT offsets lazily on the first call to the function except when
 `LD_BIND_NOW` is set in which case the GOT entries are populated by the
 dynamic linker before the exutable is started. Lazy resolution of GOT
