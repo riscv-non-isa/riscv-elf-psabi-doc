@@ -189,7 +189,7 @@ Enum | ELF Reloc Type       | Description                         | Details
 19   | R_RISCV_CALL_PLT     | PC-relative function call           | MACRO call,tail (auipc+jalr pair) PIC
 20   | R_RISCV_GOT_HI20     | PC-relative GOT offset              | MACRO la
 21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT reference    | MACRO la.tls.ie %tls_ie_pcrel_hi(x)
-22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD GOT reference    | MACRO la.tls.gd %tls_gd_pcrel_hi(x)
+22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference        | MACRO la.tls.gd %tls_gd_pcrel_hi(x)
 23   | R_RISCV_PCREL_HI20   | PC-relative reference  (U-Type)     | %pcrel_hi(symbol)
 24   | R_RISCV_PCREL_LO12_I | PC-relative reference (I-Type)      | %pcrel_lo(symbol)
 25   | R_RISCV_PCREL_LO12_S | PC-relative reference (S-Type)      | %pcrel_lo(symbol)
@@ -251,8 +251,8 @@ Assembler Notation       | Description                          | Instruction / 
 %lo(symbol)              | Absolute (LO12)                      | load, store, add
 %pcrel_hi(symbol)        | PC-relative (HI20)                   | auipc
 %pcrel_lo(label)         | PC-relative (LO12)                   | load, store, add
-%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie
-%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD GOT reference     | la.tls.gd
+%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie (auipc+{ld,lw})
+%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD reference         | la.tls.gd (auipc+addi)
 %tprel_hi(symbol)        | TLS LE thread offset (U-Type)        | auipc
 %tprel_lo(symbol)        | TLS LE thread offset (I-Type,S-Type) | load, store
 %tprel_add(offset)       | TLS LE "Local Exec"  (Add)           | add
