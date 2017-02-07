@@ -294,16 +294,15 @@ The PLT (Program Linkage Table) exists to allow function calls between
 dynamically linked shared objects. Each dynamic object has its own
 GOT (Global Offset Table) and PLT (Program Linkage Table).
 
-The first entry of a shared objects PLT is a special entry that calls
+The first entry of a shared object PLT is a special entry that calls
 `_dl_runtime_resolve` to resolve the GOT offset for the called function.
 The `_dl_runtime_resolve` function in the dynamic loader resolves the
-GOT offsets lazily on the first call to the function except when
+GOT offsets lazily on the first call to any function, except when
 `LD_BIND_NOW` is set in which case the GOT entries are populated by the
-dynamic linker before the exutable is started. Lazy resolution of GOT
-entries is intended to speed up program loading by deferring the symbol
-resolution to the first time the function is called. The first entry in
-the PLT which corresponds to an unpopulated GOT entry for the symbol is
-a resolver stub entry which takes up 32 bytes (two 16 byte entries):
+dynamic linker before the executable is started. Lazy resolution of GOT
+entries is intended to speed up program loading by deferring symbol
+resolution to the first time the function is called. The first entry
+in the PLT occupies two 16 byte entries:
 
 ```
 1:   auipc  t2, %pcrel_hi(.got.plt)
@@ -316,9 +315,9 @@ a resolver stub entry which takes up 32 bytes (two 16 byte entries):
      jr     t3
 ```
 
-Subsequent function entry stubs in the PLT take up 16 bytes and load
-the function pointer from the GOT. On first call the GOT entry is zero
-and the first PLT entry is called which calls `_dl_runtime_resolve`
+Subsequent function entry stubs in the PLT take up 16 bytes and load a
+function pointer from the GOT. On the first call to a function, the
+entry redirects to the first PLT entry which calls `_dl_runtime_resolve`
 and fills in the GOT entry for subsequent calls to the function:
 
 ```
