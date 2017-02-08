@@ -283,9 +283,14 @@ calculated like this:
 For position independent code in dynamically linked objects, each shared
 object contains a GOT (Global Offset Table) which contains addresses of
 global symbols (objects and functions) referred to by the dynamically
-linked shared object.
+linked shared object. The GOT in each shared library is filled in by the
+dynamic linker during program loading, or on the first call to extern functions.
 
-...
+To avoid runtime relocations within the text segment of position independent
+code the GOT is used for indirection. Instead of code loading virtual addresses
+directly, as can be done in static code, addresses are loaded from the GOT.
+The allows runtime binding to external objects and functions at the expense of a
+slightly higher runtime overhead for access to extern objects and functions.
 
 
 ### Program Linkage Table
