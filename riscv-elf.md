@@ -347,6 +347,26 @@ Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
 to the `JAL` instruction when the prodecure or PLT entry is within (-2MiB to
 +2MiB-1) of the instruction pair.
 
+The pseudo instruction:
+
+```
+    call symbol
+```
+
+expands to the following assembly and relocation:
+
+```
+    auipc t0, 0      # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, t0, 0
+```
+
+and when `-fpic` is enabled it expands to:
+
+```
+    auipc t0, 0      # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, t0, 0
+```
+
 
 ### PC-Relative Jumps and Branches
 
@@ -447,11 +467,11 @@ Example assembler load and store of a thread local variable `i` using the
 relocations are in comments.
 
 ```
-  lui  a5,%tprel_hi(i)         # R_RISCV_TPREL_HI20
-  add  a5,a5,tp,%tprel_add(i)  # R_RISCV_TPREL_ADD
-  lw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_I
+  lui  a5,%tprel_hi(i)         # R_RISCV_TPREL_HI20 (symbol)
+  add  a5,a5,tp,%tprel_add(i)  # R_RISCV_TPREL_ADD (symbol)
+  lw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_I (symbol)
   addi t0,a0,1
-  sw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_S
+  sw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_S (symbol)
 ```
 
 The `%tprel_add` assembler function does not return a value and is used purely
@@ -474,11 +494,25 @@ Example assembler load and store of a thread local variable `i` using the
 `la.tls.ie` psuedo-instruction, with the emitted TLS relocations in comments:
 
 ```
-  la.tls.ie a5,i    # auipc+{ld,lw}  R_RISCV_TLS_GOT_HI20, R_RISCV_PCREL_LO12_I
-  add  a5,a5,tp
-  lw   t0,0(a5)
-  addi t0,a0,1
-  sw   t0,0(a5)
+   la.tls.ie a5,i
+   add  a5,a5,tp
+   lw   t0,0(a5)
+   addi t0,a0,1
+   sw   t0,0(a5)
+```
+
+The assembler pseudo instruction:
+
+```
+   la.tls.ie a5,symbol
+```
+
+expands to the following assembly instructions and relocations:
+
+```
+label:
+   auipc a5, 0       # R_RISCV_TLS_GOT_HI20 (symbol)
+   {ld,lw} a5, 0(a5) # R_RISCV_PCREL_LO12_I (label)
 ```
 
 
@@ -498,12 +532,26 @@ Example assembler load and store of a thread local variable `i` using the
 `la.tls.gd` pseudo-instruction, with the emitted TLS relocations in comments:
 
 ```
-  la.tls.gd a0,i    # auipc+addi  R_RISCV_TLS_GD_HI20,  R_RISCV_PCREL_LO12_I
+  la.tls.gd a0,i
   call  __tls_get_addr@plt
   mv   a5,a0
   lw   t0,0(a5)
   addi t0,a0,1
   sw   t0,0(a5)
+```
+
+The assembler pseudo instruction:
+
+```
+   la.tls.gd a0,symbol
+```
+
+expands to the following assembly instructions and relocations:
+
+```
+label:
+   auipc a0,0        # R_RISCV_TLS_GD_HI20 (symbol)
+   addi  a0,a0,0     # R_RISCV_PCREL_LO12_I (label)
 ```
 
 In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
