@@ -285,6 +285,13 @@ calculated like this:
  - `hi20 = ((symbol_address + 0x800) >> 12);`
  - `lo12 = symbol_address - hi20;`
 
+The following assembly and relocations show loading an absolute address:
+
+```
+     lui  a0,%hi(symbol)     # R_RISCV_HI20 (symbol)
+     addi a0,a0,%lo(symbol)  # R_RISCV_LO12 (symbol)
+```
+
 
 ### Global Offset Table
 
