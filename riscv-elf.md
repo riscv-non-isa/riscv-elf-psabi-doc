@@ -544,7 +544,7 @@ label:
 RISC-V local dynamic and global dynamic TLS models generate equivalent object code.
 The Global dynamic thread local storage model is used for PIC Shared libraries and
 handles the case where more than one library uses thread local variables, and
-additionally allows libraries may be loaded and unloaded at runtime using `dlopen`.
+additionally allows libraries to be loaded and unloaded at runtime using `dlopen`.
 In the global dynamic model, application code calls the dynamic linker function
 `__tls_get_addr` to locate TLS offsets into the dynamic thread vector at runtime.
 
