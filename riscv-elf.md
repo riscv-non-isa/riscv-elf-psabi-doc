@@ -167,7 +167,19 @@ type would be passed.
 
 # Relocations
 
-The following table provides details of the RISC-V ELF relocations:
+RISC-V is a classical RISC architecture with dense non-word sized instruction
+immediate values. While the linker can make relocations on arbitrary memory
+locations, many of the RISC-V relocations are designed for use with specific
+instructions or instruction sequences due to the nature of the RISC-V encodings
+and PC-Relative address loading instruction sequences.
+
+This purposes of this documentation is to describe the RISC-V specific
+instruction sequences with their associated relocations in addition to the
+general machine word sized relocations that are used for purposes such as
+relocation of symbol addresses in the Global Offset Table or DWARF meta data.
+
+The following table provides details of the RISC-V ELF relocations (instruction
+specific relocations show the instruction type in the Details column):
 
 Enum | ELF Reloc Type       | Description                     | Details
 :--- | :------------------  | :---------------                | :-----------
@@ -254,11 +266,6 @@ B              | Base address of a shared object loaded into memory
 G              | Offset of the symbol into the GOT (Global Offset Table)
 S              | Value of the symbol in the symbol table
 GP             | Global Pointer register (x3)
-
-While the linker can make relocations on arbitrary memory locations, many
-relocations are designed for use with specific instructions or instruction
-sequences. For clarity, the description of those relocations assumes they
-are used in the intended context.
 
 
 ### Absolute Addresses
