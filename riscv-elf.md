@@ -493,7 +493,7 @@ relocations are in comments.
   lui  a5,%tprel_hi(i)           # R_RISCV_TPREL_HI20 (symbol)
   add  a5,a5,tp,%tprel_add(i)    # R_RISCV_TPREL_ADD (symbol)
   lw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_I (symbol)
-  addi t0,a0,1
+  addi t0,t0,1
   sw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_S (symbol)
 ```
 
@@ -520,7 +520,7 @@ Example assembler load and store of a thread local variable `i` using the
    la.tls.ie a5,i
    add  a5,a5,tp
    lw   t0,0(a5)
-   addi t0,a0,1
+   addi t0,t0,1
    sw   t0,0(a5)
 ```
 
@@ -559,7 +559,7 @@ Example assembler load and store of a thread local variable `i` using the
   call  __tls_get_addr@plt
   mv   a5,a0
   lw   t0,0(a5)
-  addi t0,a0,1
+  addi t0,t0,1
   sw   t0,0(a5)
 ```
 
