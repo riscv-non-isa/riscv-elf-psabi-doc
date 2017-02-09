@@ -376,14 +376,14 @@ The pseudo instruction:
 expands to the following assembly and relocation:
 
 ```
-    auipc t0, 0      # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
+    auipc t0, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
     jalr  ra, t0, 0
 ```
 
 and when `-fpic` is enabled it expands to:
 
 ```
-    auipc t0, 0      # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
+    auipc t0, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
     jalr  ra, t0, 0
 ```
 
@@ -432,18 +432,21 @@ preceding high 20-bit relocation may have 1 added to it.
 
 Note the compiler emitted instructions for PC-relative symbol addresses are
 not necessarily sequential or in pairs. There is a constraint is that the
-instruction with the `RISCV_R_PCREL_LO12_I` or `RISCV_R_PCREL_LO12_S`
+instruction with the `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`
 relocation label points to a valid HI20 PC-relative relocation pointing to
-the symbol. e.g.
+the symbol.
+
+Here is example assembler showing the relocation types:
 
 ```
 label:
-   auipc t0, %pcrel_hi(sym)      # t0 := label + (sym - label + 0x800)[31:12]
+   auipc t0, %pcrel_hi(symbol)   # R_RISCV_PCREL_HI20 (symbol)
    lui t1, 1
-   lw t2, t0, %pcrel_lo(label)   # t0 := t0 + (sym - label)[11:0]
+   lw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_I (label)
    add t2, t2, t1
-   sw t2, t0, %pcrel_lo(label)   # t0 := t0 + (sym - label)[11:0]
+   sw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_S (label)
 ```
+
 
 ## Thread Local Storage
 
@@ -487,11 +490,11 @@ Example assembler load and store of a thread local variable `i` using the
 relocations are in comments.
 
 ```
-  lui  a5,%tprel_hi(i)         # R_RISCV_TPREL_HI20 (symbol)
-  add  a5,a5,tp,%tprel_add(i)  # R_RISCV_TPREL_ADD (symbol)
-  lw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_I (symbol)
+  lui  a5,%tprel_hi(i)           # R_RISCV_TPREL_HI20 (symbol)
+  add  a5,a5,tp,%tprel_add(i)    # R_RISCV_TPREL_ADD (symbol)
+  lw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_I (symbol)
   addi t0,a0,1
-  sw   t0,%tprel_lo(i)(a5)     # R_RISCV_TPREL_LO12_S (symbol)
+  sw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_S (symbol)
 ```
 
 The `%tprel_add` assembler function does not return a value and is used purely
@@ -531,8 +534,8 @@ expands to the following assembly instructions and relocations:
 
 ```
 label:
-   auipc a5, 0       # R_RISCV_TLS_GOT_HI20 (symbol)
-   {ld,lw} a5, 0(a5) # R_RISCV_PCREL_LO12_I (label)
+   auipc a5, 0                   # R_RISCV_TLS_GOT_HI20 (symbol)
+   {ld,lw} a5, 0(a5)             # R_RISCV_PCREL_LO12_I (label)
 ```
 
 
@@ -570,8 +573,8 @@ expands to the following assembly instructions and relocations:
 
 ```
 label:
-   auipc a0,0        # R_RISCV_TLS_GD_HI20 (symbol)
-   addi  a0,a0,0     # R_RISCV_PCREL_LO12_I (label)
+   auipc a0,0                    # R_RISCV_TLS_GD_HI20 (symbol)
+   addi  a0,a0,0                 # R_RISCV_PCREL_LO12_I (label)
 ```
 
 In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
