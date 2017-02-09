@@ -167,16 +167,17 @@ type would be passed.
 
 # Relocations
 
-RISC-V is a classical RISC architecture with dense non-word sized instruction
-immediate values. While the linker can make relocations on arbitrary memory
-locations, many of the RISC-V relocations are designed for use with specific
-instructions or instruction sequences due to the nature of the RISC-V encodings
-and PC-Relative address loading instruction sequences.
+RISC-V is a classical RISC architecture that has densely packed non-word
+sized instruction immediate values. While the linker can make relocations on
+arbitrary memory locations, many of the RISC-V relocations are designed for
+use with specific instructions or instruction sequences. RISC-V has several
+instruction specific encodings for PC-Relative address loading, jumps,
+branches and the RVC compressed instruction set.
 
-This purposes of this documentation is to describe the RISC-V specific
-instruction sequences with their associated relocations in addition to the
-general machine word sized relocations that are used for purposes such as
-relocation of symbol addresses in the Global Offset Table or DWARF meta data.
+The purpose of this section is to describe the RISC-V specific instruction
+sequences with their associated relocations in addition to the general purpose
+machine word sized relocations that are used for symbol addresses in the
+Global Offset Table or DWARF meta data.
 
 The following table provides details of the RISC-V ELF relocations (instruction
 specific relocations show the instruction type in the Details column):
