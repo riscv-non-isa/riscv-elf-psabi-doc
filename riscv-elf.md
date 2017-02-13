@@ -21,7 +21,7 @@
 
    Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 - 31
   -------|------------|-------|------------
-   RVC   | Float ABI  |  RVE  | UNUSED
+   RVC   | Float ABI  |  RVE  | *Reserved*
 
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
@@ -41,6 +41,10 @@
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
   * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
+
+  Until such a time that the *Reserved* bits (0xfffffff0) are allocated by
+  future versions of this specification, they shall not be set by standard
+  software.
 
 # Register Map
 
