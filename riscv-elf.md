@@ -92,10 +92,12 @@ Scalars wider than 2✕XLEN are passed by reference and are replaced in the
 argument list with the address.
 
 Aggregates whose total size is no more than XLEN bits are passed in
-a register, with the fields laid out as though they were passed in memory.
+a register, with the fields laid out as though they were passed in memory. If
+no register is available, the aggregate is passed on the stack.
 Aggregates whose total size is no more than 2✕XLEN bits are passed in a pair
 of registers; if only one register is available, the first half is passed in
-a register and the second half is passed on the stack.  Bits unused due to
+a register and the second half is passed on the stack. If no registers are
+available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
 
