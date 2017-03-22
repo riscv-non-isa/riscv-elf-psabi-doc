@@ -124,10 +124,11 @@ address as an implicit first parameter.
 
 The hardware floating-point calling convention adds eight floating-point
 argument registers, fa0-fa7, the first two of which are also used to return
-values.  Values are passed in floating-point registers whenever possible, even
-if all integer registers have been exhausted.  The remainder of this section
-applies only to named arguments.  Variadic arguments are passed according to
-the integer calling convention.
+values.  Values are passed in floating-point registers whenever possible,
+whether or not the integer registers have been exhausted.
+
+The remainder of this section applies only to named arguments.  Variadic
+arguments are passed according to the integer calling convention.
 
 For the purposes of this section, FLEN refers to the width of a
 floating-point register in the ABI.  The ISA might have wider
@@ -371,8 +372,8 @@ and a `R_RISCV_RELAX` relocation indicating the instruction sequence can be
 relaxed during linking.
 
 Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
-to the `JAL` instruction when the prodecure or PLT entry is within (-2MiB to
-+2MiB-1) of the instruction pair.
+to the `JAL` instruction when the prodecure or PLT entry is within (-1MiB to
++1MiB-2) of the instruction pair.
 
 The pseudo instruction:
 
@@ -398,10 +399,10 @@ and when `-fpic` is enabled it expands to:
 ### PC-Relative Jumps and Branches
 
 Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
-that can represent an even signed 21-bit offset (-2MiB to +2MiB-1).
+that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
-can represent an even signed 13-bit offset (-4096 to +4095).
+can represent an even signed 13-bit offset (-4096 to +4094).
 
 
 ### PC-Relative Symbol Addresses
