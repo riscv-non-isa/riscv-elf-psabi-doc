@@ -5,7 +5,7 @@
 # File Header
 
 * e_ident
-  * EI_CLASS: Specifies the base ISA, either RV32 ond RV64.  We don't let users
+  * EI_CLASS: Specifies the base ISA, either RV32 or RV64.  We don't let users
     link RV32 and RV64 code together.
     * ELFCLASS64: ELF-64 Object File
     * ELFCLASS32: ELF-32 Object File
