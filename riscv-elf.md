@@ -141,6 +141,8 @@ hierarchy flattened, including any array fields.  That is, struct `{ struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Empty structs are ignored, even in C++, unless they
 have nontrivial copy constructors or destructors.
+A struct containing just one floating-point real is passed as though it were
+a standalone floating-point real.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
