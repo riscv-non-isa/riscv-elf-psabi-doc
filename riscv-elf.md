@@ -12,6 +12,7 @@ This RISC-V ELF psABI specification document is
  &copy; 2017 Alex Bradbury <asb@asbradbury.org>
  &copy; 2017 David Horner <ds2horner@gmail.com>
  &copy; 2017 Max Nordlund <max.nordlund@gmail.com>
+ &copy; 2017 Karsten Merker <merker@debian.org>
 
 It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
@@ -187,6 +188,52 @@ Otherwise, it is passed according to the integer calling convention.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.
+
+# Default ABIs and C type sizes
+
+While various different ABIs are technically possible, for software
+compatibility reasons it is strongly recommended to use the follwing
+default ABIs:
+
+  * **on RV64G**: LP64 with floats and doubles passed in floating point
+    registers, i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
+    following C type sizes:
+
+    Type        | Size (Bytes)
+    ------------|----------------
+    char        |  1
+    short       |  2
+    int         |  4
+    long        |  8
+    long long   |  8
+    void *      |  8
+    float       |  4
+    double      |  8
+    long double | 16
+
+    Although RV64GQ systems can technically use EF_RISCV_FLOAT_ABI_QUAD,
+    it is strongly recommended to use EF_RISCV_FLOAT_ABI_DOUBLE on
+    general-purpose RV64GQ systems for compatibility with standard RV64G
+    software.
+
+  * **on RV32G**: ILP32 with floats passed in floating point registers,
+    i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE, using the following
+    C type sizes:
+
+    Type        | Size (Bytes)
+    ------------|----------------
+    char        |  1
+    short       |  2
+    int         |  4
+    long        |  4
+    long long   |  8
+    void *      |  4
+    float       |  4
+    double      |  8
+    long double | 16
+
+A future version of this specification may define an ILP32 ABI for
+RV64G, but currently this is not a supported operating mode.
 
 # Sections
 
