@@ -192,7 +192,7 @@ type would be passed.
 # Default ABIs and C type sizes
 
 While various different ABIs are technically possible, for software
-compatibility reasons it is strongly recommended to use the follwing
+compatibility reasons it is strongly recommended to use the following
 default ABIs:
 
   * **on RV64G**: LP64 with floats and doubles passed in floating point
@@ -216,9 +216,9 @@ default ABIs:
     general-purpose RV64GQ systems for compatibility with standard RV64G
     software.
 
-  * **on RV32G**: ILP32 with floats passed in floating point registers,
-    i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE, using the following
-    C type sizes:
+  * **on RV32G**: ILP32 with floats and doubles passed in floating point
+    registers, i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
+    following C type sizes:
 
     Type        | Size (Bytes)
     ------------|----------------
