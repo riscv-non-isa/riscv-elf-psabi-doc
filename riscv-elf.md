@@ -452,15 +452,15 @@ The pseudo instruction:
 expands to the following assembly and relocation:
 
 ```
-    auipc t0, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
-    jalr  ra, t0, 0
+    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, ra, 0
 ```
 
 and when `-fpic` is enabled it expands to:
 
 ```
-    auipc t0, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
-    jalr  ra, t0, 0
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, ra, 0
 ```
 
 
