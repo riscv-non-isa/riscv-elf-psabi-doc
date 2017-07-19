@@ -405,7 +405,7 @@ in the PLT occupies two 16 byte entries:
      sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
      l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
      addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
-     addi   t0, t2, %lo(.got.plt)    # &.got.plt
+     addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
      srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
      l[w|d] t0, PTRSIZE(t0)          # link map
      jr     t3
