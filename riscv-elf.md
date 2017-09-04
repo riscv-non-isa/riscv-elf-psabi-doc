@@ -199,17 +199,18 @@ default ABIs:
     registers, i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
     following C type sizes:
 
-    Type        | Size (Bytes)
-    ------------|----------------
-    char        |  1
-    short       |  2
-    int         |  4
-    long        |  8
-    long long   |  8
-    void *      |  8
-    float       |  4
-    double      |  8
-    long double | 16
+    Type        | Size (Bytes)  | Alignment (Bytes)
+    ------------|---------------|------------------
+    bool/_Bool  |  1            |  1
+    char        |  1            |  1
+    short       |  2            |  2
+    int         |  4            |  4
+    long        |  8            |  8
+    long long   |  8            |  8
+    void *      |  8            |  8
+    float       |  4            |  4
+    double      |  8            |  8
+    long double | 16            | 16
 
     Although RV64GQ systems can technically use EF_RISCV_FLOAT_ABI_QUAD,
     it is strongly recommended to use EF_RISCV_FLOAT_ABI_DOUBLE on
@@ -220,17 +221,18 @@ default ABIs:
     registers, i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
     following C type sizes:
 
-    Type        | Size (Bytes)
-    ------------|----------------
-    char        |  1
-    short       |  2
-    int         |  4
-    long        |  4
-    long long   |  8
-    void *      |  4
-    float       |  4
-    double      |  8
-    long double | 16
+    Type        | Size (Bytes)  | Alignment (Bytes)
+    ------------|---------------|------------------
+    bool/_Bool  |  1            |  1
+    char        |  1            |  1
+    short       |  2            |  2
+    int         |  4            |  4
+    long        |  4            |  4
+    long long   |  8            |  8
+    void *      |  4            |  4
+    float       |  4            |  4
+    double      |  8            |  8
+    long double | 16            | 16
 
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
