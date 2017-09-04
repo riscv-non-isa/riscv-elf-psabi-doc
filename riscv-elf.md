@@ -234,6 +234,8 @@ default ABIs:
     double      |  8            |  8
     long double | 16            | 16
 
+`char` is unsigned.
+
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
 
