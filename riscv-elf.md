@@ -45,7 +45,7 @@ https://creativecommons.org/licenses/by/4.0/.
 
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
-    which allows instructions to be aligned to 16-bit boundries (the base RV32
+    which allows instructions to be aligned to 16-bit boundaries (the base RV32
     and RV64 ISAs only allow 32-bit instruction alignment).  When linking
     objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
     instructions such as C.JAL in the relaxation process.
@@ -243,7 +243,7 @@ RV64G, but currently this is not a supported operating mode.
 
 # String Tables
 
-# Symbal Table
+# Symbol Table
 
 # Relocations
 
@@ -444,7 +444,7 @@ and a `R_RISCV_RELAX` relocation indicating the instruction sequence can be
 relaxed during linking.
 
 Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
-to the `JAL` instruction when the prodecure or PLT entry is within (-1MiB to
+to the `JAL` instruction when the procedure or PLT entry is within (-1MiB to
 +1MiB-2) of the instruction pair.
 
 The pseudo instruction:
@@ -594,7 +594,7 @@ be resolved at load time. This model uses the GOT to resolve TLS offsets.
 - ELF flags: DF_STATIC_TLS
 
 Example assembler load and store of a thread local variable `i` using the
-`la.tls.ie` psuedo-instruction, with the emitted TLS relocations in comments:
+`la.tls.ie` pseudo-instruction, with the emitted TLS relocations in comments:
 
 ```
    la.tls.ie a5,i
