@@ -142,6 +142,10 @@ type would be passed.  If such an argument would have been passed by
 reference, the caller allocates memory for the return value, and passes the
 address as an implicit first parameter.
 
+The stack pointer shall be aligned to a 128-bit boundary upon procedure
+entry, except for the RV32E ABI, where it need only be aligned to 32 bits.
+The stack pointer need not remain aligned throughout procedure execution.
+
 ## Hardware floating-point calling convention
 
 The hardware floating-point calling convention adds eight floating-point
