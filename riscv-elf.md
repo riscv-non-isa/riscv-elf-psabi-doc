@@ -145,6 +145,8 @@ address as an implicit first parameter.
 The stack pointer shall be aligned to a 128-bit boundary upon procedure
 entry, except for the RV32E ABI, where it need only be aligned to 32 bits.
 The stack pointer need not remain aligned throughout procedure execution.
+Procedures must not rely upon the persistence of stack-allocated data whose
+addresses lie below the stack pointer.
 
 ## Hardware floating-point calling convention
 
