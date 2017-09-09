@@ -243,6 +243,11 @@ default ABIs:
 
 `char` is unsigned.
 
+`_Complex` types have the alignment and layout of a struct containing two
+fields of the corresponding real type (`float`, `double`, or `long double`),
+with the first field holding the real part and the second field holding
+the imaginary part.
+
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
 
