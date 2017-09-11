@@ -148,6 +148,9 @@ The stack pointer need not remain aligned throughout procedure execution.
 Procedures must not rely upon the persistence of stack-allocated data whose
 addresses lie below the stack pointer.
 
+Registers s0-s11 shall be preserved across procedure calls.
+No floating-point registers, if present, are preserved across calls.
+
 ## Hardware floating-point calling convention
 
 The hardware floating-point calling convention adds eight floating-point
@@ -195,6 +198,9 @@ Otherwise, it is passed according to the integer calling convention.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.
+
+Floating-point registers fs0-fs11 shall be preserved across procedure calls,
+provided they hold values no more than FLEN bits wide.
 
 # Default ABIs and C type sizes
 
