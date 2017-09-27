@@ -225,6 +225,7 @@ default ABIs:
     int         |  4            |  4
     long        |  8            |  8
     long long   |  8            |  8
+    __int128    | 16            | 16
     void *      |  8            |  8
     float       |  4            |  4
     double      |  8            |  8
