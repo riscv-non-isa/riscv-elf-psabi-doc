@@ -39,9 +39,9 @@ https://creativecommons.org/licenses/by/4.0/.
 * e_flags: Describes the format of this ELF file.  These flags are used by the
   linker to disallow linking ELF files with incompatible ABIs together.
 
-   Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 - 31
-  -------|------------|-------|------------
-   RVC   | Float ABI  |  RVE  | *Reserved*
+   Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 - 30 | Bit 31 |
+  -------|------------|-------|------------|--------|
+   RVC   | Float ABI  |  RVE  | *Reserved* |   RVX  |
 
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
@@ -61,8 +61,10 @@ https://creativecommons.org/licenses/by/4.0/.
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
   * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
+  * EF_RISCV_RVX (0x80000000): This bit is set when the binary targets have
+    any non standard extension instructions.
 
-  Until such a time that the *Reserved* bits (0xfffffff0) are allocated by
+  Until such a time that the *Reserved* bits (0x7ffffff0) are allocated by
   future versions of this specification, they shall not be set by standard
   software.
 
