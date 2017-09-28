@@ -69,29 +69,29 @@ https://creativecommons.org/licenses/by/4.0/.
 # Register Map
 
 Integer Registers
---------------------------------
-Name    | ABI Mnemonic | Meaning
---------|--------------|--------
-x0      | zero         | Zero
-x1      | ra           | Return address
-x2      | sp           | Stack pointer
-x3      | gp           | Global pointer
-x4      | tp           | Thread pointer
-x5-x7   | t0-t2        | Temporary registers
-x8-x9   | s0-s1        | Callee-saved registers
-x10-x17 | a0-a7        | Argument registers
-x18-x27 | s2-s11       | Callee-saved registers
-x28-x31 | t3-t6        | Temporary registers
+-------------------------------------------------------------------------
+Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+--------|--------------|------------------------|------------------------
+x0      | zero         | Zero                   | --
+x1      | ra           | Return address         | No
+x2      | sp           | Stack pointer          | Yes
+x3      | gp           | Global pointer         | --
+x4      | tp           | Thread pointer         | --
+x5-x7   | t0-t2        | Temporary registers    | No
+x8-x9   | s0-s1        | Callee-saved registers | Yes
+x10-x17 | a0-a7        | Argument registers     | No
+x18-x27 | s2-s11       | Callee-saved registers | Yes
+x28-x31 | t3-t6        | Temporary registers    | No
 
 Floating-point Registers
---------------------------------
-Name    | ABI Mnemonic | Meaning
---------|--------------|--------
-f0-f7   | ft0-ft7      | Temporary registers
-f8-f9   | fs0-fs1      | Callee-saved registers
-f10-f17 | fa0-fa7      | Argument registers
-f18-f27 | fs2-fs11     | Callee-saved registers
-f28-f31 | ft8-ft11     | Temporary registers
+-------------------------------------------------------------------------
+Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+--------|--------------|------------------------|------------------------
+f0-f7   | ft0-ft7      | Temporary registers    | No
+f8-f9   | fs0-fs1      | Callee-saved registers | Yes
+f10-f17 | fa0-fa7      | Argument registers     | No
+f18-f27 | fs2-fs11     | Callee-saved registers | Yes
+f28-f31 | ft8-ft11     | Temporary registers    | No
 
 # Procedure Calling Convention
 
