@@ -147,11 +147,15 @@ address as an implicit first parameter.
 
 The stack grows downwards and the stack pointer shall be aligned to a 128-bit
 boundary upon procedure entry, except for the RV32E ABI, where it need only be
-aligned to 32 bits.  In the C, C++, and Fortran ABIs, the stack pointer must
-remain aligned throughout procedure execution.  Other languages' ABIs are
-free to define different stack-pointer alignment conventions but must realign
-the stack pointer when invoking C, C++, or Fortran procedures.  The operating
-system must realign the stack pointer prior to invoking a signal handler.
+aligned to 32 bits.  In the standard ABI, the stack pointer must remain
+aligned throughout procedure execution. Non-standard ABI code must realign the
+stack pointer prior to invoking standard ABI procedures.  The operating system
+must realign the stack pointer prior to invoking a signal handler; hence,
+POSIX signal handlers need not realign the stack pointer.  In systems that
+service interrupts using the interruptee's stack, the interrupt service
+routine must realign the stack pointer if linked with any code that uses
+a non-standard stack-alignment discipline, but need not realign the stack
+pointer if all code adheres to the standard ABI.
 
 Procedures must not rely upon the persistence of
 stack-allocated data whose addresses lie below the stack pointer.
