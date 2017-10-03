@@ -72,16 +72,19 @@ Integer Registers
 -------------------------------------------------------------------------
 Name    | ABI Mnemonic | Meaning                | Preserved across calls?
 --------|--------------|------------------------|------------------------
-x0      | zero         | Zero                   | --
+x0      | zero         | Zero                   | -- (Immutable)
 x1      | ra           | Return address         | No
 x2      | sp           | Stack pointer          | Yes
-x3      | gp           | Global pointer         | --
-x4      | tp           | Thread pointer         | --
+x3      | gp           | Global pointer         | -- (Unallocatable)
+x4      | tp           | Thread pointer         | -- (Unallocatable)
 x5-x7   | t0-t2        | Temporary registers    | No
 x8-x9   | s0-s1        | Callee-saved registers | Yes
 x10-x17 | a0-a7        | Argument registers     | No
 x18-x27 | s2-s11       | Callee-saved registers | Yes
 x28-x31 | t3-t6        | Temporary registers    | No
+
+In the standard ABI, procedures should not modify the integer registers tp and
+gp, because signal handlers may rely upon their values.
 
 Floating-point Registers
 -------------------------------------------------------------------------
