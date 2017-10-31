@@ -1,15 +1,15 @@
 # RISC-V ELF psABI specification
 
 ## Table of Contents
-
-1. [Register Map](#register-map)
-
-
+1. [Register Convention](#register-convention)
+	* [Integer Register Convention](#integer-register-convention)
+	* [Floating-point Register Convention](#floating-point-register-convention)
 2. [Procedure Calling Convention](#procedure-calling-convention)
-
-3. [Overview of an ELF file](#overview-of-an-elf-file)
-	* [File Header](#file-header)
+	* [Integer Calling Convention](#integer-calling-convention)
+	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
 	* [Default ABIs and C type sizes](#default-abis-and-c-type-sizes)
+3. [ELF Object Files](#elf-object-file)
+	* [File Header](#file-header)
 	* [Sections](#sections)
 	* [String Tables](#string-tables)
 	* [Symbol Table](#symbol-table)
@@ -38,9 +38,9 @@ It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
 https://creativecommons.org/licenses/by/4.0/.
 
-# <a name=register-map></a> Register Map
+# <a name=register-convention></a> Register Convention
 
-Integer Registers
+Integer Register Convention <a name=integer-register-convention>
 -------------------------------------------------------------------------
 Name    | ABI Mnemonic | Meaning                | Preserved across calls?
 --------|--------------|------------------------|------------------------
@@ -58,7 +58,7 @@ x28-x31 | t3-t6        | Temporary registers    | No
 In the standard ABI, procedures should not modify the integer registers tp and
 gp, because signal handlers may rely upon their values.
 
-Floating-point Registers
+Floating-point Register Convention <a name=floating-point-register-convention>
 -------------------------------------------------------------------------
 Name    | ABI Mnemonic | Meaning                | Preserved across calls?
 --------|--------------|------------------------|------------------------
@@ -69,7 +69,7 @@ f18-f27 | fs2-fs11     | Callee-saved registers | Yes
 f28-f31 | ft8-ft11     | Temporary registers    | No
 
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
-
+## <a name=integer-calling-convention></a> Integer Calling Convention
 The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
@@ -135,7 +135,7 @@ stack-allocated data whose addresses lie below the stack pointer.
 Registers s0-s11 shall be preserved across procedure calls.
 No floating-point registers, if present, are preserved across calls.
 
-## Hardware floating-point calling convention
+## <a name=hardware-floating-point-calling-convention></a> Hardware Floating-point Calling Convention
 
 The hardware floating-point calling convention adds eight floating-point
 argument registers, fa0-fa7, the first two of which are also used to return
@@ -185,52 +185,6 @@ type would be passed.
 
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than FLEN bits wide.
-
-# <a name=overview-of-an-elf-file></a> Overview of an ELF file
-
-## <a name=file-header></a> File Header
-
-* e_ident
-  * EI_CLASS: Specifies the base ISA, either RV32 or RV64.  We don't let users
-    link RV32 and RV64 code together.
-    * ELFCLASS64: ELF-64 Object File
-    * ELFCLASS32: ELF-32 Object File
-
-* e_type: Nothing RISC-V specific.
-
-* e_machine: Identifies the machine this ELF file targets.  Always contains
-  EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
-  this support is implicit.
-
-* e_flags: Describes the format of this ELF file.  These flags are used by the
-  linker to disallow linking ELF files with incompatible ABIs together.
-
-   Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 - 31
-  -------|------------|-------|------------
-   RVC   | Float ABI  |  RVE  | *Reserved*
-
-
-  * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
-    which allows instructions to be aligned to 16-bit boundaries (the base RV32
-    and RV64 ISAs only allow 32-bit instruction alignment).  When linking
-    objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
-    instructions such as C.JAL in the relaxation process.
-  * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
-  * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
-  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
-    point ABI in use for this ELF file.  They store the largest floating-point
-    type that ends up in registers as part of the ABI (but do not control if
-    code generation is allowed to use floating-point internally).  The rule is
-    that if you have a floating-point type in a register, then you also have
-    all smaller floating-point types in registers.  For example _DOUBLE would
-    store "float" and "double" values in F registers, but would not store "long
-    double" values in F registers.  If none of the float ABI flags are set, the
-    object is taken to use the soft-float ABI.
-  * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
-
-  Until such a time that the *Reserved* bits (0xfffffff0) are allocated by
-  future versions of this specification, they shall not be set by standard
-  software.
 
 ## <a name=default-abis-and-c-type-sizes></a> Default ABIs and C type sizes
 
@@ -287,6 +241,53 @@ the imaginary part.
 
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
+
+
+# <a name=elf-object-file></a> ELF Object Files
+
+## <a name=file-header></a> File Header
+
+* e_ident
+  * EI_CLASS: Specifies the base ISA, either RV32 or RV64.  We don't let users
+    link RV32 and RV64 code together.
+    * ELFCLASS64: ELF-64 Object File
+    * ELFCLASS32: ELF-32 Object File
+
+* e_type: Nothing RISC-V specific.
+
+* e_machine: Identifies the machine this ELF file targets.  Always contains
+  EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
+  this support is implicit.
+
+* e_flags: Describes the format of this ELF file.  These flags are used by the
+  linker to disallow linking ELF files with incompatible ABIs together.
+
+   Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 - 31
+  -------|------------|-------|------------
+   RVC   | Float ABI  |  RVE  | *Reserved*
+
+
+  * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
+    which allows instructions to be aligned to 16-bit boundaries (the base RV32
+    and RV64 ISAs only allow 32-bit instruction alignment).  When linking
+    objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
+    instructions such as C.JAL in the relaxation process.
+  * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
+  * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
+  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
+    point ABI in use for this ELF file.  They store the largest floating-point
+    type that ends up in registers as part of the ABI (but do not control if
+    code generation is allowed to use floating-point internally).  The rule is
+    that if you have a floating-point type in a register, then you also have
+    all smaller floating-point types in registers.  For example _DOUBLE would
+    store "float" and "double" values in F registers, but would not store "long
+    double" values in F registers.  If none of the float ABI flags are set, the
+    object is taken to use the soft-float ABI.
+  * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
+
+  Until such a time that the *Reserved* bits (0xfffffff0) are allocated by
+  future versions of this specification, they shall not be set by standard
+  software.
 
 ## <a name=sections></a>Sections
 
