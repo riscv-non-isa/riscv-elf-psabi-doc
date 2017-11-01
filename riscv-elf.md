@@ -63,10 +63,12 @@ Floating-point Register Convention <a name=floating-point-register-convention>
 Name    | ABI Mnemonic | Meaning                | Preserved across calls?
 --------|--------------|------------------------|------------------------
 f0-f7   | ft0-ft7      | Temporary registers    | No
-f8-f9   | fs0-fs1      | Callee-saved registers | Yes
+f8-f9   | fs0-fs1      | Callee-saved registers | Yes*
 f10-f17 | fa0-fa7      | Argument registers     | No
-f18-f27 | fs2-fs11     | Callee-saved registers | Yes
+f18-f27 | fs2-fs11     | Callee-saved registers | Yes*
 f28-f31 | ft8-ft11     | Temporary registers    | No
+
+*: Floating-point values in callee-saved registers are only preserved across calls if they are no larger than the width of a floating-point register in the targeted ABI. Therefore, these registers can always be considered temporaries if targeting the base integer calling convention.
 
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
 ## <a name=integer-calling-convention></a> Integer Calling Convention
