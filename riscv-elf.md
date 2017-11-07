@@ -73,7 +73,8 @@ f28-f31 | ft8-ft11     | Temporary registers    | No
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
 ## <a name=integer-calling-convention></a> Integer Calling Convention
 The base integer calling convention provides eight argument registers,
-a0-a7, the first two of which are also used to return values.
+a0-a7, but only six argument registers, a0-a5 for RV32E ABI, the first
+two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
 register, or on the stack by value if none is available.  When passed in
