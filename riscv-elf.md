@@ -7,6 +7,7 @@
 2. [Procedure Calling Convention](#procedure-calling-convention)
 	* [Integer Calling Convention](#integer-calling-convention)
 	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
+	* [RV32E Calling Convention](#rv32e-calling-convention)
 	* [Default ABIs and C type sizes](#default-abis-and-c-type-sizes)
 3. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
@@ -73,8 +74,7 @@ f28-f31 | ft8-ft11     | Temporary registers    | No
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
 ## <a name=integer-calling-convention></a> Integer Calling Convention
 The base integer calling convention provides eight argument registers,
-a0-a7, but only six argument registers, a0-a5, for the RV32E ABI.
-a0-a1 are also used to return values.
+a0-a7, the first two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
 register, or on the stack by value if none is available.  When passed in
@@ -121,8 +121,8 @@ reference, the caller allocates memory for the return value, and passes the
 address as an implicit first parameter.
 
 The stack grows downwards and the stack pointer shall be aligned to a 128-bit
-boundary upon procedure entry, except for the RV32E ABI, where it need only be
-aligned to 32 bits.  In the standard ABI, the stack pointer must remain
+boundary upon procedure entry.
+In the standard ABI, the stack pointer must remain
 aligned throughout procedure execution. Non-standard ABI code must realign the
 stack pointer prior to invoking standard ABI procedures.  The operating system
 must realign the stack pointer prior to invoking a signal handler; hence,
@@ -188,6 +188,18 @@ type would be passed.
 
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than FLEN bits wide.
+
+## <a name=rv32e-calling-convention></a> RV32E Calling Convention
+
+The RV32E calling convention is the same as the integer calling convention,
+except for the following differences.  The stack pointer need only be aligned
+to a 32-bit boundary.  Registers x16-x31 do not participate in the ABI, so
+there are only six argument registers, a0-a5, only two callee-saved registers,
+s0-s1, and only three temporaries, t0-t2.
+
+The RV32E calling convention may only be used with the RV32E ISA, hence the
+role of registers x16-x31 and f0-f31 is not defined.  A future version of this
+specification may relax this constraint.
 
 ## <a name=default-abis-and-c-type-sizes></a> Default ABIs and C type sizes
 
