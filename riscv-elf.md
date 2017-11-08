@@ -217,6 +217,7 @@ default ABIs:
     char        |  1            |  1
     short       |  2            |  2
     int         |  4            |  4
+    wchar_t     |  4            |  4
     long        |  8            |  8
     long long   |  8            |  8
     __int128    | 16            | 16
@@ -240,6 +241,7 @@ default ABIs:
     char        |  1            |  1
     short       |  2            |  2
     int         |  4            |  4
+    wchar_t     |  4            |  4
     long        |  4            |  4
     long long   |  8            |  8
     void *      |  4            |  4
@@ -247,7 +249,7 @@ default ABIs:
     double      |  8            |  8
     long double | 16            | 16
 
-`char` is unsigned.
+`char` is unsigned.  `wchar_t` is signed.
 
 `_Complex` types have the alignment and layout of a struct containing two
 fields of the corresponding real type (`float`, `double`, or `long double`),
