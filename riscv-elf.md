@@ -100,6 +100,9 @@ available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
 
+Aggregates or scalars passed on the stack are aligned to the minimum of the
+object alignment and the stack alignment.
+
 Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
 constructors, destructors, or vtables.
