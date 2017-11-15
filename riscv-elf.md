@@ -113,7 +113,10 @@ In the base integer calling convention, variadic arguments are passed in the
 same manner as named arguments, with one exception.  Variadic arguments with
 2✕XLEN-bit alignment and size at most 2✕XLEN bits are passed in an
 *aligned* register pair (i.e., the first register in the pair is
-even-numbered), or on the stack by value if none is available.
+even-numbered), or on the stack by value if none is available. After a
+variadic argument has been passed on the stack, all future arguments will also
+be passed on the stack (i.e. the last argument register may be left unused due
+to the aligned register pair rule).
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.  If such an argument would have been passed by
