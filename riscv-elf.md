@@ -9,6 +9,7 @@
 	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
 	* [RV32E Calling Convention](#rv32e-calling-convention)
 	* [Default ABIs and C type sizes](#default-abis-and-c-type-sizes)
+	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
 3. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
 	* [Sections](#sections)
@@ -261,6 +262,15 @@ the imaginary part.
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
 
+## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
+
+The `va_list` type is `void*`. A callee with variadic arguments is responsible
+for copying the contents of registers used to pass variadic arguments to the
+vararg save area, which must be contiguous with arguments passed on the stack.
+The `va_start` macro initializes its `va_list` argument to point to the start
+of the vararg save area.  The `va_arg` macro will increment its `va_list`
+argument according to the size of the given type, taking into account the
+rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
 
 # <a name=elf-object-file></a> ELF Object Files
 
