@@ -322,7 +322,7 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
   * EF_RISCV_TSO (0x0010): This bit is set when the binary requires the RVTSO
     memory consistency model.
 
-  Until such a time that the *Reserved* bits (0xfffffff0) are allocated by
+  Until such a time that the *Reserved* bits (0xffffffe0) are allocated by
   future versions of this specification, they shall not be set by standard
   software.
 
