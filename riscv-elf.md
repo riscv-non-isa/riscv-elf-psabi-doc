@@ -407,6 +407,8 @@ Enum | ELF Reloc Type       | Description                     | Details
 57-191  | *Reserved*        | Reserved for future standard use |
 192-255 | *Reserved*        | Reserved for nonstandard ABI extensions |
 
+Nonstandard extensions are free to use relocation numbers 192-255 for any
+purpose.  These relocations may conflict with other nonstandard extensions.
 
 ### Assembler Relocation Functions
 
