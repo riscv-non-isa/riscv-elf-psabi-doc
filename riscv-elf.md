@@ -404,7 +404,11 @@ Enum | ELF Reloc Type       | Description                     | Details
 54   | R_RISCV_SET8         | Local label subtraction         |
 55   | R_RISCV_SET16        | Local label subtraction         |
 56   | R_RISCV_SET32        | Local label subtraction         |
+57-191  | *Reserved*        | Reserved for future standard use |
+192-255 | *Reserved*        | Reserved for nonstandard ABI extensions |
 
+Nonstandard extensions are free to use relocation numbers 192-255 for any
+purpose.  These relocations may conflict with other nonstandard extensions.
 
 ### Assembler Relocation Functions
 
