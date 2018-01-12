@@ -107,6 +107,10 @@ Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
 constructors, destructors, or vtables.
 
+Empty structs or union arguments or return values are ignored by C compilers
+which support them as a non-standard extension.  This is not the case for C++,
+which requires them to be sized types.
+
 Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as integers of the same size, and
@@ -162,8 +166,9 @@ floating-point registers than the ABI.
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, struct `{ struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
-treated the same.  Empty structs are ignored, even in C++, unless they
-have nontrivial copy constructors or destructors.
+treated the same.  Fields containing empty structs or unions are ignored while
+flattening, even in C++, unless they have nontrivial copy constructors or
+destructors.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
