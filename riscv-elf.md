@@ -111,6 +111,14 @@ Empty structs or union arguments or return values are ignored by C compilers
 which support them as a non-standard extension.  This is not the case for C++,
 which requires them to be sized types.
 
+Bitfields are packed in little-endian fashion. A bitfield that would span the
+alignment boundary of its integer type is padded to begin at the next
+alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
+a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
+undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
+type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and 15-10
+undefined.
+
 Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as integers of the same size, and
