@@ -29,6 +29,7 @@
 	* [Note Sections](#note-sections)
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
+	* [Attributes](#Attributes)
 5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
 6. [Linux-specific ABI](#linux-abi)
@@ -995,6 +996,68 @@ There are no RISC-V specific definitions relating to dynamic tables.
 ## <a name=hash-table></a>Hash Table
 
 There are no RISC-V specific definitions relating to ELF hash tables.
+
+## <a name=Attributes></a>Attributes
+
+Attributes are used to record the information about an object file/binary that a
+linker or runtime loader needs to check the compatibility.
+Attributes are encoded in an vendor-specific section of type
+SHT_RISCV_ATTRIBUTES and name .riscv.attributes. The value of an attribute
+can hold an integer encoded in the uleb128 format, a null-terminated byte
+string (NTBS), or a combination of an integer and a string.
+
+### List of attributes
+Tag                    | Value | Parameter type | Description
+:--------------------- | :---- | :------------- | :---------------------
+Tag_arch               |     4 | NTBS           | Indicates the target architecture of this object.
+Tag_priv_spec          |     5 | uleb128        | Indicates the major version of the privileged specification.
+Tag_priv_spec_minor    |     6 | uleb128        | Indicates the minor version of the privileged specification.
+Tag_priv_spec_revision |     7 | uleb128        | Indicates the revision version of the privileged specification.
+Tag_unaligned_access   |     8 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
+Tag_stack_align        |     9 | uleb128        | Indicates the stack alignment requirement in bytes.
+
+### Detailed attribute description
+
+#### How does this specification describe public attributes?
+
+Each attribute is described in the following structure:
+```<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]```
+
+#### Tag_arch, 4, NTBS=subarch
+Tag_arch contains the string about the target architecture from the option
+`-march`. Different architectures will be integrated into a superset when object
+files are merged.
+
+Note that the version information of target architecture must be presented
+explicitly in the attribute and abbreviation must be expanded. The version
+information, if not given by `-march`, must be accordance with the default
+specified by the tool. For example, the architecture “RV32I” had to be recorded
+in the attribute as `RV32I2P0` in which `2P0` stands for the default version of
+its based ISA. On the other hand, the architecture `RV32G` has to be presented
+as `RV32I2P0M2P0A2P0F2P0D2P0` in which the abbreviation `G` is expanded
+to the IMAFD combination with default versions of the standard extensions.
+
+
+#### Tag_priv_spec, 5, uleb128=version
+#### Tag_priv_spec_minor, 6, uleb128=version
+#### Tag_priv_spec_revision, 7, uleb128=version
+
+Tag_priv_spec contains the major/minor/revision version information about
+the privileged specification. It will report errors if object files of different
+privileged specification versions are merged.
+
+#### Tag_unaligned_access, 8, uleb128=value
+Tag_unaligned_access denotes the code generation policy for this object file.
+Its values are defined as follows:
+ - 0: This object does not allow any unaligned memory accesses.
+ - 1: This object allows unaligned memory accesses.
+
+#### Tag_stack_align, 9, uleb128=value
+Tag_strict_align records the N-byte stack alignment for this object. The default
+value is 16 for RV32I or RV64I, and 4 for RV32E.
+
+The smallest value will be used if object files with different Tag_strict_align
+values are merged.
 
 # <a name=dwarf></a>DWARF
 
