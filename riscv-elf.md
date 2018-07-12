@@ -200,13 +200,13 @@ A complex floating-point number, or a struct containing just one complex
 floating-point number, is passed as though it were a struct containing two
 floating-point reals.
 
-A struct containing one floating-point real and one integer, in either
-order, is passed in a floating-point register and an integer register,
-with the integer zero- or sign-extended as though it were a scalar,
-provided the floating-point real is no more than FLEN bits wide and the
-integer is no more than XLEN bits wide, and at least one floating-point
-argument register and at least one integer argument register is available.
-Otherwise, it is passed according to the integer calling convention.
+A struct containing one floating-point real and one integer (or bitfield), in
+either order, is passed in a floating-point register and an integer register,
+with the integer zero- or sign-extended as though it were a scalar, provided
+the floating-point real is no more than FLEN bits wide and the integer is no
+more than XLEN bits wide, and at least one floating-point argument register
+and at least one integer argument register is available.  Otherwise, it is
+passed according to the integer calling convention.
 
 Unions are never flattened and are always passed according to the integer
 calling convention.
