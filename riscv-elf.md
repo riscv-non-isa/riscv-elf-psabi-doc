@@ -172,7 +172,7 @@ floating-point register in the ABI.  The ISA might have wider
 floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
-hierarchy flattened, including any array fields.  That is, struct `{ struct
+hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
 flattening, even in C++, unless they have nontrivial copy constructors or
