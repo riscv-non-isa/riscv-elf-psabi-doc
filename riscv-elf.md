@@ -176,7 +176,12 @@ hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
 flattening, even in C++, unless they have nontrivial copy constructors or
-destructors.
+destructors.  Attributes such as `aligned` or `packed` do not interfere with a
+struct's eligibility for being passed in registers according to the rules
+below. i.e. `struct { int i; double d; }` and `struct
+__attribute__((__packed__)) { int i; double d }` are treated the same, as are
+`struct { float f; float g; }` and `struct { float f; float g __attribute__
+((aligned (8))); }`.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
