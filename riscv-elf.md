@@ -470,7 +470,7 @@ is followed by an I-Type instruction (add immediate or load) with an
 calculated like this:
 
  - `hi20 = ((symbol_address + 0x800) >> 12);`
- - `lo12 = symbol_address - hi20;`
+ - `lo12 = symbol_address - (hi20 << 12);`
 
 The following assembly and relocations show loading an absolute address:
 
