@@ -172,11 +172,16 @@ floating-point register in the ABI.  The ISA might have wider
 floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
-hierarchy flattened, including any array fields.  That is, struct `{ struct
+hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
 flattening, even in C++, unless they have nontrivial copy constructors or
-destructors.
+destructors.  Attributes such as `aligned` or `packed` do not interfere with a
+struct's eligibility for being passed in registers according to the rules
+below. i.e. `struct { int i; double d; }` and `struct
+__attribute__((__packed__)) { int i; double d }` are treated the same, as are
+`struct { float f; float g; }` and `struct { float f; float g __attribute__
+((aligned (8))); }`.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
@@ -195,13 +200,13 @@ A complex floating-point number, or a struct containing just one complex
 floating-point number, is passed as though it were a struct containing two
 floating-point reals.
 
-A struct containing one floating-point real and one integer, in either
-order, is passed in a floating-point register and an integer register,
-with the integer zero- or sign-extended as though it were a scalar,
-provided the floating-point real is no more than FLEN bits wide and the
-integer is no more than XLEN bits wide, and at least one floating-point
-argument register and at least one integer argument register is available.
-Otherwise, it is passed according to the integer calling convention.
+A struct containing one floating-point real and one integer (or bitfield), in
+either order, is passed in a floating-point register and an integer register,
+with the integer zero- or sign-extended as though it were a scalar, provided
+the floating-point real is no more than FLEN bits wide and the integer is no
+more than XLEN bits wide, and at least one floating-point argument register
+and at least one integer argument register is available.  Otherwise, it is
+passed according to the integer calling convention.
 
 Unions are never flattened and are always passed according to the integer
 calling convention.
