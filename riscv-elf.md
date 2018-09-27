@@ -219,15 +219,15 @@ provided they hold values no more than FLEN bits wide.
 
 ## <a name=rv32e-calling-convention></a> RV32E Calling Convention
 
-The RV32E calling convention is the same as the integer calling convention,
+The RV32E calling convention is designed to be usable with the RV32E ISA.
+This calling convention is the same as the integer calling convention,
 except for the following differences.  The stack pointer need only be aligned
 to a 32-bit boundary.  Registers x16-x31 do not participate in the ABI, so
 there are only six argument registers, a0-a5, only two callee-saved registers,
 s0-s1, and only three temporaries, t0-t2.
 
-The RV32E calling convention may only be used with the RV32E ISA, hence the
-role of registers x16-x31 and f0-f31 is not defined.  A future version of this
-specification may relax this constraint.
+If used with an ISA that has any of the registers x16-x31 and f0-f31, then
+these registers are considered temporaries.
 
 ## <a name=default-abis-and-c-type-sizes></a> Default ABIs and C type sizes
 
