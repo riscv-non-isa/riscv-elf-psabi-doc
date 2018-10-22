@@ -139,8 +139,8 @@ type would be passed.  If such an argument would have been passed by
 reference, the caller allocates memory for the return value, and passes the
 address as an implicit first parameter.
 
-The stack grows downwards and the stack pointer shall be aligned to a 128-bit
-boundary upon procedure entry.
+The stack grows towards negative addresses and the stack pointer shall
+be aligned to a 128-bit boundary upon procedure entry.
 In the standard ABI, the stack pointer must remain
 aligned throughout procedure execution. Non-standard ABI code must realign the
 stack pointer prior to invoking standard ABI procedures.  The operating system
