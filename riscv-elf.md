@@ -125,7 +125,7 @@ undefined.
 
 Arguments passed by reference may be modified by the callee.
 
-Floating-point reals are passed the same way as integers of the same size, and
+Floating-point reals are passed the same way as aggregates of the same size,
 complex floating-point numbers are passed the same way as a struct containing
 two floating-point reals.
 
