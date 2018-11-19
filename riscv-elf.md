@@ -436,23 +436,6 @@ Enum | ELF Reloc Type       | Description                     | Details
 Nonstandard extensions are free to use relocation numbers 192-255 for any
 purpose.  These relocations may conflict with other nonstandard extensions.
 
-### Assembler Relocation Functions
-
-The following table lists assembler functions for emitting relocatable symbol references:
-
-Assembler Notation       | Description                          | Instruction / Macro
-:----------------------  | :---------------                     | :-------------------
-%hi(symbol)              | Absolute (HI20)                      | lui
-%lo(symbol)              | Absolute (LO12)                      | load, store, add
-%pcrel_hi(symbol)        | PC-relative (HI20)                   | auipc
-%pcrel_lo(label)         | PC-relative (LO12)                   | load, store, add
-%tls_ie_pcrel_hi(symbol) | PC-relative TLS IE GOT reference     | la.tls.ie (auipc+{ld,lw})
-%tls_gd_pcrel_hi(symbol) | PC-relative TLS GD reference         | la.tls.gd (auipc+addi)
-%tprel_hi(symbol)        | TLS LE thread offset (U-Type)        | auipc
-%tprel_lo(symbol)        | TLS LE thread offset (I-Type,S-Type) | load, store
-%tprel_add(offset)       | TLS LE thread offset (Add)           | add
-
-
 ### Address Calculation Symbols
 
 The following table provides details on the variables used in address calculation:
