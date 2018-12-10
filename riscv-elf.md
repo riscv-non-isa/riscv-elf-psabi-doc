@@ -436,6 +436,10 @@ Enum | ELF Reloc Type       | Description                     | Details
 Nonstandard extensions are free to use relocation numbers 192-255 for any
 purpose.  These relocations may conflict with other nonstandard extensions.
 
+This section and later ones contain fragments written in assembler. The precise
+assembler syntax, including that of the relocations, is described in the
+[RISC-V Assembly Programmer's Manual](https://github.com/riscv/riscv-asm-manual).
+
 ### Address Calculation Symbols
 
 The following table provides details on the variables used in address calculation:
