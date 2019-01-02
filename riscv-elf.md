@@ -1009,12 +1009,12 @@ string (NTBS), or a combination of an integer and a string.
 ### List of attributes
 Tag                    | Value | Parameter type | Description
 :--------------------- | :---- | :------------- | :---------------------
-Tag_arch               |     4 | NTBS           | Indicates the target architecture of this object.
-Tag_priv_spec          |     5 | uleb128        | Indicates the major version of the privileged specification.
-Tag_priv_spec_minor    |     6 | uleb128        | Indicates the minor version of the privileged specification.
-Tag_priv_spec_revision |     7 | uleb128        | Indicates the revision version of the privileged specification.
-Tag_unaligned_access   |     8 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
-Tag_stack_align        |     9 | uleb128        | Indicates the stack alignment requirement in bytes.
+Tag_RISCV_arch               |     4 | NTBS           | Indicates the target architecture of this object.
+Tag_RISCV_priv_spec          |     5 | uleb128        | Indicates the major version of the privileged specification.
+Tag_RISCV_priv_spec_minor    |     6 | uleb128        | Indicates the minor version of the privileged specification.
+Tag_RISCV_priv_spec_revision |     7 | uleb128        | Indicates the revision version of the privileged specification.
+Tag_RISCV_unaligned_access   |     8 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
+Tag_RISCV_stack_align        |     9 | uleb128        | Indicates the stack alignment requirement in bytes.
 
 ### Detailed attribute description
 
@@ -1023,8 +1023,8 @@ Tag_stack_align        |     9 | uleb128        | Indicates the stack alignment 
 Each attribute is described in the following structure:
 ```<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]```
 
-#### Tag_arch, 4, NTBS=subarch
-Tag_arch contains the string about the target architecture from the option
+#### Tag_RISCV_arch, 4, NTBS=subarch
+Tag_RISCV_arch contains the string about the target architecture from the option
 `-march`. Different architectures will be integrated into a superset when object
 files are merged.
 
@@ -1038,25 +1038,25 @@ as `RV32I2P0M2P0A2P0F2P0D2P0` in which the abbreviation `G` is expanded
 to the IMAFD combination with default versions of the standard extensions.
 
 
-#### Tag_priv_spec, 5, uleb128=version
-#### Tag_priv_spec_minor, 6, uleb128=version
-#### Tag_priv_spec_revision, 7, uleb128=version
+#### Tag_RISCV_priv_spec, 5, uleb128=version
+#### Tag_RISCV_priv_spec_minor, 6, uleb128=version
+#### Tag_RISCV_priv_spec_revision, 7, uleb128=version
 
-Tag_priv_spec contains the major/minor/revision version information about
+Tag_RISCV_priv_spec contains the major/minor/revision version information about
 the privileged specification. It will report errors if object files of different
 privileged specification versions are merged.
 
-#### Tag_unaligned_access, 8, uleb128=value
-Tag_unaligned_access denotes the code generation policy for this object file.
+#### Tag_RISCV_unaligned_access, 8, uleb128=value
+Tag_RISCV_unaligned_access denotes the code generation policy for this object file.
 Its values are defined as follows:
  - 0: This object does not allow any unaligned memory accesses.
  - 1: This object allows unaligned memory accesses.
 
-#### Tag_stack_align, 9, uleb128=value
-Tag_strict_align records the N-byte stack alignment for this object. The default
+#### Tag_RISCV_stack_align, 9, uleb128=value
+Tag_RISCV_strict_align records the N-byte stack alignment for this object. The default
 value is 16 for RV32I or RV64I, and 4 for RV32E.
 
-The smallest value will be used if object files with different Tag_strict_align
+The smallest value will be used if object files with different Tag_RISCV_stack_align
 values are merged.
 
 # <a name=dwarf></a>DWARF
