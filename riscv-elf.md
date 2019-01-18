@@ -21,6 +21,8 @@
 	* [Note Sections](#note-sections)
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
+4. [DWARF](#dwarf)
+	* [Dwarf Register Numbers](#dwarf-register-numbers)
 
 ## Copyright and license information
 
@@ -785,3 +787,16 @@ typedef struct
 
 ## <a name=hash-table></a>Hash Table
 
+# <a name=dwarf></a>DWARF
+
+Dwarf Register Numbers <a name=dwarf-register-numbers>
+-------------------------------------------------------------------------
+Dwarf Number  | Register Name | Description
+--------------|---------------|-----------------------------------------
+0-31          | x0-x31        | Integer Registers
+32-63         | f0-f31        | Floating-point Registers
+64            |               | Alternate Frame Return Column
+
+The alternate frame return column is meant to be used when unwinding from
+signal handlers, and stores the address where the signal handler will return
+to.
