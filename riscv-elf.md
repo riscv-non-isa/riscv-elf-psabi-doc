@@ -1036,6 +1036,7 @@ Tag_RISCV_unaligned_access          |        6 | uleb128        | Indicates whet
 Tag_RISCV_priv_spec                 |        8 | uleb128        | Indicates the major version of the privileged specification.
 Tag_RISCV_priv_spec_minor           |       10 | uleb128        | Indicates the minor version of the privileged specification.
 Tag_RISCV_priv_spec_revision        |       12 | uleb128        | Indicates the revision version of the privileged specification.
+Reserved for non-standard attribute | >= 32768 | -              | -
 
 ### Detailed attribute description
 
