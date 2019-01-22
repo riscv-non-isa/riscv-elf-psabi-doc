@@ -995,9 +995,9 @@ The following table lists the special sections defined by this ABI.
 
 Name                       | Type                 | Attributes
 :------------------------- | :------------------- | :-------------
-.riscv.attributes.         | SHT_RISCV_ATTRIBUTES | none
+.riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
 
-.riscv.attributes. names a section that contains RISC-V ELF attributes.
+.riscv.attributes names a section that contains RISC-V ELF attributes.
 
 ## <a name=program-header-table></a>Program Header Table
 
@@ -1017,22 +1017,25 @@ There are no RISC-V specific definitions relating to ELF hash tables.
 
 ## <a name=Attributes></a>Attributes
 
-Attributes are used to record the information about an object file/binary that a
-linker or runtime loader needs to check the compatibility.
-Attributes are encoded in an vendor-specific section of type
-SHT_RISCV_ATTRIBUTES and name .riscv.attributes. The value of an attribute
-can hold an integer encoded in the uleb128 format, a null-terminated byte
-string (NTBS), or a combination of an integer and a string.
+Attributes are used to record information about an object file/binary that a
+linker or runtime loader needs to check compatibility.
+
+Attributes are encoded in a vendor-specific section of type SHT_RISCV_ATTRIBUTES
+and name .riscv.attributes. The value of an attribute can hold an integer
+encoded in the uleb128 format or a null-terminated byte string (NTBS).
+
+RISC-V attributes have a string value if the tag number is odd and an integer
+value if the tag number is even.
 
 ### List of attributes
-Tag                          | Value | Parameter type | Description
-:--------------------------- | :---- | :------------- | :---------------------
-Tag_RISCV_stack_align        |     4 | uleb128        | Indicates the stack alignment requirement in bytes.
-Tag_RISCV_arch               |     5 | NTBS           | Indicates the target architecture of this object.
-Tag_RISCV_unaligned_access   |     6 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
-Tag_RISCV_priv_spec          |     8 | uleb128        | Indicates the major version of the privileged specification.
-Tag_RISCV_priv_spec_minor    |    10 | uleb128        | Indicates the minor version of the privileged specification.
-Tag_RISCV_priv_spec_revision |    12 | uleb128        | Indicates the revision version of the privileged specification.
+Tag                                 | Value    | Parameter type | Description
+:---------------------------------- | :------- | :------------- | :---------------------
+Tag_RISCV_stack_align               |        4 | uleb128        | Indicates the stack alignment requirement in bytes.
+Tag_RISCV_arch                      |        5 | NTBS           | Indicates the target architecture of this object.
+Tag_RISCV_unaligned_access          |        6 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
+Tag_RISCV_priv_spec                 |        8 | uleb128        | Indicates the major version of the privileged specification.
+Tag_RISCV_priv_spec_minor           |       10 | uleb128        | Indicates the minor version of the privileged specification.
+Tag_RISCV_priv_spec_revision        |       12 | uleb128        | Indicates the revision version of the privileged specification.
 
 ### Detailed attribute description
 
@@ -1042,29 +1045,29 @@ Each attribute is described in the following structure:
 ```<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]```
 
 #### Tag_RISCV_stack_align, 4, uleb128=value
-Tag_RISCV_strict_align records the N-byte stack alignment for this object. The default
-value is 16 for RV32I or RV64I, and 4 for RV32E.
+Tag_RISCV_strict_align records the N-byte stack alignment for this object. The
+default value is 16 for RV32I or RV64I, and 4 for RV32E.
 
 The smallest value will be used if object files with different Tag_RISCV_stack_align
 values are merged.
 
 #### Tag_RISCV_arch, 5, NTBS=subarch
-Tag_RISCV_arch contains the string about the target architecture from the option
-`-march`. Different architectures will be integrated into a superset when object
-files are merged.
+Tag_RISCV_arch contains a string for the target architecture taken from
+the option `-march`. Different architectures will be integrated into a superset
+when object files are merged.
 
-Note that the version information of target architecture must be presented
-explicitly in the attribute and abbreviation must be expanded. The version
-information, if not given by `-march`, must be accordance with the default
-specified by the tool. For example, the architecture “RV32I” had to be recorded
+Note that the version information for target architecture must be presented
+explicitly in the attribute and abbreviations must be expanded. The version
+information, if not given by `-march`, must agree with the default
+specified by the tool. For example, the architecture `RV32I` has to be recorded
 in the attribute as `RV32I2P0` in which `2P0` stands for the default version of
 its based ISA. On the other hand, the architecture `RV32G` has to be presented
 as `RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded
 to the IMAFD combination with default versions of the standard extensions.
 
 #### Tag_RISCV_unaligned_access, 6, uleb128=value
-Tag_RISCV_unaligned_access denotes the code generation policy for this object file.
-Its values are defined as follows:
+Tag_RISCV_unaligned_access denotes the code generation policy for this object
+file. Its values are defined as follows:
  - 0: This object does not allow any unaligned memory accesses.
  - 1: This object allows unaligned memory accesses.
 
@@ -1072,7 +1075,7 @@ Its values are defined as follows:
 #### Tag_RISCV_priv_spec_minor, 10, uleb128=version
 #### Tag_RISCV_priv_spec_revision, 12, uleb128=version
 
-Tag_RISCV_priv_spec contains the major/minor/revision version information about
+Tag_RISCV_priv_spec contains the major/minor/revision version information of
 the privileged specification. It will report errors if object files of different
 privileged specification versions are merged.
 
