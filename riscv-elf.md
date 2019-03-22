@@ -33,7 +33,7 @@ This RISC-V ELF psABI specification document is
  &copy; 2016 Kito Cheng <kito.cheng@gmail.com>
  &copy; 2016-2017 Andrew Waterman <aswaterman@gmail.com>
  &copy; 2016-2017 Michael Clark <michaeljclark@mac.com>
- &copy; 2017-2018 Alex Bradbury <asb@asbradbury.org>
+ &copy; 2017-2019 Alex Bradbury <asb@asbradbury.org>
  &copy; 2017 David Horner <ds2horner@gmail.com>
  &copy; 2017 Max Nordlund <max.nordlund@gmail.com>
  &copy; 2017 Karsten Merker <merker@debian.org>
@@ -208,12 +208,11 @@ floating-point reals.
 
 A struct containing one floating-point real and one integer (or bitfield), in
 either order, is passed in a floating-point register and an integer register,
-with the integer zero- or sign-extended as though it were a scalar, provided
-the floating-point real is no more than FLEN bits wide and the integer is no
-more than XLEN bits wide, and at least one floating-point argument register
-and at least one integer argument register is available, with the integer
-placed in its argument register without extension to XLEN bits.  Otherwise,
-it is passed according to the integer calling convention.
+without extending the integer to XLEN bits, provided the floating-point real
+is no more than FLEN bits wide and the integer is no more than XLEN bits wide,
+and at least one floating-point argument register and at least one integer
+argument register is available. Otherwise, it is passed according to the
+integer calling convention.
 
 Unions are never flattened and are always passed according to the integer
 calling convention.
