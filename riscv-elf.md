@@ -407,14 +407,14 @@ Enum | ELF Reloc Type       | Description                     | Details
 30   | R_RISCV_TPREL_LO12_I | TLS LE thread offset            | %tprel_lo(symbol) (I-Type)
 31   | R_RISCV_TPREL_LO12_S | TLS LE thread offset            | %tprel_lo(symbol) (S-Type)
 32   | R_RISCV_TPREL_ADD    | TLS LE thread usage             | %tprel_add(symbol)
-33   | R_RISCV_ADD8         | 8-bit label addition            | word8 = S + A
-34   | R_RISCV_ADD16        | 16-bit label addition           | word16 = S + A
-35   | R_RISCV_ADD32        | 32-bit label addition           | word32 = S + A
-36   | R_RISCV_ADD64        | 64-bit label addition           | word64 = S + A
-37   | R_RISCV_SUB8         | 8-bit label subtraction         | word8 = S - A
-38   | R_RISCV_SUB16        | 16-bit label subtraction        | word16 = S - A
-39   | R_RISCV_SUB32        | 32-bit label subtraction        | word32 = S - A
-40   | R_RISCV_SUB64        | 64-bit label subtraction        | word64 = S - A
+33   | R_RISCV_ADD8         | 8-bit label addition            | word8 = old + S + A
+34   | R_RISCV_ADD16        | 16-bit label addition           | word16 = old + S + A
+35   | R_RISCV_ADD32        | 32-bit label addition           | word32 = old + S + A
+36   | R_RISCV_ADD64        | 64-bit label addition           | word64 = old + S + A
+37   | R_RISCV_SUB8         | 8-bit label subtraction         | word8 = old - S - A
+38   | R_RISCV_SUB16        | 16-bit label subtraction        | word16 = old - S - A
+39   | R_RISCV_SUB32        | 32-bit label subtraction        | word32 = old - S - A
+40   | R_RISCV_SUB64        | 64-bit label subtraction        | word64 = old - S - A
 41   | R_RISCV_GNU_VTINHERIT| GNU C++ vtable hierarchy        |
 42   | R_RISCV_GNU_VTENTRY  | GNU C++ vtable member usage     |
 43   | R_RISCV_ALIGN        | Alignment statement             |
