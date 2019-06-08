@@ -791,6 +791,8 @@ typedef struct
 
 # <a name=dwarf></a>DWARF
 
+DWARF unwind info must be present in all RISC-V ELF images.
+
 Dwarf Register Numbers <a name=dwarf-register-numbers>
 -------------------------------------------------------------------------
 Dwarf Number  | Register Name | Description
