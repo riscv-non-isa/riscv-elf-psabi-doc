@@ -62,6 +62,9 @@ x28-x31 | t3-t6        | Temporary registers    | No
 In the standard ABI, procedures should not modify the integer registers tp and
 gp, because signal handlers may rely upon their values.
 
+The presence of a frame pointer is optional.  If a frame pointer exists
+it must reside in x8 (s0), the register remains callee-saved.
+
 Floating-point Register Convention <a name=floating-point-register-convention>
 -------------------------------------------------------------------------
 Name    | ABI Mnemonic | Meaning                | Preserved across calls?
