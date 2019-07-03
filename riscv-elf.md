@@ -94,7 +94,10 @@ of their type up to 32 bits, then sign-extended to XLEN bits.
 Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
 or on the stack by value if none are available.  If exactly one register is
 available, the low-order XLEN bits are passed in the register and the
-high-order XLEN bits are passed on the stack.
+high-order XLEN bits are passed on the stack. The lower-numbered register in
+a pair of argument registers (e.g. a0 from the pair (a0, a1)) should contain
+the low-order XLEN bits, and the higher-numbered register (e.g. a1 in the
+same pair) should contain the high-order XLEN bits.
 
 Scalars wider than 2✕XLEN are passed by reference and are replaced in the
 argument list with the address.
