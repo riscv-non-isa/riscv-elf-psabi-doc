@@ -197,8 +197,9 @@ register if it is no more than FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
 
-A struct containing just one floating-point real is passed as though it were
-a standalone floating-point real.
+A struct containing just one floating-point real or (as a special case) one
+floating-point real and any number of zero-size bitfields is passed as though
+it were a standalone floating-point real.
 
 A struct containing two floating-point reals is passed in two floating-point
 registers, if neither is more than FLEN bits wide and at least two floating-point
@@ -215,7 +216,13 @@ without extending the integer to XLEN bits, provided the floating-point real
 is no more than FLEN bits wide and the integer is no more than XLEN bits wide,
 and at least one floating-point argument register and at least one integer
 argument register is available. Otherwise, it is passed according to the
-integer calling convention.
+integer calling convention. Note that the bitfield may have a type that is
+larger than XLEN but can still be considered eligible for passing in this way
+provided the bitfield size is no more than XLEN bits wide. e.g. `struct {
+float f; int64_t i : 32; }` is eligible for being passed in a floating-point
+argument register and an integer argument register even when XLEN is 32.
+Zero-size bitfields are not ignored, so `struct { float f; int64_t i : 32; int
+0;`} would be passed according to the integer calling convention.
 
 Unions are never flattened and are always passed according to the integer
 calling convention.
