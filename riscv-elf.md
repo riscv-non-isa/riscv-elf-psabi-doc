@@ -403,8 +403,8 @@ Enum | ELF Reloc Type       | Description                     | Details
 21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT offset   | MACRO la.tls.ie
 22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference    | MACRO la.tls.gd
 23   | R_RISCV_PCREL_HI20   | PC-relative reference           | %pcrel_hi(symbol) (U-Type)
-24   | R_RISCV_PCREL_LO12_I | PC-relative reference           | %pcrel_lo(symbol) (I-Type)
-25   | R_RISCV_PCREL_LO12_S | PC-relative reference           | %pcrel_lo(symbol) (S-Type)
+24   | R_RISCV_PCREL_LO12_I | PC-relative reference           | %pcrel_lo(pcrel_hi20_address) (I-Type)
+25   | R_RISCV_PCREL_LO12_S | PC-relative reference           | %pcrel_lo(pcrel_hi20_address) (S-Type)
 26   | R_RISCV_HI20         | Absolute address                | %hi(symbol) (U-Type)
 27   | R_RISCV_LO12_I       | Absolute address                | %lo(symbol) (I-Type)
 28   | R_RISCV_LO12_S       | Absolute address                | %lo(symbol) (S-Type)
