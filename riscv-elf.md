@@ -300,10 +300,8 @@ the imaginary part.
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
 
-Booleans (`bool`/`_Bool_`), when stored in a memory object, are stored as single
-byte objects the value of which is always `0` (`false`) or `~0` (`true`).  When
-stored in integer registers (except for passing as arguments), all bytes of
-the register are significant and are always `0` (`false`) or `~0` (`true`).
+Booleans (`bool`/`_Bool`) stored in memory or registers (including when being
+passed as arguments), are either `0` (`false`) or non-zero (`true`).
 
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
