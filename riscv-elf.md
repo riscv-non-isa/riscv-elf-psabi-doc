@@ -21,7 +21,11 @@
 	* [Note Sections](#note-sections)
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
-4. [DWARF](#dwarf)
+4. [Exception Handling](#exception-handling)
+  * [Frame Descriptor Entry (FDE) encoding](#fde-encoding)
+  * [Language Specific Data Area (LSDA) encoding](#lsda-encoding)
+  * [Personality Function encoding](#personality-encoding)
+5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
 
 ## Copyright and license information
@@ -790,6 +794,69 @@ typedef struct
 ## <a name=dynamic-table></a>Dynamic Table
 
 ## <a name=hash-table></a>Hash Table
+
+# <a name=exception-handling></a>Exception Handling
+
+Exception handling is achieved using C++ exceptions based on DWARF-derived
+CIE (Common Information Entry) and FDE (Frame Descriptor Entry) data
+structures saved in `.eh_frame`, plus additional data
+structures in the `.gcc_except_table` section of the ELF. Some relevant
+fields in these data structures are defined below:
+
+## <a name=fde-encoding></a>Frame Descriptor Entry (FDE) encoding
+
+Used to encode the range of code addresses which the current Frame
+Descriptor Entry applies to. Generally encoded as:
+
+```
+DW_EH_PE_pcrel | DW_EH_PE_sdata4
+```
+
+This encoding is used both to specify the start address for the code
+that the FDE is applicable to, and the length of the code which
+the FDE applies to. In the first instance, a 32-bit signed offset
+is emitted from the current position in the FDE to the code address
+itself, and this generates a `R_RISCV_32_PCREL` relocation. In the
+second instance, a `R_RISCV_ADD32` and `R_RISCV_SUB32` pair is
+emitted which encodes the difference between the end address and
+start address in the code.
+
+## <a name=lsda-encoding></a>Language Specific Data Area (LSDA) encoding
+
+Encodes refences to the LSDA for the current FDE. Like the FDE encoding
+this is generally encoded as:
+
+```
+DW_EH_PE_pcrel | DW_EH_PE_sdata4
+```
+
+This causes a `R_RISCV_ADD32` and `R_RISCV_SUB32` relocation pair
+to be emitted, encoding the offset from the position the LSDA is
+encoded in the FDE (in the `.eh_frame` section) to the LSDA data
+structure itself (which is found in the `.gcc_except_table` section).
+
+## <a name=personality-encoding></a>Personality Function encoding
+
+Use to encode references to the personality function for the current
+CIE. Unlike the LSDA and FDE, the personality function is encoded
+with an additional level of indirection.
+
+```
+DW_EH_PE_indirect | DW_EH_PE_pcrel | DW_EH_PE_sdata4
+```
+
+This is also encoded as a `R_RISCV_ADD32` and `R_RISCV_SUB32` pair,
+however the target is not the direct address of the
+`__gxx_personality_v0` function, but instead references a temporary
+symbol `DW.ref.__gxx_personality_v0` which contains the full address
+of `__gxx_personality_v0` and is found in a special section
+`.sdata.DW.ref.__gxx_personality_v0`.
+
+The reason for this is that it allows the `.eh_frame` section to
+contain no dynamic relocations - since `__gxx_personality_v0` may
+be in a shared object - and mean the `.eh_frame` section does not
+need to be writeable at runtime. Instead, only the new temporary
+`.sdata.DW.ref.__gxx_personality_v0` section is writeable.
 
 # <a name=dwarf></a>DWARF
 
