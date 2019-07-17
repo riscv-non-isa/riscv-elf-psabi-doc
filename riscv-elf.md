@@ -300,7 +300,11 @@ the imaginary part.
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
 
+
 A null pointer (for all types) has the value zero.
+
+The value of `_Alignof(max_align_t)` is 16.
+
 
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
