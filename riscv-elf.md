@@ -22,9 +22,8 @@
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
 4. [Exception Handling](#exception-handling)
-  * [Frame Descriptor Entry (FDE) encoding](#fde-encoding)
-  * [Language Specific Data Area (LSDA) encoding](#lsda-encoding)
-  * [Personality Function encoding](#personality-encoding)
+  * [Encodings](#exception-handling-encodings)
+  * [Registers](#exception-handling-registers)
 5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
 
@@ -804,7 +803,9 @@ structures saved in `.eh_frame`, plus additional data
 structures in the `.gcc_except_table` section of the ELF. Some relevant
 fields in these data structures are defined below:
 
-## <a name=fde-encoding></a>Frame Descriptor Entry (FDE) encoding
+## <a name=exception-handling-encodings></a>Encodings
+
+### Frame Descriptor Entry (FDE) encoding
 
 Used to encode the range of code addresses which the current Frame
 Descriptor Entry applies to. Generally encoded as:
@@ -822,7 +823,7 @@ second instance, a `R_RISCV_ADD32` and `R_RISCV_SUB32` pair is
 emitted which encodes the difference between the end address and
 start address in the code.
 
-## <a name=lsda-encoding></a>Language Specific Data Area (LSDA) encoding
+### Language Specific Data Area (LSDA) encoding
 
 Encodes refences to the LSDA for the current FDE. Like the FDE encoding
 this is generally encoded as:
@@ -836,7 +837,7 @@ to be emitted, encoding the offset from the position the LSDA is
 encoded in the FDE (in the `.eh_frame` section) to the LSDA data
 structure itself (which is found in the `.gcc_except_table` section).
 
-## <a name=personality-encoding></a>Personality Function encoding
+### Personality Function encoding
 
 Use to encode references to the personality function for the current
 CIE. Unlike the LSDA and FDE, the personality function is encoded
@@ -858,6 +859,14 @@ contain no dynamic relocations - since `__gxx_personality_v0` may
 be in a shared object - and mean the `.eh_frame` section does not
 need to be writeable at runtime. Instead, only the new temporary
 `.sdata.DW.ref.__gxx_personality_v0` section is writeable.
+
+## <a name=exception-handling-registers></a>Registers
+
+When an exception is caught, data needs to be passed from the
+personality function to the landing pad. Four scratch registers are
+used for this purpose, and these parameters are passed to the landing
+pad according to the integer calling convention; they are passed in
+registers `a0`, `a1`, `a2` and `a3`.
 
 # <a name=dwarf></a>DWARF
 
