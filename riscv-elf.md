@@ -303,6 +303,10 @@ RV64G, but currently this is not a supported operating mode.
 Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
 arguments are either `0` (`false`) or `1` (`true`).
 
+A null pointer (for all types) has the value zero.
+
+The value of `_Alignof(max_align_t)` is 16.
+
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
 The `va_list` type is `void*`. A callee with variadic arguments is responsible
