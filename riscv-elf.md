@@ -187,9 +187,10 @@ hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
 flattening, even in C++, unless they have nontrivial copy constructors or
-destructors.  Attributes such as `aligned` or `packed` do not interfere with a
+destructors.  Fields containing zero-length bit-fields are ignored while
+flattening.  Attributes such as `aligned` or `packed` do not interfere with a
 struct's eligibility for being passed in registers according to the rules
-below. i.e. `struct { int i; double d; }` and `struct
+below, i.e. `struct { int i; double d; }` and `struct
 __attribute__((__packed__)) { int i; double d }` are treated the same, as are
 `struct { float f; float g; }` and `struct { float f; float g __attribute__
 ((aligned (8))); }`.
