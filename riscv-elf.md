@@ -308,6 +308,12 @@ A null pointer (for all types) has the value zero.
 
 The value of `_Alignof(max_align_t)` is 16.
 
+Atomic types (for instance using the `_Atomic` specifier or qualifier) with a
+power-of-two size less than or equal to 128 bits, should be aligned to their
+width. This should be the case, whether or not atomic instructions are enabled,
+and whether or not you are on a 32- or 64-bit RISC-V platform. The alignment of
+non-power-of-two sized atomic types is implementation defined.
+
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
 The `va_list` type is `void*`. A callee with variadic arguments is responsible
