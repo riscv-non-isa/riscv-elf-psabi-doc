@@ -1,0 +1,119 @@
+#!/bin/sh
+
+set -uo pipefail
+
+if [ $# -gt 2 ] || [ "${1}" = '--help' ]; then
+  echo "Usage: $0 [path/to/cc]"
+  echo ""
+  echo "  [path/to/cc] C compiler to check. The script will use CC environment"
+  echo "               variable or '/usr/bin/env cc' if omitted."
+  echo ""
+  echo "If you're checking clang, the script will add the correct target, but"
+  echo "you may need to --sysroot like so:"
+  echo "    $0 'clang --sysroot=\"...\"'"
+  exit 1
+fi;
+
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
+
+if [ -n "${1}" ]; then
+  cc="$1"
+  from="argument"
+elif [ -n "${CC}" ]; then
+  cc="$CC"
+  from="CC environment variable"
+else
+  cc='/usr/bin/env cc'
+  from="default"
+fi
+
+echo "INFO: Using cc: '${cc}' (from ${from})"
+case "$cc" in
+  *"clang"*)
+    echo "INFO: Detected cc is clang"
+    is_clang=true
+    ;;
+  *)
+    is_clang=false
+    ;;
+esac
+
+overall_result="Passed"
+
+check() {
+  arch="${1}"
+  abi="${2}"
+
+  if [ "${is_clang}" = "true" ]; then
+    targeted_cc="${cc} --target=$target"
+  else
+    targeted_cc="${cc}"
+  fi
+
+  # All Errors are reported at compile-time, using _Static_assert (a C11 feature)
+  if $targeted_cc -std=c11 -c -o /dev/null 2>"errors-${arch}-${abi}.txt" \
+      -I "${script_dir}" -I "${script_dir}/abis" \
+      "-march=${arch}" "${script_dir}/${arch}.c" \
+      "-mabi=${abi}" -D "${abi}" -include "${script_dir}/abis/${abi}.h"; then
+    echo "PASS: -march=${arch} -mabi=${abi}"
+  else
+    echo "FAIL: -march=${arch} -mabi=${abi}"
+    overall_result="Failed"
+  fi;
+}
+
+# RISC-V 32
+target="riscv32-unknown-linux-gnu"
+
+# RISC-V 32, ILP32
+check rv32i ilp32
+check rv32ic ilp32
+check rv32im ilp32
+check rv32imc ilp32
+check rv32iac ilp32
+check rv32imac ilp32
+check rv32imafc ilp32
+check rv32imafdc ilp32
+check rv32gc ilp32
+
+# RISC-V 32, ILP32F
+check rv32imafc ilp32f
+check rv32imafdc ilp32f
+check rv32gc ilp32f
+
+# RISC-V 32, ILP32D
+check rv32imafdc ilp32d
+check rv32gc ilp32d
+
+# RISC-V 32, ILP32E
+check rv32i ilp32e
+check rv32ic ilp32e
+check rv32im ilp32e
+check rv32imc ilp32e
+check rv32iac ilp32e
+check rv32imac ilp32e
+check rv32imafc ilp32e
+check rv32imafdc ilp32e
+check rv32gc ilp32e
+
+# RISC-V 64
+target="riscv64-unknown-linux-gnu"
+
+# RISC-V 64, LP64
+check rv64imac lp64
+check rv64imafdc lp64
+check rv64gc lp64
+
+# RISC-V 64, LP64F
+check rv64imafdc lp64f
+check rv64gc lp64f
+
+# RISC-V 64, LP64D
+check rv64imafdc lp64d
+check rv64gc lp64d
+
+echo "INFO: Testing Complete"
+echo "INFO: Result: $overall_result"
+if ! [ "${overall_result}" = "Passed" ]; then
+  exit 1
+fi
