@@ -57,7 +57,7 @@ check () {
   # All Errors are reported at compile-time, using _Static_assert (a C11 feature)
   if $targeted_cc -std=c11 -c -o /dev/null 2>"errors-${arch}-${abi}.txt" \
       -I "${script_dir}" -I "${script_dir}/abis" \
-      "-march=${arch}" "${script_dir}/${arch}.c" \
+      "-march=${arch}" "${script_dir}/archs/${arch}.c" \
       "-mabi=${abi}" -D "${abi}" -include "${script_dir}/abis/${abi}.h"; then
     echo "PASS: -march=${arch} -mabi=${abi}"
     overall_passing=$(( overall_passing + 1 ))
