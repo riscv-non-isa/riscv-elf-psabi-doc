@@ -24,11 +24,29 @@ CHECK_SIZE_ALIGN(float, 4, 4);
 CHECK_SIZE_ALIGN(double, 8, 8);
 CHECK_SIZE_ALIGN(long double, 16, 16);
 
-// Standard C Complex Type: Implementation Defined Sizes & Alignments
-CHECK_SIZE_ALIGN(_Complex float, 2 * sizeof(float), _Alignof(float));
-CHECK_SIZE_ALIGN(_Complex double, 2 * sizeof(double), _Alignof(double));
-CHECK_SIZE_ALIGN(_Complex long double, 2 * sizeof(long double),
-                 _Alignof(long double));
+// Standard C Complex Types: Implementation Defined Sizes & Alignments
+CHECK_SIZE_ALIGN(_Complex float, 8, 4);
+CHECK_SIZE_ALIGN(_Complex double, 16, 8);
+CHECK_SIZE_ALIGN(_Complex long double, 32, 16);
+
+// Standard C Atomic Types: Implementation Defined Sizes & Alignment
+CHECK_SIZE_ALIGN(_Atomic(_Bool), 1, 1);
+CHECK_SIZE_ALIGN(_Atomic(char), 1, 1);
+CHECK_SIZE_ALIGN(_Atomic(short), 2, 2);
+CHECK_SIZE_ALIGN(_Atomic(int), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(wchar_t), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(wint_t), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(long), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(long long), 8, 8);
+CHECK_SIZE_ALIGN(_Atomic(void *), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(float), 4, 4);
+CHECK_SIZE_ALIGN(_Atomic(double), 8, 8);
+CHECK_SIZE_ALIGN(_Atomic(long double), 16, 16);
+
+// Standard C Atomic Complex Types: Implementation Defined Sizes & Alignments
+CHECK_SIZE_ALIGN(_Atomic(_Complex float), 8, 8);
+CHECK_SIZE_ALIGN(_Atomic(_Complex double), 16, 16);
+CHECK_SIZE_ALIGN(_Atomic(_Complex long double), 32, 16);
 
 // Standard C Types: Implementation Defined Alignment
 CHECK_EQ("_Alignof(max_align_t)", 16, _Alignof(max_align_t));
