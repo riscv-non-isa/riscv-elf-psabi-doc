@@ -1,16 +1,21 @@
-# RISC-V ELF psABI Compliance Checker
+# RISC-V ELF psABI Sanity Checker (for C compilers)
 
-This directory contains a set of C files to ensure a compiler complies with the
-[RISC-V ELF psABI specification](../riscv-elf.md).
+This directory contains a set of C files to check a C compiler complies with
+the basic parts of the [RISC-V ELF psABI specification](../riscv-elf.md).
 
 To check your compiler, run:
 
 ```
-$ ./checker [path/to/cc]
+$ ./sanity-checker-c [path/to/cc]
 ```
 
-If you do not specify a path to a C compiler, `checker` will automatically use
-your `CC` environment variable, or `/usr/bin/cc` if `CC` is empty.
+If you do not specify a path to a C compiler, `sanity-checker-c` will
+automatically use your `CC` environment variable, or `/usr/bin/cc` if `CC` is
+empty.
+
+If `sanity-checker-c` detects the C compiler is clang, it will automatically add
+a `--target` argument of either `riscv32-unknown-linux-gnu` or
+`riscv64-unknown-linux-gnu`.
 
 ## RISC-V ABI- and Architecture-specific C Preprocessor Definitions
 
@@ -28,7 +33,7 @@ and
 
 ## Copyright and license information
 
-The RISC-V ELF psABI Compliance Checker in this directory is:
+The RISC-V ELF psABI Sanity Checker (for C compilers) in this directory is:
 
  &copy; 2019 lowRISC CIC
 

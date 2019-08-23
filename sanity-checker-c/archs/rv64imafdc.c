@@ -1,4 +1,4 @@
-// RISC-V rv64imafdc Compliance Checks    -*- C -*-
+// RISC-V rv64imafdc Sanity Checks    -*- C -*-
 
 #include "utils.h"
 

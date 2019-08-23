@@ -1,4 +1,4 @@
-// RISC-V 64-bit LP64D Compliance Checks    -*- C -*-
+// RISC-V 64-bit LP64D Sanity Checks    -*- C -*-
 
 // Based off LP64 Checks
 #include "lp64.h"

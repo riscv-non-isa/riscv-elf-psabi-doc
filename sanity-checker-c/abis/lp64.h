@@ -1,4 +1,4 @@
-// RISC-V 64-bit LP64 Compliance Checks    -*- C -*-
+// RISC-V 64-bit LP64 Sanity Checks    -*- C -*-
 
 // For wchar_t, wint_t
 #include <wchar.h>

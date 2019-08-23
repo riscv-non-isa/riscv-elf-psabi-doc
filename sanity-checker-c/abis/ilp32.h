@@ -1,4 +1,4 @@
-// RISC-V 32-bit ILP32 Compliance Checks    -*- C -*-
+// RISC-V 32-bit ILP32 Sanity Checks    -*- C -*-
 
 // For wchar_t, wint_t
 #include <wchar.h>

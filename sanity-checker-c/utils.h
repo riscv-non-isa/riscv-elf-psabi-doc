@@ -1,4 +1,4 @@
-// These macros are for compile-time checks in the compliance tests    -*- C -*-
+// These macros are for compile-time sanity checks    -*- C -*-
 
 // Check sizeof(type) == size, _Alignof(type) == align
 #define CHECK_SIZE_ALIGN(type, size, align)                                    \

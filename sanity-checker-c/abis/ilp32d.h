@@ -1,4 +1,4 @@
-// RISC-V 32-bit ILP32D Compliance Checks    -*- C -*-
+// RISC-V 32-bit ILP32D Sanity Checks    -*- C -*-
 
 // Based off ILP32 Checks
 #include "ilp32.h"
