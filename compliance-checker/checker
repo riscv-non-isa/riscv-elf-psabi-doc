@@ -30,7 +30,7 @@ fi
 echo "INFO: Using cc: '${cc}' (from ${from})"
 case "$cc" in
   *"clang"*)
-    echo "INFO: Detected cc is clang"
+    echo "INFO: Detected cc is clang, will add --target argument"
     is_clang=true
     ;;
   *)
@@ -38,9 +38,11 @@ case "$cc" in
     ;;
 esac
 
-overall_result="Passed"
+overall_passing=$(( 0 ))
+overall_failing=$(( 0 ))
+overall_total=$(( 0 ))
 
-check() {
+check () {
   arch="${1}"
   abi="${2}"
 
@@ -50,15 +52,27 @@ check() {
     targeted_cc="${cc}"
   fi
 
+  overall_total=$(( overall_total + 1 ))
+
   # All Errors are reported at compile-time, using _Static_assert (a C11 feature)
   if $targeted_cc -std=c11 -c -o /dev/null 2>"errors-${arch}-${abi}.txt" \
       -I "${script_dir}" -I "${script_dir}/abis" \
       "-march=${arch}" "${script_dir}/${arch}.c" \
       "-mabi=${abi}" -D "${abi}" -include "${script_dir}/abis/${abi}.h"; then
     echo "PASS: -march=${arch} -mabi=${abi}"
+    overall_passing=$(( overall_passing + 1 ))
   else
     echo "FAIL: -march=${arch} -mabi=${abi}"
-    overall_result="Failed"
+    overall_failing=$(( overall_failing + 1 ))
+  fi;
+}
+
+summary_exit () {
+  echo "INFO: Result ${overall_passing} Passing; ${overall_failing} Failing; ${overall_total} Total"
+  if [ "${overall_failing}" -gt 0 ]; then
+    exit 1;
+  else
+    exit 0;
   fi;
 }
 
@@ -113,7 +127,4 @@ check rv64imafdc lp64d
 check rv64gc lp64d
 
 echo "INFO: Testing Complete"
-echo "INFO: Result: $overall_result"
-if ! [ "${overall_result}" = "Passed" ]; then
-  exit 1
-fi
+summary_exit
