@@ -1,9 +1,9 @@
 // RISC-V 32-bit ILP32 Sanity Checks    -*- C -*-
 
-// For wchar_t, wint_t
-#include <wchar.h>
-// For max_align_t
+#include <limits.h>
 #include <stddef.h>
+#include <stdint.h>
+#include <wchar.h>
 
 // Defines CHECK_* Macros
 #include "../utils.h"
@@ -52,13 +52,10 @@ CHECK_SIZE_ALIGN(_Atomic(_Complex long double), 32, 16);
 CHECK_EQ("_Alignof(max_align_t)", 16, _Alignof(max_align_t));
 
 // Standard C Types: Implementation Defined Signedness
-#ifndef __CHAR_UNSIGNED__
-_Static_assert(0, "char should be an unsigned type");
-#endif
-
-#ifdef __WCHAR_UNSIGNED__
-_Static_assert(0, "wchar_t should be a signed type")
-#endif
+_Static_assert(CHAR_MIN == (char)0 && CHAR_MAX == UCHAR_MAX,
+               "char should be an unsigned type");
+_Static_assert(WCHAR_MIN < (wchar_t)0, "wchar_t should be a signed type");
+_Static_assert(WINT_MIN == (wint_t)0, "wint_t should be an unsigned type");
 
 // ABI-Specific Preprocessor Defines:
 #ifndef __ELF__
