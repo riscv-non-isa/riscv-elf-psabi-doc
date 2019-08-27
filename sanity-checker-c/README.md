@@ -6,16 +6,19 @@ the basic parts of the [RISC-V ELF psABI specification](../riscv-elf.md).
 To check your compiler, run:
 
 ```
-$ ./sanity-checker-c [path/to/cc]
+$ ./sanity-checker-c [target] [cc] [path/to/sysroot]
 ```
 
-If you do not specify a path to a C compiler, `sanity-checker-c` will
-automatically use your `CC` environment variable, or `/usr/bin/cc` if `CC` is
-empty.
+`[target]` should be one of:
+  - `riscv32-unknown-elf`
+  - `riscv64-unknown-elf`
+  - `riscv32-unknown-linux-gnu`
+  - `riscv64-unknown-linux-gnu`
 
-If `sanity-checker-c` detects the C compiler is clang, it will automatically add
-a `--target` argument of either `riscv32-unknown-linux-gnu` or
-`riscv64-unknown-linux-gnu`.
+`[cc]` should be a C compiler to check
+
+`[path/to/sysroot]` should be the path to a valid multilib sysroot for the given
+target. This is optional if your compiler will choose the right directory.
 
 ## RISC-V ABI- and Architecture-specific C Preprocessor Definitions
 

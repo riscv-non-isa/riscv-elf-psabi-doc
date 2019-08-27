@@ -1,130 +1,168 @@
 #!/bin/sh
 
-set -uo pipefail
+set -u
 
-if [ $# -gt 2 ] || [ "${1}" = '--help' ]; then
-  echo "Usage: $0 [path/to/cc]"
+if [ $# -lt 2 ] || [ $# -gt 3 ] || [ "${1}" = '--help' ]; then
+  echo "Usage: $0 [target] [cc] [path/to/sysroot]"
   echo ""
-  echo "  [path/to/cc] C compiler to check. The script will use CC environment"
-  echo "               variable or '/usr/bin/env cc' if omitted."
+  echo "  [target]          RISC-V Target. Supported Values:"
+  echo "                    - riscv32-unknown-elf"
+  echo "                    - riscv64-unknown-elf"
+  echo "                    - riscv32-unknown-linux-gnu"
+  echo "                    - riscv64-unknown-linux-gnu"
   echo ""
-  echo "If you're checking clang, the script will add the correct target, but"
-  echo "you may need to --sysroot like so:"
-  echo "    $0 'clang --sysroot=\"...\"'"
-  exit 1
+  echo "  [cc]              C compiler to check."
+  echo ""
+  echo "  [path/to/sysroot] Multilib Sysroot to Check. Optional if your C"
+  echo "                    compiler will find the right sysroot."
+  echo ""
+  echo "If $0 detects the C compiler is clang, it will automatically add the"
+  echo "--target argument."
+  exit 2
 fi;
 
 script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 
-if [ -n "${1}" ]; then
-  cc="$1"
-  from="argument"
-elif [ -n "${CC}" ]; then
-  cc="$CC"
-  from="CC environment variable"
-else
-  cc='/usr/bin/env cc'
-  from="default"
-fi
-
-echo "INFO: Using cc: '${cc}' (from ${from})"
-case "$cc" in
-  *"clang"*)
-    echo "INFO: Detected cc is clang, will add --target argument"
-    is_clang=true
+# Check [target] is valid
+case "${1}" in
+  "riscv32-unknown-elf"| \
+  "riscv64-unknown-elf"| \
+  "riscv32-unknown-linux-gnu"| \
+  "riscv64-unknown-linux-gnu")
+    target="${1}"
     ;;
   *)
-    is_clang=false
+    echo "Unsupported target. Available targets are:"
+    echo "  - riscv32-unknown-elf"
+    echo "  - riscv64-unknown-elf"
+    echo "  - riscv32-unknown-linux-gnu"
+    echo "  - riscv64-unknown-linux-gnu"
+    exit 2
     ;;
 esac
 
-overall_passing=$(( 0 ))
-overall_failing=$(( 0 ))
-overall_total=$(( 0 ))
+# Check [path/to/cc] is valid
+cc="$(command -v "${2}")"
+if [ -x "${cc}" ]; then
+  echo "INFO: Using cc: '${cc}'"
+else
+  echo "CC argument: \"${cc}\" is not an executable."
+  exit 2
+fi
+
+# Check [path/to/sysroot] is valid
+sysroot="${3}"
+if [ -z "${sysroot}" ]; then
+  echo "INFO: Not adding '--sysroot' argument"
+elif [ -d "${sysroot}" ]; then
+  echo "INFO: Adding '--sysroot=${sysroot}' argument"
+  cc="${cc} --sysroot=${sysroot}"
+else
+  echo "Sysroot argument: \"${sysroot}\" is not a directory."
+  exit 2
+fi;
+
+# Check if $cc is clang
+if ${cc} --version | grep -F -q -i "clang"; then
+    echo "INFO: Detected cc is clang, adding --target=${target} argument"
+    cc="${cc} --target=$target"
+fi
+
+checks_passing=$(( 0 ))
+checks_failing=$(( 0 ))
+checks_total=$(( 0 ))
 
 check () {
   arch="${1}"
   abi="${2}"
 
-  if [ "${is_clang}" = "true" ]; then
-    targeted_cc="${cc} --target=$target"
-  else
-    targeted_cc="${cc}"
-  fi
-
-  overall_total=$(( overall_total + 1 ))
+  checks_total=$(( checks_total + 1 ))
 
   # All Errors are reported at compile-time, using _Static_assert (a C11 feature)
-  if $targeted_cc -std=c11 -c -o /dev/null 2>"errors-${arch}-${abi}.txt" \
+  if $cc -std=c11 -c \
+      -o /dev/null 2>"errors-${arch}-${abi}.txt" \
       -I "${script_dir}" -I "${script_dir}/abis" \
       "-march=${arch}" "${script_dir}/archs/${arch}.c" \
       "-mabi=${abi}" -D "${abi}" -include "${script_dir}/abis/${abi}.h"; then
     echo "PASS: -march=${arch} -mabi=${abi}"
-    overall_passing=$(( overall_passing + 1 ))
+    checks_passing=$(( checks_passing + 1 ))
   else
     echo "FAIL: -march=${arch} -mabi=${abi}"
-    overall_failing=$(( overall_failing + 1 ))
+    checks_failing=$(( checks_failing + 1 ))
   fi;
 }
 
 summary_exit () {
-  echo "INFO: Result ${overall_passing} Passing; ${overall_failing} Failing; ${overall_total} Total"
-  if [ "${overall_failing}" -gt 0 ]; then
+  echo "INFO: Result ${checks_passing} Passing; ${checks_failing} Failing; ${checks_total} Total"
+  if [ "${checks_failing}" -gt 0 ]; then
     exit 1;
   else
     exit 0;
   fi;
 }
 
-# RISC-V 32
-target="riscv32-unknown-linux-gnu"
+case "${target}" in
+  riscv32*)
+    # RISC-V 32, ILP32
+    check rv32i ilp32
+    check rv32ic ilp32
+    check rv32im ilp32
+    check rv32imc ilp32
+    check rv32iac ilp32
+    check rv32imac ilp32
+    check rv32imafc ilp32
+    check rv32imafdc ilp32
+    check rv32gc ilp32
 
-# RISC-V 32, ILP32
-check rv32i ilp32
-check rv32ic ilp32
-check rv32im ilp32
-check rv32imc ilp32
-check rv32iac ilp32
-check rv32imac ilp32
-check rv32imafc ilp32
-check rv32imafdc ilp32
-check rv32gc ilp32
+    # RISC-V 32, ILP32F
+    case "${target}" in
+      *-elf)
+        check rv32imafc ilp32f
+        check rv32imafdc ilp32f
+        check rv32gc ilp32f
+        ;;
+      *-linux-gnu)
+        # ILP32F is not supported with Linux multilib
+        ;;
+    esac
 
-# RISC-V 32, ILP32F
-check rv32imafc ilp32f
-check rv32imafdc ilp32f
-check rv32gc ilp32f
+    # RISC-V 32, ILP32D
+    check rv32imafdc ilp32d
+    check rv32gc ilp32d
 
-# RISC-V 32, ILP32D
-check rv32imafdc ilp32d
-check rv32gc ilp32d
+    # RISC-V 32, ILP32E
+    check rv32i ilp32e
+    check rv32ic ilp32e
+    check rv32im ilp32e
+    check rv32imc ilp32e
+    check rv32iac ilp32e
+    check rv32imac ilp32e
+    check rv32imafc ilp32e
+    check rv32imafdc ilp32e
+    check rv32gc ilp32e
+    ;;
+  riscv64-*)
+    # RISC-V 64, LP64
+    check rv64imac lp64
+    check rv64imafdc lp64
+    check rv64gc lp64
 
-# RISC-V 32, ILP32E
-check rv32i ilp32e
-check rv32ic ilp32e
-check rv32im ilp32e
-check rv32imc ilp32e
-check rv32iac ilp32e
-check rv32imac ilp32e
-check rv32imafc ilp32e
-check rv32imafdc ilp32e
-check rv32gc ilp32e
+    # RISC-V 64, LP64F
+    case "${target}" in
+      *-elf)
+        check rv64imafdc lp64f
+        check rv64gc lp64f
+        ;;
+      *-linux-gnu)
+        # LP64F is not supported with Linux multilib
+        ;;
+    esac
 
-# RISC-V 64
-target="riscv64-unknown-linux-gnu"
-
-# RISC-V 64, LP64
-check rv64imac lp64
-check rv64imafdc lp64
-check rv64gc lp64
-
-# RISC-V 64, LP64F
-check rv64imafdc lp64f
-check rv64gc lp64f
-
-# RISC-V 64, LP64D
-check rv64imafdc lp64d
-check rv64gc lp64d
+    # RISC-V 64, LP64D
+    check rv64imafdc lp64d
+    check rv64gc lp64d
+    ;;
+esac
 
 echo "INFO: Testing Complete"
 summary_exit
