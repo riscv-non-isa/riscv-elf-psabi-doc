@@ -51,7 +51,7 @@ else
 fi
 
 # Check [path/to/sysroot] is valid
-sysroot="${3}"
+sysroot="${3:-}"
 if [ -z "${sysroot}" ]; then
   echo "INFO: Not adding '--sysroot' argument"
 elif [ -d "${sysroot}" ]; then
@@ -93,7 +93,7 @@ check () {
 }
 
 summary_exit () {
-  echo "INFO: Result ${checks_passing} Passing; ${checks_failing} Failing; ${checks_total} Total"
+  echo "INFO: Result: ${checks_passing} Passing; ${checks_failing} Failing; ${checks_total} Total"
   if [ "${checks_failing}" -gt 0 ]; then
     exit 1;
   else
@@ -131,15 +131,19 @@ case "${target}" in
     check rv32gc ilp32d
 
     # RISC-V 32, ILP32E
-    check rv32i ilp32e
-    check rv32ic ilp32e
-    check rv32im ilp32e
-    check rv32imc ilp32e
-    check rv32iac ilp32e
-    check rv32imac ilp32e
-    check rv32imafc ilp32e
-    check rv32imafdc ilp32e
-    check rv32gc ilp32e
+    if ! [ "${SKIP_ILP32E}" = "true" ]; then
+      # This ABI is not fully defined yet, so we consider it optional in this
+      # sanity checker.
+      check rv32i ilp32e
+      check rv32ic ilp32e
+      check rv32im ilp32e
+      check rv32imc ilp32e
+      check rv32iac ilp32e
+      check rv32imac ilp32e
+      check rv32imafc ilp32e
+      check rv32imafdc ilp32e
+      check rv32gc ilp32e
+    fi
     ;;
   riscv64-*)
     # RISC-V 64, LP64
