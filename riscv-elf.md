@@ -8,9 +8,12 @@
 	* [Integer Calling Convention](#integer-calling-convention)
 	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
 	* [RV32E Calling Convention](#rv32e-calling-convention)
-	* [Default ABIs and C type sizes](#default-abis-and-c-type-sizes)
+	* [Default ABIs](#default-abis)
+3. [C type details](#c-types)
+	* [C type sizes and alignments](#c-type-sizes)
+	* [C type representations](#c-type-representation)
 	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
-3. [ELF Object Files](#elf-object-file)
+4. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
 	* [Sections](#sections)
 	* [String Tables](#string-tables)
@@ -21,7 +24,7 @@
 	* [Note Sections](#note-sections)
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
-4. [DWARF](#dwarf)
+5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
 
 ## Copyright and license information
@@ -241,72 +244,87 @@ s0-s1, and only three temporaries, t0-t2.
 If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
 
-## <a name=default-abis-and-c-type-sizes></a> Default ABIs and C type sizes
+## <a name=default-abis></a> Default ABIs
 
 While various different ABIs are technically possible, for software
 compatibility reasons it is strongly recommended to use the following
-default ABIs:
+default ABIs for specific architectures:
 
-  * **on RV64G**: LP64 with floats and doubles passed in floating point
-    registers, i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
-    following C type sizes:
-
-    Type        | Size (Bytes)  | Alignment (Bytes)
-    ------------|---------------|------------------
-    bool/_Bool  |  1            |  1
-    char        |  1            |  1
-    short       |  2            |  2
-    int         |  4            |  4
-    wchar_t     |  4            |  4
-    wint_t      |  4            |  4
-    long        |  8            |  8
-    long long   |  8            |  8
-    __int128    | 16            | 16
-    void *      |  8            |  8
-    float       |  4            |  4
-    double      |  8            |  8
-    long double | 16            | 16
+  * **on RV64G**: LP64D, with floats and doubles passed in floating point
+    registers (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
     Although RV64GQ systems can technically use EF_RISCV_FLOAT_ABI_QUAD,
     it is strongly recommended to use EF_RISCV_FLOAT_ABI_DOUBLE on
     general-purpose RV64GQ systems for compatibility with standard RV64G
     software.
 
-  * **on RV32G**: ILP32 with floats and doubles passed in floating point
-    registers, i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
-    following C type sizes:
-
-    Type        | Size (Bytes)  | Alignment (Bytes)
-    ------------|---------------|------------------
-    bool/_Bool  |  1            |  1
-    char        |  1            |  1
-    short       |  2            |  2
-    int         |  4            |  4
-    wchar_t     |  4            |  4
-    wint_t      |  4            |  4
-    long        |  4            |  4
-    long long   |  8            |  8
-    void *      |  4            |  4
-    float       |  4            |  4
-    double      |  8            |  8
-    long double | 16            | 16
-
-`char` is unsigned.  `wchar_t` is signed.  `wint_t` is unsigned.
-
-`_Complex` types have the alignment and layout of a struct containing two
-fields of the corresponding real type (`float`, `double`, or `long double`),
-with the first field holding the real part and the second field holding
-the imaginary part.
+  * **on RV32G**: ILP32D, with floats and doubles passed in floating point
+    registers (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
 A future version of this specification may define an ILP32 ABI for
 RV64G, but currently this is not a supported operating mode.
+
+# <a name=c-types></a> C type details
+## <a name=c-type-sizes></a> C type sizes and alignments
+
+There are two conventions for C type sizes and alignments.
+
+  * **LP64, LP64F, and LP64D**: use the following type sizes and alignments
+    (based on the LP64 convention):
+
+    Type                 | Size (Bytes)  | Alignment (Bytes)
+    ---------------------|---------------|------------------
+    bool/_Bool           |  1            |  1
+    char                 |  1            |  1
+    short                |  2            |  2
+    int                  |  4            |  4
+    long                 |  8            |  8
+    long long            |  8            |  8
+    __int128             | 16            | 16
+    void *               |  8            |  8
+    float                |  4            |  4
+    double               |  8            |  8
+    long double          | 16            | 16
+    float _Complex       |  8            |  4
+    double _Complex      | 16            |  8
+    long double _Complex | 32            | 16
+
+  * **ILP32, ILP32F, and ILP32D**: use the following type sizes and alignments
+    (based on the ILP32 convention):
+
+    Type                 | Size (Bytes)  | Alignment (Bytes)
+    ---------------------|---------------|------------------
+    bool/_Bool           |  1            |  1
+    char                 |  1            |  1
+    short                |  2            |  2
+    int                  |  4            |  4
+    long                 |  4            |  4
+    long long            |  8            |  8
+    void *               |  4            |  4
+    float                |  4            |  4
+    double               |  8            |  8
+    long double          | 16            | 16
+    float _Complex       |  8            |  4
+    double _Complex      | 16            |  8
+    long double _Complex | 32            | 16
+
+The alignment of `max_align_t` is 16.
+
+Structs and unions are aligned to the alignment of their most strictly aligned
+member. The size of any object is a multiple of its alignment.
+
+## <a name=c-type-representation></a> C type representations
+
+`char` is unsigned.
 
 Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
 arguments are either `0` (`false`) or `1` (`true`).
 
 A null pointer (for all types) has the value zero.
 
-The value of `_Alignof(max_align_t)` is 16.
+`_Complex` types have the same layout as a struct containing two fields of the
+corresponding real type (`float`, `double`, or `long double`), with the first
+member holding the real part and the second member holding the imaginary part.
 
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
