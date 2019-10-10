@@ -310,6 +310,8 @@ There are two conventions for C type sizes and alignments.
 
 The alignment of `max_align_t` is 16.
 
+`CHAR_BITS` is 8.
+
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
 
