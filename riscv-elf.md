@@ -26,6 +26,9 @@
 	* [Hash Table](#hash-table)
 5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
+6. [Linux-specific ABI](#linux-abi)
+	* [Linux-specific C type sizes and alignments](#linux-c-type-sizes)
+	* [Linux-specific C type representations](#linux-c-type-representations)
 
 ## Copyright and license information
 
@@ -833,3 +836,29 @@ Dwarf Number  | Register Name | Description
 The alternate frame return column is meant to be used when unwinding from
 signal handlers, and stores the address where the signal handler will return
 to.
+
+# <a name=linux-abi></a> Linux-specific ABI
+
+**This section of the RISC-V ELF psABI specification only applies to Linux-based
+systems.**
+
+In order to ensure compatibility between different implementations of the C
+library for Linux, we provide some extra definitions which only apply on those
+systems. These are noted in this section.
+
+## <a name=linux-c-type-sizes></a> Linux-specific C type sizes and alignments
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+Type        | Size (Bytes)  | Alignment (Bytes)
+------------|---------------|------------------
+wchar_t     |  4            |  4
+wint_t      |  4            |  4
+
+## <a name=linux-c-type-representations></a> Linux-specific C type representations
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+`wchar_t` is signed.  `wint_t` is unsigned.
