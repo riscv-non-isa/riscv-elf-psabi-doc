@@ -7,7 +7,8 @@
 2. [Procedure Calling Convention](#procedure-calling-convention)
 	* [Integer Calling Convention](#integer-calling-convention)
 	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
-	* [RV32E Calling Convention](#rv32e-calling-convention)
+	* [ILP32E Calling Convention](#ilp32e-calling-convention)
+	* [Named ABIs](#named-abis)
 	* [Default ABIs](#default-abis)
 3. [C type details](#c-types)
 	* [C type sizes and alignments](#c-type-sizes)
@@ -184,9 +185,9 @@ whether or not the integer registers have been exhausted.
 The remainder of this section applies only to named arguments.  Variadic
 arguments are passed according to the integer calling convention.
 
-For the purposes of this section, FLEN refers to the width of a
-floating-point register in the ABI.  The ISA might have wider
-floating-point registers than the ABI.
+For the purposes of this section, FLEN refers to the width of a floating-point
+register in the ABI.  The ABI's FLEN must be no wider than the ISA's FLEN.  The
+ISA might have wider floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
@@ -235,17 +236,57 @@ type would be passed.
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than FLEN bits wide.
 
-## <a name=rv32e-calling-convention></a> RV32E Calling Convention
+## <a name=ilp32e-calling-convention></a> ILP32E Calling Convention
 
-The RV32E calling convention is designed to be usable with the RV32E ISA.
-This calling convention is the same as the integer calling convention,
-except for the following differences.  The stack pointer need only be aligned
-to a 32-bit boundary.  Registers x16-x31 do not participate in the ABI, so
+The ILP32E calling convention is designed to be usable with the RV32E ISA. This
+calling convention is the same as the integer calling convention, except for the
+following differences.  The stack pointer need only be aligned to a 32-bit
+boundary.  Registers x16-x31 do not participate in the calling convention, so
 there are only six argument registers, a0-a5, only two callee-saved registers,
 s0-s1, and only three temporaries, t0-t2.
 
 If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
+
+## <a name=named-abis></a> Named ABIs
+
+This specification defines the following named ABIs:
+
+* <a name=abi-ilp32></a> **ILP32**: Integer calling-convention only, hardware
+  floating-point calling convention is not used (i.e. ELFCLASS32 and
+  EF_RISCV_FLOAT_ABI_SOFT).
+
+* <a name=abi-ilp32f></a> **ILP32F**: ILP32 with hardware floating-point calling
+  convention for FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+* <a name=abi-ilp32d></a> **ILP32D**: ILP32 with hardware floating-point calling
+  convention for FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+* <a name=abi-ilp32e></a> **ILP32E**: [ILP32E
+  calling-convention](#ilp32e-calling-convention) only, hardware floating-point
+  calling convention is not used (i.e. ELFCLASS32, EF_RISCV_FLOAT_ABI_SOFT, and
+  EF_RISCV_RVE).
+
+* <a name=abi-lp64></a> **LP64**: Integer calling-convention only, hardware
+  floating-point calling convention is not used (i.e. ELFCLASS64 and
+  EF_RISCV_FLOAT_ABI_SOFT).
+
+* <a name=abi-lp64f></a> **LP64F**: LP64 with hardware floating-point calling
+  convention for FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+* <a name=abi-lp64d></a> **LP64D**: LP64 with hardware floating-point calling
+  convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+* <a name=abi-lp64q></a> **LP64Q**: LP64 with hardware floating-point calling
+  convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
+
+The ILP32\* ABIs are only compatible with RV32\* ISAs, and the LP64\* ABIs are
+only compatible with RV64\* ISAs. A future version of this specification may
+define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
+operating mode.
+
+The \*F ABIs require the \*F ISA extension, the \*D ABIs require the \*D ISA
+extension, and the LP64Q ABI requires the Q ISA extension.
 
 ## <a name=default-abis></a> Default ABIs
 
@@ -264,16 +305,13 @@ default ABIs for specific architectures:
   * **on RV32G**: ILP32D, with floats and doubles passed in floating point
     registers (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
-A future version of this specification may define an ILP32 ABI for
-RV64G, but currently this is not a supported operating mode.
-
 # <a name=c-types></a> C type details
 ## <a name=c-type-sizes></a> C type sizes and alignments
 
 There are two conventions for C type sizes and alignments.
 
-  * **LP64, LP64F, and LP64D**: use the following type sizes and alignments
-    (based on the LP64 convention):
+  * **LP64, LP64F, LP64D, and LP64Q**: use the following type sizes and
+    alignments (based on the LP64 convention):
 
     Type                 | Size (Bytes)  | Alignment (Bytes)
     ---------------------|---------------|------------------
@@ -292,8 +330,8 @@ There are two conventions for C type sizes and alignments.
     double _Complex      | 16            |  8
     long double _Complex | 32            | 16
 
-  * **ILP32, ILP32F, and ILP32D**: use the following type sizes and alignments
-    (based on the ILP32 convention):
+  * **ILP32, ILP32F, ILP32D, and ILP32E**: use the following type sizes and
+    alignments (based on the ILP32 convention):
 
     Type                 | Size (Bytes)  | Alignment (Bytes)
     ---------------------|---------------|------------------
