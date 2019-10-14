@@ -35,15 +35,16 @@
 
 This RISC-V ELF psABI specification document is
 
- &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>
- &copy; 2016 Stefan O'Rear <sorear2@gmail.com>
- &copy; 2016 Kito Cheng <kito.cheng@gmail.com>
- &copy; 2016-2017 Andrew Waterman <aswaterman@gmail.com>
- &copy; 2016-2017 Michael Clark <michaeljclark@mac.com>
- &copy; 2017-2019 Alex Bradbury <asb@asbradbury.org>
- &copy; 2017 David Horner <ds2horner@gmail.com>
- &copy; 2017 Max Nordlund <max.nordlund@gmail.com>
- &copy; 2017 Karsten Merker <merker@debian.org>
+ &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>  
+ &copy; 2016 Stefan O'Rear <sorear2@gmail.com>  
+ &copy; 2016 Kito Cheng <kito.cheng@gmail.com>  
+ &copy; 2016-2017 Andrew Waterman <aswaterman@gmail.com>  
+ &copy; 2016-2017 Michael Clark <michaeljclark@mac.com>  
+ &copy; 2017-2019 Alex Bradbury <asb@asbradbury.org>  
+ &copy; 2017 David Horner <ds2horner@gmail.com>  
+ &copy; 2017 Max Nordlund <max.nordlund@gmail.com>  
+ &copy; 2017 Karsten Merker <merker@debian.org>  
+ &copy; 2019 Sam Elliott <selliott@lowrisc.org>  
 
 It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
