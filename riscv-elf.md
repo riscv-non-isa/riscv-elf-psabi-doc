@@ -294,16 +294,13 @@ While various different ABIs are technically possible, for software
 compatibility reasons it is strongly recommended to use the following
 default ABIs for specific architectures:
 
-  * **on RV64G**: LP64D, with floats and doubles passed in floating point
-    registers (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+  * **on RV64G**: [LP64D](#abi-lp64d)
 
-    Although RV64GQ systems can technically use EF_RISCV_FLOAT_ABI_QUAD,
-    it is strongly recommended to use EF_RISCV_FLOAT_ABI_DOUBLE on
-    general-purpose RV64GQ systems for compatibility with standard RV64G
-    software.
+    Although RV64GQ systems can technically use [LP64Q](#abi-lp64q), it is
+    strongly recommended to use LP64D on general-purpose RV64GQ systems for
+    compatibility with standard RV64G software.
 
-  * **on RV32G**: ILP32D, with floats and doubles passed in floating point
-    registers (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+  * **on RV32G**: [ILP32D](#abi-ilp32d)
 
 # <a name=c-types></a> C type details
 ## <a name=c-type-sizes></a> C type sizes and alignments
