@@ -7,10 +7,14 @@
 2. [Procedure Calling Convention](#procedure-calling-convention)
 	* [Integer Calling Convention](#integer-calling-convention)
 	* [Hardware Floating-point Calling Convention](#hardware-floating-point-calling-convention)
-	* [RV32E Calling Convention](#rv32e-calling-convention)
-	* [Default ABIs and C type sizes](#default-abis-and-c-type-sizes)
+	* [ILP32E Calling Convention](#ilp32e-calling-convention)
+	* [Named ABIs](#named-abis)
+	* [Default ABIs](#default-abis)
+3. [C type details](#c-types)
+	* [C type sizes and alignments](#c-type-sizes)
+	* [C type representations](#c-type-representation)
 	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
-3. [ELF Object Files](#elf-object-file)
+4. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
 	* [Sections](#sections)
 	* [String Tables](#string-tables)
@@ -21,22 +25,26 @@
 	* [Note Sections](#note-sections)
 	* [Dynamic Table](#dynamic-table)
 	* [Hash Table](#hash-table)
-4. [DWARF](#dwarf)
+5. [DWARF](#dwarf)
 	* [Dwarf Register Numbers](#dwarf-register-numbers)
+6. [Linux-specific ABI](#linux-abi)
+	* [Linux-specific C type sizes and alignments](#linux-c-type-sizes)
+	* [Linux-specific C type representations](#linux-c-type-representations)
 
 ## Copyright and license information
 
 This RISC-V ELF psABI specification document is
 
- &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>
- &copy; 2016 Stefan O'Rear <sorear2@gmail.com>
- &copy; 2016 Kito Cheng <kito.cheng@gmail.com>
- &copy; 2016-2017 Andrew Waterman <aswaterman@gmail.com>
- &copy; 2016-2017 Michael Clark <michaeljclark@mac.com>
- &copy; 2017-2019 Alex Bradbury <asb@asbradbury.org>
- &copy; 2017 David Horner <ds2horner@gmail.com>
- &copy; 2017 Max Nordlund <max.nordlund@gmail.com>
- &copy; 2017 Karsten Merker <merker@debian.org>
+ &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>  
+ &copy; 2016 Stefan O'Rear <sorear2@gmail.com>  
+ &copy; 2016 Kito Cheng <kito.cheng@gmail.com>  
+ &copy; 2016-2017 Andrew Waterman <aswaterman@gmail.com>  
+ &copy; 2016-2017 Michael Clark <michaeljclark@mac.com>  
+ &copy; 2017-2019 Alex Bradbury <asb@asbradbury.org>  
+ &copy; 2017 David Horner <ds2horner@gmail.com>  
+ &copy; 2017 Max Nordlund <max.nordlund@gmail.com>  
+ &copy; 2017 Karsten Merker <merker@debian.org>  
+ &copy; 2019 Sam Elliott <selliott@lowrisc.org>  
 
 It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
@@ -178,9 +186,9 @@ whether or not the integer registers have been exhausted.
 The remainder of this section applies only to named arguments.  Variadic
 arguments are passed according to the integer calling convention.
 
-For the purposes of this section, FLEN refers to the width of a
-floating-point register in the ABI.  The ISA might have wider
-floating-point registers than the ABI.
+For the purposes of this section, FLEN refers to the width of a floating-point
+register in the ABI.  The ABI's FLEN must be no wider than the ISA's FLEN.  The
+ISA might have wider floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
@@ -229,84 +237,135 @@ type would be passed.
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than FLEN bits wide.
 
-## <a name=rv32e-calling-convention></a> RV32E Calling Convention
+## <a name=ilp32e-calling-convention></a> ILP32E Calling Convention
 
-The RV32E calling convention is designed to be usable with the RV32E ISA.
-This calling convention is the same as the integer calling convention,
-except for the following differences.  The stack pointer need only be aligned
-to a 32-bit boundary.  Registers x16-x31 do not participate in the ABI, so
+The ILP32E calling convention is designed to be usable with the RV32E ISA. This
+calling convention is the same as the integer calling convention, except for the
+following differences.  The stack pointer need only be aligned to a 32-bit
+boundary.  Registers x16-x31 do not participate in the calling convention, so
 there are only six argument registers, a0-a5, only two callee-saved registers,
 s0-s1, and only three temporaries, t0-t2.
 
 If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
 
-## <a name=default-abis-and-c-type-sizes></a> Default ABIs and C type sizes
+## <a name=named-abis></a> Named ABIs
+
+This specification defines the following named ABIs:
+
+* <a name=abi-ilp32></a> **ILP32**: Integer calling-convention only, hardware
+  floating-point calling convention is not used (i.e. ELFCLASS32 and
+  EF_RISCV_FLOAT_ABI_SOFT).
+
+* <a name=abi-ilp32f></a> **ILP32F**: ILP32 with hardware floating-point calling
+  convention for FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+* <a name=abi-ilp32d></a> **ILP32D**: ILP32 with hardware floating-point calling
+  convention for FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+* <a name=abi-ilp32e></a> **ILP32E**: [ILP32E
+  calling-convention](#ilp32e-calling-convention) only, hardware floating-point
+  calling convention is not used (i.e. ELFCLASS32, EF_RISCV_FLOAT_ABI_SOFT, and
+  EF_RISCV_RVE).
+
+* <a name=abi-lp64></a> **LP64**: Integer calling-convention only, hardware
+  floating-point calling convention is not used (i.e. ELFCLASS64 and
+  EF_RISCV_FLOAT_ABI_SOFT).
+
+* <a name=abi-lp64f></a> **LP64F**: LP64 with hardware floating-point calling
+  convention for FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+* <a name=abi-lp64d></a> **LP64D**: LP64 with hardware floating-point calling
+  convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+* <a name=abi-lp64q></a> **LP64Q**: LP64 with hardware floating-point calling
+  convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
+
+The ILP32\* ABIs are only compatible with RV32\* ISAs, and the LP64\* ABIs are
+only compatible with RV64\* ISAs. A future version of this specification may
+define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
+operating mode.
+
+The \*F ABIs require the \*F ISA extension, the \*D ABIs require the \*D ISA
+extension, and the LP64Q ABI requires the Q ISA extension.
+
+## <a name=default-abis></a> Default ABIs
 
 While various different ABIs are technically possible, for software
 compatibility reasons it is strongly recommended to use the following
-default ABIs:
+default ABIs for specific architectures:
 
-  * **on RV64G**: LP64 with floats and doubles passed in floating point
-    registers, i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
-    following C type sizes:
+  * **on RV64G**: [LP64D](#abi-lp64d)
 
-    Type        | Size (Bytes)  | Alignment (Bytes)
-    ------------|---------------|------------------
-    bool/_Bool  |  1            |  1
-    char        |  1            |  1
-    short       |  2            |  2
-    int         |  4            |  4
-    wchar_t     |  4            |  4
-    wint_t      |  4            |  4
-    long        |  8            |  8
-    long long   |  8            |  8
-    __int128    | 16            | 16
-    void *      |  8            |  8
-    float       |  4            |  4
-    double      |  8            |  8
-    long double | 16            | 16
+    Although RV64GQ systems can technically use [LP64Q](#abi-lp64q), it is
+    strongly recommended to use LP64D on general-purpose RV64GQ systems for
+    compatibility with standard RV64G software.
 
-    Although RV64GQ systems can technically use EF_RISCV_FLOAT_ABI_QUAD,
-    it is strongly recommended to use EF_RISCV_FLOAT_ABI_DOUBLE on
-    general-purpose RV64GQ systems for compatibility with standard RV64G
-    software.
+  * **on RV32G**: [ILP32D](#abi-ilp32d)
 
-  * **on RV32G**: ILP32 with floats and doubles passed in floating point
-    registers, i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE, using the
-    following C type sizes:
+# <a name=c-types></a> C type details
+## <a name=c-type-sizes></a> C type sizes and alignments
 
-    Type        | Size (Bytes)  | Alignment (Bytes)
-    ------------|---------------|------------------
-    bool/_Bool  |  1            |  1
-    char        |  1            |  1
-    short       |  2            |  2
-    int         |  4            |  4
-    wchar_t     |  4            |  4
-    wint_t      |  4            |  4
-    long        |  4            |  4
-    long long   |  8            |  8
-    void *      |  4            |  4
-    float       |  4            |  4
-    double      |  8            |  8
-    long double | 16            | 16
+There are two conventions for C type sizes and alignments.
 
-`char` is unsigned.  `wchar_t` is signed.  `wint_t` is unsigned.
+  * **LP64, LP64F, LP64D, and LP64Q**: use the following type sizes and
+    alignments (based on the LP64 convention):
 
-`_Complex` types have the alignment and layout of a struct containing two
-fields of the corresponding real type (`float`, `double`, or `long double`),
-with the first field holding the real part and the second field holding
-the imaginary part.
+    Type                 | Size (Bytes)  | Alignment (Bytes)
+    ---------------------|---------------|------------------
+    bool/_Bool           |  1            |  1
+    char                 |  1            |  1
+    short                |  2            |  2
+    int                  |  4            |  4
+    long                 |  8            |  8
+    long long            |  8            |  8
+    __int128             | 16            | 16
+    void *               |  8            |  8
+    float                |  4            |  4
+    double               |  8            |  8
+    long double          | 16            | 16
+    float _Complex       |  8            |  4
+    double _Complex      | 16            |  8
+    long double _Complex | 32            | 16
 
-A future version of this specification may define an ILP32 ABI for
-RV64G, but currently this is not a supported operating mode.
+  * **ILP32, ILP32F, ILP32D, and ILP32E**: use the following type sizes and
+    alignments (based on the ILP32 convention):
+
+    Type                 | Size (Bytes)  | Alignment (Bytes)
+    ---------------------|---------------|------------------
+    bool/_Bool           |  1            |  1
+    char                 |  1            |  1
+    short                |  2            |  2
+    int                  |  4            |  4
+    long                 |  4            |  4
+    long long            |  8            |  8
+    void *               |  4            |  4
+    float                |  4            |  4
+    double               |  8            |  8
+    long double          | 16            | 16
+    float _Complex       |  8            |  4
+    double _Complex      | 16            |  8
+    long double _Complex | 32            | 16
+
+The alignment of `max_align_t` is 16.
+
+`CHAR_BITS` is 8.
+
+Structs and unions are aligned to the alignment of their most strictly aligned
+member. The size of any object is a multiple of its alignment.
+
+## <a name=c-type-representation></a> C type representations
+
+`char` is unsigned.
 
 Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
 arguments are either `0` (`false`) or `1` (`true`).
 
 A null pointer (for all types) has the value zero.
 
-The value of `_Alignof(max_align_t)` is 16.
+`_Complex` types have the same layout as a struct containing two fields of the
+corresponding real type (`float`, `double`, or `long double`), with the first
+member holding the real part and the second member holding the imaginary part.
 
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
@@ -813,3 +872,29 @@ Dwarf Number  | Register Name | Description
 The alternate frame return column is meant to be used when unwinding from
 signal handlers, and stores the address where the signal handler will return
 to.
+
+# <a name=linux-abi></a> Linux-specific ABI
+
+**This section of the RISC-V ELF psABI specification only applies to Linux-based
+systems.**
+
+In order to ensure compatibility between different implementations of the C
+library for Linux, we provide some extra definitions which only apply on those
+systems. These are noted in this section.
+
+## <a name=linux-c-type-sizes></a> Linux-specific C type sizes and alignments
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+Type        | Size (Bytes)  | Alignment (Bytes)
+------------|---------------|------------------
+wchar_t     |  4            |  4
+wint_t      |  4            |  4
+
+## <a name=linux-c-type-representations></a> Linux-specific C type representations
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+`wchar_t` is signed.  `wint_t` is unsigned.
