@@ -562,8 +562,8 @@ dynamic linker during program loading, or on the first call to extern functions.
 To avoid runtime relocations within the text segment of position independent
 code the GOT is used for indirection. Instead of code loading virtual addresses
 directly, as can be done in static code, addresses are loaded from the GOT.
-The allows runtime binding to external objects and functions at the expense of a
-slightly higher runtime overhead for access to extern objects and functions.
+This allows runtime binding to external objects and functions at the expense of
+a slightly higher runtime overhead for access to extern objects and functions.
 
 
 ### Program Linkage Table
