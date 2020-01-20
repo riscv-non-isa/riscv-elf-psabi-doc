@@ -250,7 +250,7 @@ If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
 
 The ILP32E calling convention is not compatible with ISAs that have registers
-that require load and store alignments of more than 32-bits. In particular, this
+that require load and store alignments of more than 32 bits. In particular, this
 calling convention must not be used with the D ISA extension.
 
 ## <a name=named-abis></a> Named ABIs
