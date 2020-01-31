@@ -142,7 +142,8 @@ Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as aggregates of the same size,
 complex floating-point numbers are passed the same way as a struct containing
-two floating-point reals.
+two floating-point reals. (This constraint changes when the integer calling 
+convention is augmented by the hardware floating-point calling convention.)
 
 In the base integer calling convention, variadic arguments are passed in the
 same manner as named arguments, with one exception.  Variadic arguments with
@@ -174,7 +175,9 @@ Procedures must not rely upon the persistence of
 stack-allocated data whose addresses lie below the stack pointer.
 
 Registers s0-s11 shall be preserved across procedure calls.
-No floating-point registers, if present, are preserved across calls.
+No floating-point registers, if present, are preserved across calls. (This 
+property changes when the integer calling convention is augmented by the 
+hardware floating-point calling convention.)
 
 ## <a name=hardware-floating-point-calling-convention></a> Hardware Floating-point Calling Convention
 
