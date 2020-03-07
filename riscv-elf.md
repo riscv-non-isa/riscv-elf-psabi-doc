@@ -473,7 +473,7 @@ Enum | ELF Reloc Type       | Description                     | Details
 17   | R_RISCV_JAL          | PC-relative jump                | (UJ-Type)
 18   | R_RISCV_CALL         | PC-relative call                | MACRO call,tail (auipc+jalr pair)
 19   | R_RISCV_CALL_PLT     | PC-relative call (PLT)          | MACRO call,tail (auipc+jalr pair) PIC
-20   | R_RISCV_GOT_HI20     | PC-relative GOT reference       | MACRO la
+20   | R_RISCV_GOT_HI20     | PC-relative GOT reference       | %got_pcrel_hi(symbol) (U-Type)
 21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT offset   | MACRO la.tls.ie
 22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference    | MACRO la.tls.gd
 23   | R_RISCV_PCREL_HI20   | PC-relative reference           | %pcrel_hi(symbol) (U-Type)
