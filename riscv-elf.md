@@ -532,8 +532,10 @@ A              | Addend field in the relocation entry associated with the symbol
 B              | Base address of a shared object loaded into memory
 G              | Offset of the symbol into the GOT (Global Offset Table)
 S              | Value of the symbol in the symbol table
-GP             | Global Pointer register (x3)
+GP             | Value of `__global_pointer$` symbol.
 
+**Global Pointer**: It is assumed that program startup code will load the value
+of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 
 ### Absolute Addresses
 
@@ -555,9 +557,24 @@ The following assembly and relocations show loading an absolute address:
 
 ```
      lui  a0,%hi(symbol)     # R_RISCV_HI20 (symbol)
-     addi a0,a0,%lo(symbol)  # R_RISCV_LO12 (symbol)
+     addi a0,a0,%lo(symbol)  # R_RISCV_LO12_I (symbol)
 ```
 
+**GP-Relative Relocations**: If `symbol` is within the range of a signed 12-bit
+immediate offset from `__global_pointer$`, then the address can be loaded with a
+single instruction which has one relocation, a `R_RISCV_GPREL_I` or
+`R_RISCV_GPREL_S`.
+
+The instruction is an I-Type instruction (add immediate or load) with an
+`R_RISCV_GPREL_I` or an S-type instruction (store) with an `R_RISCV_GPREL_S`
+relocation. The following assembly show loading a gp-relative address:
+
+```
+     addi a0, gp, 0          # R_RISCV_GPREL_I (symbol)
+```
+
+This relies on the value of `__global_pointer$` being loaded into `gp` (aka
+`x3`). This can be used by linker relaxation to delete the `lui` instruction.
 
 ### Global Offset Table
 
