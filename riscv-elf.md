@@ -161,6 +161,10 @@ address as an implicit first parameter.
 
 The stack grows downwards (towards lower addresses) and the stack pointer shall
 be aligned to a 128-bit boundary upon procedure entry.
+The first argument passed on the stack is located at offset zero of the stack pointer
+on function entry; following arguments are stored at correspondingly
+higher addresses.
+
 In the standard ABI, the stack pointer must remain
 aligned throughout procedure execution. Non-standard ABI code must realign the
 stack pointer prior to invoking standard ABI procedures.  The operating system
