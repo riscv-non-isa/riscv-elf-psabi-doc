@@ -95,9 +95,12 @@ The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
-register, or on the stack by value if none is available.  When passed in
-registers, scalars narrower than XLEN bits are widened according to the sign
-of their type up to 32 bits, then sign-extended to XLEN bits.
+register, or on the stack by value if none is available.
+When passed in registers or on the stack, integer scalars narrower than XLEN
+bits are widened according to the sign of their type up to 32 bits, then
+sign-extended to XLEN bits.
+When passed in registers or on the stack, floating-point types narrower than
+XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
 Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -119,8 +122,8 @@ available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
 
-Aggregates or scalars passed on the stack are aligned to the minimum of the
-object alignment and the stack alignment.
+Aggregates or scalars passed on the stack are aligned to the greater of the
+type alignment and XLEN bits, but never more than the stack alignment.
 
 Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
@@ -214,6 +217,8 @@ A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
+When a floating-point argument narrower than FLEN bits is passed in a
+floating-point register, it is 1-extended (NaN-boxed) to FLEN bits.
 
 A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
