@@ -99,6 +99,8 @@ register, or on the stack by value if none is available.
 When passed in registers or on the stack, integer scalars narrower than XLEN
 bits are widened according to the sign of their type up to 32 bits, then
 sign-extended to XLEN bits.
+When passed in registers or on the stack, floating-point types narrower than
+XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
 Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -215,6 +217,8 @@ A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
+When a floating-point argument narrower than FLEN bits is passed in a
+floating-point register, it is 1-extended (NaN-boxed) to FLEN bits.
 
 A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
