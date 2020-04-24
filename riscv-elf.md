@@ -717,7 +717,7 @@ immediate on the add, load or store instruction the linker finds the
 instruction. The addresses for pair of relocations are calculated like this:
 
  - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
- - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
+ - `lo12 = symbol_address - hi20_reloc_offset - (hi20 << 12);`
 
 The successive instruction has a signed 12-bit immediate so the value of the
 preceding high 20-bit relocation may have 1 added to it.
