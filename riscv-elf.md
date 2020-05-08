@@ -422,6 +422,7 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
     and RV64 ISAs only allow 32-bit instruction alignment).  When linking
     objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
     instructions such as C.JAL in the relaxation process.
+  * EF_RISCV_FLOAT_ABI_SOFT (0x0000)
   * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
   * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
   * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
