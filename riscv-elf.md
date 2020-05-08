@@ -425,12 +425,12 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
   * EF_RISCV_FLOAT_ABI_SOFT (0x0000)
   * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
   * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
-  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
-    point ABI in use for this ELF file.  They store the largest floating-point
-    type that ends up in registers as part of the ABI (but do not control if
-    code generation is allowed to use floating-point internally).  The rule is
-    that if you have a floating-point type in a register, then you also have
-    all smaller floating-point types in registers.  For example _DOUBLE would
+  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These flags identify the floating point
+    ABI in use for this ELF file.  They store the largest floating-point type
+    that ends up in registers as part of the ABI (but do not control if code
+    generation is allowed to use floating-point internally).  The rule is that
+    if you have a floating-point type in a register, then you also have all
+    smaller floating-point types in registers.  For example _DOUBLE would
     store "float" and "double" values in F registers, but would not store "long
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
