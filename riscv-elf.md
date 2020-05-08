@@ -95,9 +95,12 @@ The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
-register, or on the stack by value if none is available.  When passed in
-registers, scalars narrower than XLEN bits are widened according to the sign
-of their type up to 32 bits, then sign-extended to XLEN bits.
+register, or on the stack by value if none is available.
+When passed in registers or on the stack, integer scalars narrower than XLEN
+bits are widened according to the sign of their type up to 32 bits, then
+sign-extended to XLEN bits.
+When passed in registers or on the stack, floating-point types narrower than
+XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
 Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -119,8 +122,8 @@ available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
 
-Aggregates or scalars passed on the stack are aligned to the minimum of the
-object alignment and the stack alignment.
+Aggregates or scalars passed on the stack are aligned to the greater of the
+type alignment and XLEN bits, but never more than the stack alignment.
 
 Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
@@ -214,6 +217,8 @@ A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
+When a floating-point argument narrower than FLEN bits is passed in a
+floating-point register, it is 1-extended (NaN-boxed) to FLEN bits.
 
 A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
@@ -412,24 +417,25 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
    RVC   | Float ABI  |  RVE  |  TSO  | *Reserved*
 
 
-  * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
+  * EF_RISCV_RVC (`e_flags & 0x1`): This bit is set when the binary targets the C ABI,
     which allows instructions to be aligned to 16-bit boundaries (the base RV32
     and RV64 ISAs only allow 32-bit instruction alignment).  When linking
     objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
     instructions such as C.JAL in the relaxation process.
-  * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
-  * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
-  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
-    point ABI in use for this ELF file.  They store the largest floating-point
-    type that ends up in registers as part of the ABI (but do not control if
-    code generation is allowed to use floating-point internally).  The rule is
-    that if you have a floating-point type in a register, then you also have
-    all smaller floating-point types in registers.  For example _DOUBLE would
+  * EF_RISCV_FLOAT_ABI_SOFT (`(e_flags & 0x6) == 0x0)`)
+  * EF_RISCV_FLOAT_ABI_SINGLE (`(e_flags & 0x6) == 0x2)`)
+  * EF_RISCV_FLOAT_ABI_DOUBLE (`(e_flags & 0x6) == 0x4)`)
+  * EF_RISCV_FLOAT_ABI_QUAD (`(e_flags & 0x6) == 0x6)`): These flags identify the floating point
+    ABI in use for this ELF file.  They store the largest floating-point type
+    that ends up in registers as part of the ABI (but do not control if code
+    generation is allowed to use floating-point internally).  The rule is that
+    if you have a floating-point type in a register, then you also have all
+    smaller floating-point types in registers.  For example _DOUBLE would
     store "float" and "double" values in F registers, but would not store "long
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
-  * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
-  * EF_RISCV_TSO (0x0010): This bit is set when the binary requires the RVTSO
+  * EF_RISCV_RVE (`e_flags & 0x8`): This bit is set when the binary targets the E ABI.
+  * EF_RISCV_TSO (`e_flags & 0x10`): This bit is set when the binary requires the RVTSO
     memory consistency model.
 
   Until such a time that the *Reserved* bits (0xffffffe0) are allocated by
@@ -712,7 +718,7 @@ immediate on the add, load or store instruction the linker finds the
 instruction. The addresses for pair of relocations are calculated like this:
 
  - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
- - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
+ - `lo12 = symbol_address - hi20_reloc_offset - (hi20 << 12);`
 
 The successive instruction has a signed 12-bit immediate so the value of the
 preceding high 20-bit relocation may have 1 added to it.
