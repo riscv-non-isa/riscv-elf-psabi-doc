@@ -434,6 +434,9 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
     store "float" and "double" values in F registers, but would not store "long
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
+  * EF_RISCV_FLOAT_ABI (0x0006): This macro is used as a mask to test for one
+    of the above floating-point ABIs, e.g.,
+    `(e_flags & EF_RISCV_FLOAT_ABI) == EF_RISCV_FLOAT_ABI_DOUBLE`.
   * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
   * EF_RISCV_TSO (0x0010): This bit is set when the binary requires the RVTSO
     memory consistency model.
