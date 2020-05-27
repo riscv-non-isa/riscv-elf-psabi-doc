@@ -947,7 +947,7 @@ there is no differentiation between ILP32 and LP64 abis.
 
 # <a name=terms-definitions></a> Terms and Definitions
 
-* **ABI**: [Application binary interface](Application binary interface).
+* **ABI**: [Application binary interface](https://en.wikipedia.org/wiki/Application_binary_interface).
     Here a combination of the **gABI** and the **psABI**
 * **psABI**: processor specific ABI
 * **gABI**: general ABI
