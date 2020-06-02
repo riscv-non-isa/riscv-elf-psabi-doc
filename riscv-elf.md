@@ -30,6 +30,7 @@
 6. [Linux-specific ABI](#linux-abi)
 	* [Linux-specific C type sizes and alignments](#linux-c-type-sizes)
 	* [Linux-specific C type representations](#linux-c-type-representations)
+7. [Terms and definions](#terms-definitions)
 
 ## Copyright and license information
 
@@ -943,3 +944,11 @@ The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 abis.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
+
+# <a name=terms-definitions></a> Terms and Definitions
+
+* **ABI**: [Application binary interface](https://en.wikipedia.org/wiki/Application_binary_interface).
+    Here a combination of the **gABI** and the **psABI**
+* **gABI**: generic ABI
+* **psABI**: processor specific ABI
+
