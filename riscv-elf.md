@@ -484,9 +484,9 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 10   | R_RISCV_TLS_TPREL32   | TLS relocation                  | _word32_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
 11   | R_RISCV_TLS_TPREL64   | TLS relocation                  | _word64_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
 16   | R_RISCV_BRANCH        | PC-relative branch              | _B-Type_    | S + A - P
-17   | R_RISCV_JAL           | PC-relative jump                | _UJ-Type_   | S + A - P
-18   | R_RISCV_CALL          | PC-relative call                | _UJ-Type_   | S + A - P   | Macros `call`, `tail`
-19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _UJ-Type_   | S + A - P   | Macros `call`, `tail` (PIC)
+17   | R_RISCV_JAL           | PC-relative jump                | _J-Type_    | S + A - P
+18   | R_RISCV_CALL          | PC-relative call                | _J-Type_    | S + A - P   | Macros `call`, `tail`
+19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _J-Type_    | S + A - P   | Macros `call`, `tail` (PIC)
 20   | R_RISCV_GOT_HI20      | PC-relative GOT reference       | _U-Type_    | G + A       | `%got_pcrel_hi(symbol)`
 21   | R_RISCV_TLS_GOT_HI20  | PC-relative TLS IE GOT offset   | _U-Type_    |             | Macro `la.tls.ie`
 22   | R_RISCV_TLS_GD_HI20   | PC-relative TLS GD reference    | _U-Type_    |             | Macro `la.tls.gd`
@@ -565,13 +565,14 @@ _word16_    | Specifies a 16-bit field
 _word32_    | Specifies a 32-bit field
 _word64_    | Specifies a 64-bit field
 _wordclass_ | Specifies a _word32_ field for ILP32 or a _word64_ field for LP64
+_B-Type_    | Specifies a field as the immediate field in a B-type instruction
 _CB-Type_   | Specifies a field as the immediate field in a CB-type instruction
 _CI-Type_   | Specifies a field as the immediate field in a CI-type instruction
 _CJ-Type_   | Specifies a field as the immediate field in a CJ-type instruction
 _I-Type_    | Specifies a field as the immediate field in an I-type instruction
 _S-Type_    | Specifies a field as the immediate field in an S-type instruction
 _U-Type_    | Specifies a field as the immediate field in an U-type instruction
-_UJ-Type_   | Specifies a field as the immediate field in an U-type and a J-type instruction
+_J-Type_    | Specifies a field as the immediate field in a J-type instruction
 
 ### Absolute Addresses
 
