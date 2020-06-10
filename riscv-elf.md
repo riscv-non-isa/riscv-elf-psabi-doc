@@ -513,7 +513,7 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 43   | R_RISCV_ALIGN         | Alignment statement             |
 44   | R_RISCV_RVC_BRANCH    | PC-relative branch offset       | _CB-Type_   | S + A - P
 45   | R_RISCV_RVC_JUMP      | PC-relative jump offset         | _CJ-Type_   | S + A - P
-46   | R_RISCV_RVC_LUI       | Absolute address                | _CI-Type_   | S + A - P
+46   | R_RISCV_RVC_LUI       | Absolute address                | _CI-Type_   | S + A
 47   | R_RISCV_GPREL_I       | GP-relative reference           | _I-Type_    | S + A - GP
 48   | R_RISCV_GPREL_S       | GP-relative reference           | _S-Type_    | S + A - GP
 49   | R_RISCV_TPREL_I       | TP-relative TLS LE load         | _I-Type_
