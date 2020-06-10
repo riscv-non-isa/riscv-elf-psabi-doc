@@ -475,7 +475,7 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 1    | R_RISCV_32            | Runtime relocation              | _word32_    | S + A
 2    | R_RISCV_64            | Runtime relocation              | _word64_    | S + A
 3    | R_RISCV_RELATIVE      | Runtime relocation              | _wordclass_ | B + A
-4    | R_RISCV_COPY          | Runtime relocation              |             |             | Must be in executable. not allowed in shared library
+4    | R_RISCV_COPY          | Runtime relocation              |             |             | Must be in executable; not allowed in shared library
 5    | R_RISCV_JUMP_SLOT     | Runtime relocation              | _wordclass_ | S           | Handled by PLT unless `LD_BIND_NOW`
 6    | R_RISCV_TLS_DTPMOD32  | TLS relocation                  | _word32_    | S->TLSINDEX
 7    | R_RISCV_TLS_DTPMOD64  | TLS relocation                  | _word64_    | S->TLSINDEX
@@ -500,10 +500,10 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 30   | R_RISCV_TPREL_LO12_I  | TLS LE thread offset            | _I-Type_    |             | `%tprel_lo(symbol)`
 31   | R_RISCV_TPREL_LO12_S  | TLS LE thread offset            | _S-Type_    |             | `%tprel_lo(symbol)`
 32   | R_RISCV_TPREL_ADD     | TLS LE thread usage             |             |             | `%tprel_add(symbol)`
-33   | R_RISCV_ADD8          | 8-bit label addition            | _word8_     | S + A + V
-34   | R_RISCV_ADD16         | 16-bit label addition           | _word16_    | S + A + V
-35   | R_RISCV_ADD32         | 32-bit label addition           | _word32_    | S + A + V
-36   | R_RISCV_ADD64         | 64-bit label addition           | _word64_    | S + A + V
+33   | R_RISCV_ADD8          | 8-bit label addition            | _word8_     | V + S + A
+34   | R_RISCV_ADD16         | 16-bit label addition           | _word16_    | V + S + A
+35   | R_RISCV_ADD32         | 32-bit label addition           | _word32_    | V + S + A
+36   | R_RISCV_ADD64         | 64-bit label addition           | _word64_    | V + S + A
 37   | R_RISCV_SUB8          | 8-bit label subtraction         | _word8_     | V - S - A
 38   | R_RISCV_SUB16         | 16-bit label subtraction        | _word16_    | V - S - A
 39   | R_RISCV_SUB32         | 32-bit label subtraction        | _word32_    | V - S - A
@@ -519,15 +519,15 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 49   | R_RISCV_TPREL_I       | TP-relative TLS LE load         | _I-Type_
 50   | R_RISCV_TPREL_S       | TP-relative TLS LE store        | _S-Type_
 51   | R_RISCV_RELAX         | Instruction pair can be relaxed |
-52   | R_RISCV_SUB6          | Local label subtraction         |
-53   | R_RISCV_SET6          | Local label subtraction         |
-54   | R_RISCV_SET8          | Local label subtraction         |
-55   | R_RISCV_SET16         | Local label subtraction         |
-56   | R_RISCV_SET32         | Local label subtraction         |
+52   | R_RISCV_SUB6          | Local label subtraction         | _word6_     | V - S - A
+53   | R_RISCV_SET6          | Local label assignment          | _word6_     | S + A
+54   | R_RISCV_SET8          | Local label assignment          | _word8_     | S + A
+55   | R_RISCV_SET16         | Local label assignment          | _word16_    | S + A
+56   | R_RISCV_SET32         | Local label assignment          | _word32_    | S + A
 57   | R_RISCV_32_PCREL      | PC-relative reference           | _word32_    | S + A - P
 58   | R_RISCV_IRELATIVE     | Runtime relocation              | _wordclass_ | `ifunc_resolver(B + A)`
-59-191  | *Reserved*         | Reserved for future standard use |
-192-255 | *Reserved*         | Reserved for nonstandard ABI extensions |
+59-191  | *Reserved*         | Reserved for future standard use
+192-255 | *Reserved*         | Reserved for nonstandard ABI extensions
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
 purpose.  These relocations may conflict with other nonstandard extensions.
@@ -560,10 +560,11 @@ The following table provides details on the variables used in relocation fields:
 
 Variable    | Description
 :-------    | :----------
-_word8_     | Specifies an 8-bit field
-_word16_    | Specifies a 16-bit field
-_word32_    | Specifies a 32-bit field
-_word64_    | Specifies a 64-bit field
+_word6_     | Specifies the 6 least significant bits of a _word8_ field
+_word8_     | Specifies an 8-bit word
+_word16_    | Specifies a 16-bit word
+_word32_    | Specifies a 32-bit word
+_word64_    | Specifies a 64-bit word
 _wordclass_ | Specifies a _word32_ field for ILP32 or a _word64_ field for LP64
 _B-Type_    | Specifies a field as the immediate field in a B-type instruction
 _CB-Type_   | Specifies a field as the immediate field in a CB-type instruction
