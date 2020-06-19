@@ -10,6 +10,7 @@
 	* [ILP32E Calling Convention](#ilp32e-calling-convention)
 	* [Named ABIs](#named-abis)
 	* [Default ABIs](#default-abis)
+	* [Code models](#code-models)
 3. [C type details](#c-types)
 	* [C type sizes and alignments](#c-type-sizes)
 	* [C type representations](#c-type-representation)
@@ -319,6 +320,31 @@ default ABIs for specific architectures:
     compatibility with standard RV64G software.
 
   * **on RV32G**: [ILP32D](#abi-ilp32d)
+
+## <a name=code-models /> Code models
+
+The RISC-V architecture constrains the addressing of positions in the
+address space.  There is no single instruction that can refer to an arbitrary 
+memory position using a literal as its argument.  Rather, instructions exist
+that, when combined together, can then be used to refer to a memory position
+via its literal.  And, when not, other data structures are used to help the
+code to address the memory space.  The coding conventions governing their use
+are known as code models.
+
+### Medium low
+
+The medium low code model, or `medlow`, allows the code to address the lower
+2 GiB of the address space.  By using the instruction `lui` and `ld` or `addi`
+instructions, for example, a 32-bit address literal can be produced.
+This code model is not position independent.
+
+### Meidum any
+
+The medium any code model, or `medany`, allows the code to address the range
+between -2 GiB and +2 GiB from its position.  By using the instruction `auipc`
+and `st` or `addi` instructions, for example, a signed 32-bit offset, relative
+to the value of the `pc` register, can be produced.  This code model is
+position independent.
 
 # <a name=c-types></a> C type details
 ## <a name=c-type-sizes></a> C type sizes and alignments
