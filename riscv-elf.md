@@ -338,7 +338,7 @@ The medium low code model, or `medlow`, allows the code to address the lower
 instructions, for example, a 32-bit address literal can be produced.
 This code model is not position independent.
 
-### Meidum any
+### Medium any
 
 The medium any code model, or `medany`, allows the code to address the range
 between -2 GiB and +2 GiB from its position.  By using the instruction `auipc`
