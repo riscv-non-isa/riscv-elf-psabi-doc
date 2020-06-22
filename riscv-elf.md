@@ -574,12 +574,13 @@ Enum | ELF Reloc Type            | Description                     | Field      
 62   | R_RISCV_GPREL_LO12_S      | GP-relative reference           | _S-type_    | S + A - GP  | `%gprel_lo(symbol)`
 63   | R_RISCV_GPREL_ADD         | GP-relative usage               |             |             | `%gprel(symbol)`
 64   | R_RISCV_GPREL_LOAD        | GP-relative usage               |             |             | `%gprel(symbol)`
-65   | R_RISCV_GOT_GPREL_HI20    | GP-relative GOT reference       | _U-type_    | G + A - GP  | `%got_gprel_hi(symbol)`
-66   | R_RISCV_GOT_GPREL_LO12_I  | GP-relative GOT reference       | _I-type_    | G + A - GP  | `%got_gprel_lo(symbol)`
-67   | R_RISCV_GOT_GPREL_ADD     | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
-68   | R_RISCV_GOT_GPREL_LOAD    | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
-69   | R_RISCV_GOT_GPREL_STORE   | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
-70-191  | *Reserved*             | Reserved for future standard use |
+65   | R_RISCV_GPREL_STORE       | GP-relative usage               |             |             | `%gprel(symbol)`
+66   | R_RISCV_GOT_GPREL_HI20    | GP-relative GOT reference       | _U-type_    | G + A - GP  | `%got_gprel_hi(symbol)`
+67   | R_RISCV_GOT_GPREL_LO12_I  | GP-relative GOT reference       | _I-type_    | G + A - GP  | `%got_gprel_lo(symbol)`
+68   | R_RISCV_GOT_GPREL_ADD     | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
+69   | R_RISCV_GOT_GPREL_LOAD    | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
+70   | R_RISCV_GOT_GPREL_STORE   | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
+71-191  | *Reserved*             | Reserved for future standard use |
 192-255 | *Reserved*             | Reserved for nonstandard ABI extensions |
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
