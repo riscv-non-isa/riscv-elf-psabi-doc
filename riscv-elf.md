@@ -331,20 +331,34 @@ via its literal.  And, when not, other data structures are used to help the
 code to address the memory space.  The coding conventions governing their use
 are known as code models.
 
-### Medium low
+### Small
 
-The medium low code model, or `medlow`, allows the code to address the lower
-2 GiB of the address space.  By using the instruction `lui` and `ld` or `addi`
-instructions, for example, a 32-bit address literal can be produced.
+The small code model, or `medlow`, allows the code to address the whole RV32
+address space or the lower 2 GiB of the RV64 address space.
+By using the instructions `lui` and `ld` or `st`, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a 32-bit address literal can be produced.
 This code model is not position independent.
 
-### Medium any
+### Medium
 
-The medium any code model, or `medany`, allows the code to address the range
-between -2 GiB and +2 GiB from its position.  By using the instruction `auipc`
-and `st` or `addi` instructions, for example, a signed 32-bit offset, relative
-to the value of the `pc` register, can be produced.  This code model is
-position independent.
+The medium code model, or `medany`, allows the code to address the range
+between -2 GiB and +2 GiB from its position.  By using the instructions `auipc`
+and `ld` or `st`, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a signed 32-bit offset, relative to the value of the `pc` register,
+can be produced.
+This code model is position independent.
+
+### Compact
+
+The compact code model allows the code to address the whole 64-bit address space,
+especially when code and data are located far apart.  By using the Global
+Offset Table, or GOT, to hold the 64-bit address literals, any memory position
+can be referred.  By using the instructions `lui` and `addi`, a signed 32-bit
+offset, relative to the value of the `gp` register, can be produced, referring
+to address literals in the GOT.  This code model is position independent.
+Does not apply to the ILP32 ABIs.
 
 # <a name=c-types></a> C type details
 ## <a name=c-type-sizes></a> C type sizes and alignments
