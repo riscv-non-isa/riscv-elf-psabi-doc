@@ -558,8 +558,8 @@ Enum | ELF Reloc Type            | Description                     | Field      
 48   | R_RISCV_GPREL_S           | GP-relative reference           | _S-Type_    | S + A - GP
 49   | R_RISCV_TPREL_I           | TP-relative TLS LE load         | _I-Type_
 50   | R_RISCV_TPREL_S           | TP-relative TLS LE store        | _S-Type_
-51   | R_RISCV_RELAX             | Instruction pair can be relaxed | _word6_     | V - S - A
-52   | R_RISCV_SUB6              | Local label subtraction         | _word6_     | S + A
+51   | R_RISCV_RELAX             | Instruction pair can be relaxed |
+52   | R_RISCV_SUB6              | Local label subtraction         | _word6_     | V - S - A
 53   | R_RISCV_SET6              | Local label assignment          | _word6_     | S + A
 54   | R_RISCV_SET8              | Local label assignment          | _word8_     | S + A
 55   | R_RISCV_SET16             | Local label assignment          | _word16_    | S + A
