@@ -487,7 +487,7 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 17   | R_RISCV_JAL           | PC-relative jump                | _J-Type_    | S + A - P
 18   | R_RISCV_CALL          | PC-relative call                | _J-Type_    | S + A - P   | Macros `call`, `tail`
 19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _J-Type_    | S + A - P   | Macros `call`, `tail` (PIC)
-20   | R_RISCV_GOT_HI20      | PC-relative GOT reference       | _U-Type_    | G + A       | `%got_pcrel_hi(symbol)`
+20   | R_RISCV_GOT_HI20      | PC-relative GOT reference       | _U-Type_    | G + A - P   | `%got_pcrel_hi(symbol)`
 21   | R_RISCV_TLS_GOT_HI20  | PC-relative TLS IE GOT offset   | _U-Type_    |             | Macro `la.tls.ie`
 22   | R_RISCV_TLS_GD_HI20   | PC-relative TLS GD reference    | _U-Type_    |             | Macro `la.tls.gd`
 23   | R_RISCV_PCREL_HI20    | PC-relative reference           | _U-Type_    | S + A - P   | `%pcrel_hi(symbol)`
