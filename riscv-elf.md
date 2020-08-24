@@ -971,7 +971,9 @@ Dwarf Number  | Register Name | Description
 0-31          | x0-x31        | Integer Registers
 32-63         | f0-f31        | Floating-point Registers
 64            |               | Alternate Frame Return Column
-65 - 3071     |               | Reserved for future standard extensions
+65-95         |               | Reserved for future standard extensions
+96-127        | v0-v31        | Vector Registers
+128 - 3071    |               | Reserved for future standard extensions
 3072 - 4095   |               | Reserved for custom extensions
 4096 - 8191   |               | CSRs
 
