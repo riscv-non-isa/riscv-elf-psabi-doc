@@ -10,6 +10,7 @@
 	* [ILP32E Calling Convention](#ilp32e-calling-convention)
 	* [Named ABIs](#named-abis)
 	* [Default ABIs](#default-abis)
+	* [Code models](#code-models)
 3. [C type details](#c-types)
 	* [C type sizes and alignments](#c-type-sizes)
 	* [C type representations](#c-type-representation)
@@ -30,6 +31,7 @@
 6. [Linux-specific ABI](#linux-abi)
 	* [Linux-specific C type sizes and alignments](#linux-c-type-sizes)
 	* [Linux-specific C type representations](#linux-c-type-representations)
+7. [Terms and definions](#terms-definitions)
 
 ## Copyright and license information
 
@@ -95,9 +97,12 @@ The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
 Scalars that are at most XLEN bits wide are passed in a single argument
-register, or on the stack by value if none is available.  When passed in
-registers, scalars narrower than XLEN bits are widened according to the sign
-of their type up to 32 bits, then sign-extended to XLEN bits.
+register, or on the stack by value if none is available.
+When passed in registers or on the stack, integer scalars narrower than XLEN
+bits are widened according to the sign of their type up to 32 bits, then
+sign-extended to XLEN bits.
+When passed in registers or on the stack, floating-point types narrower than
+XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
 Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -119,8 +124,8 @@ available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
 
-Aggregates or scalars passed on the stack are aligned to the minimum of the
-object alignment and the stack alignment.
+Aggregates or scalars passed on the stack are aligned to the greater of the
+type alignment and XLEN bits, but never more than the stack alignment.
 
 Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
@@ -142,7 +147,8 @@ Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as aggregates of the same size,
 complex floating-point numbers are passed the same way as a struct containing
-two floating-point reals.
+two floating-point reals. (This constraint changes when the integer calling 
+convention is augmented by the hardware floating-point calling convention.)
 
 In the base integer calling convention, variadic arguments are passed in the
 same manner as named arguments, with one exception.  Variadic arguments with
@@ -158,8 +164,12 @@ type would be passed.  If such an argument would have been passed by
 reference, the caller allocates memory for the return value, and passes the
 address as an implicit first parameter.
 
-The stack grows towards negative addresses and the stack pointer shall
+The stack grows downwards (towards lower addresses) and the stack pointer shall
 be aligned to a 128-bit boundary upon procedure entry.
+The first argument passed on the stack is located at offset zero of the stack pointer
+on function entry; following arguments are stored at correspondingly
+higher addresses.
+
 In the standard ABI, the stack pointer must remain
 aligned throughout procedure execution. Non-standard ABI code must realign the
 stack pointer prior to invoking standard ABI procedures.  The operating system
@@ -174,7 +184,9 @@ Procedures must not rely upon the persistence of
 stack-allocated data whose addresses lie below the stack pointer.
 
 Registers s0-s11 shall be preserved across procedure calls.
-No floating-point registers, if present, are preserved across calls.
+No floating-point registers, if present, are preserved across calls. (This 
+property changes when the integer calling convention is augmented by the 
+hardware floating-point calling convention.)
 
 ## <a name=hardware-floating-point-calling-convention></a> Hardware Floating-point Calling Convention
 
@@ -207,6 +219,8 @@ A real floating-point argument is passed in a floating-point argument
 register if it is no more than FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
+When a floating-point argument narrower than FLEN bits is passed in a
+floating-point register, it is 1-extended (NaN-boxed) to FLEN bits.
 
 A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
@@ -248,6 +262,10 @@ s0-s1, and only three temporaries, t0-t2.
 
 If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
+
+The ILP32E calling convention is not compatible with ISAs that have registers
+that require load and store alignments of more than 32 bits. In particular, this
+calling convention must not be used with the D ISA extension.
 
 ## <a name=named-abis></a> Named ABIs
 
@@ -302,6 +320,45 @@ default ABIs for specific architectures:
     compatibility with standard RV64G software.
 
   * **on RV32G**: [ILP32D](#abi-ilp32d)
+
+## <a name=code-models /> Code models
+
+The RISC-V architecture constrains the addressing of positions in the
+address space.  There is no single instruction that can refer to an arbitrary 
+memory position using a literal as its argument.  Rather, instructions exist
+that, when combined together, can then be used to refer to a memory position
+via its literal.  And, when not, other data structures are used to help the
+code to address the memory space.  The coding conventions governing their use
+are known as code models.
+
+### Small
+
+The small code model, or `medlow`, allows the code to address the whole RV32
+address space or the lower 2 GiB of the RV64 address space.
+By using the instructions `lui` and `ld` or `st`, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a 32-bit address literal can be produced.
+This code model is not position independent.
+
+### Medium
+
+The medium code model, or `medany`, allows the code to address the range
+between -2 GiB and +2 GiB from its position.  By using the instructions `auipc`
+and `ld` or `st`, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a signed 32-bit offset, relative to the value of the `pc` register,
+can be produced.
+This code model is position independent.
+
+### Compact
+
+The compact code model allows the code to address the whole 64-bit address space,
+especially when code and data are located far apart.  By using the Global
+Offset Table, or GOT, to hold the 64-bit address literals, any memory position
+can be referred.  By using the instructions `lui` and `addi`, a signed 32-bit
+offset, relative to the value of the `gp` register, can be produced, referring
+to address literals in the GOT.  This code model is position independent.
+Does not apply to the ILP32 ABIs.
 
 # <a name=c-types></a> C type details
 ## <a name=c-type-sizes></a> C type sizes and alignments
@@ -406,17 +463,21 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
     and RV64 ISAs only allow 32-bit instruction alignment).  When linking
     objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
     instructions such as C.JAL in the relaxation process.
+  * EF_RISCV_FLOAT_ABI_SOFT (0x0000)
   * EF_RISCV_FLOAT_ABI_SINGLE (0x0002)
   * EF_RISCV_FLOAT_ABI_DOUBLE (0x0004)
-  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These three flags identify the floating
-    point ABI in use for this ELF file.  They store the largest floating-point
-    type that ends up in registers as part of the ABI (but do not control if
-    code generation is allowed to use floating-point internally).  The rule is
-    that if you have a floating-point type in a register, then you also have
-    all smaller floating-point types in registers.  For example _DOUBLE would
+  * EF_RISCV_FLOAT_ABI_QUAD (0x0006): These flags identify the floating point
+    ABI in use for this ELF file.  They store the largest floating-point type
+    that ends up in registers as part of the ABI (but do not control if code
+    generation is allowed to use floating-point internally).  The rule is that
+    if you have a floating-point type in a register, then you also have all
+    smaller floating-point types in registers.  For example _DOUBLE would
     store "float" and "double" values in F registers, but would not store "long
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
+  * EF_RISCV_FLOAT_ABI (0x0006): This macro is used as a mask to test for one
+    of the above floating-point ABIs, e.g.,
+    `(e_flags & EF_RISCV_FLOAT_ABI) == EF_RISCV_FLOAT_ABI_DOUBLE`.
   * EF_RISCV_RVE (0x0008): This bit is set when the binary targets the E ABI.
   * EF_RISCV_TSO (0x0010): This bit is set when the binary requires the RVTSO
     memory consistency model.
@@ -448,66 +509,67 @@ Global Offset Table or DWARF meta data.
 The following table provides details of the RISC-V ELF relocations (instruction
 specific relocations show the instruction type in the Details column):
 
-Enum | ELF Reloc Type       | Description                     | Details
-:--- | :------------------  | :---------------                | :-----------
-0    | R_RISCV_NONE         | None                            |
-1    | R_RISCV_32           | Runtime relocation              | word32 = S + A
-2    | R_RISCV_64           | Runtime relocation              | word64 = S + A
-3    | R_RISCV_RELATIVE     | Runtime relocation              | word32,64 = B + A
-4    | R_RISCV_COPY         | Runtime relocation              | must be in executable. not allowed in shared library
-5    | R_RISCV_JUMP_SLOT    | Runtime relocation              | word32,64 = S ;handled by PLT unless LD_BIND_NOW
-6    | R_RISCV_TLS_DTPMOD32 | TLS relocation                  | word32 = S->TLSINDEX
-7    | R_RISCV_TLS_DTPMOD64 | TLS relocation                  | word64 = S->TLSINDEX
-8    | R_RISCV_TLS_DTPREL32 | TLS relocation                  | word32 = TLS + S + A - TLS_TP_OFFSET
-9    | R_RISCV_TLS_DTPREL64 | TLS relocation                  | word64 = TLS + S + A - TLS_TP_OFFSET
-10   | R_RISCV_TLS_TPREL32  | TLS relocation                  | word32 = TLS + S + A + S_TLS_OFFSET - TLS_DTV_OFFSET
-11   | R_RISCV_TLS_TPREL64  | TLS relocation                  | word64 = TLS + S + A + S_TLS_OFFSET - TLS_DTV_OFFSET
-16   | R_RISCV_BRANCH       | PC-relative branch              | (SB-Type)
-17   | R_RISCV_JAL          | PC-relative jump                | (UJ-Type)
-18   | R_RISCV_CALL         | PC-relative call                | MACRO call,tail (auipc+jalr pair)
-19   | R_RISCV_CALL_PLT     | PC-relative call (PLT)          | MACRO call,tail (auipc+jalr pair) PIC
-20   | R_RISCV_GOT_HI20     | PC-relative GOT reference       | MACRO la
-21   | R_RISCV_TLS_GOT_HI20 | PC-relative TLS IE GOT offset   | MACRO la.tls.ie
-22   | R_RISCV_TLS_GD_HI20  | PC-relative TLS GD reference    | MACRO la.tls.gd
-23   | R_RISCV_PCREL_HI20   | PC-relative reference           | %pcrel_hi(symbol) (U-Type)
-24   | R_RISCV_PCREL_LO12_I | PC-relative reference           | %pcrel_lo(pcrel_hi20_address) (I-Type)
-25   | R_RISCV_PCREL_LO12_S | PC-relative reference           | %pcrel_lo(pcrel_hi20_address) (S-Type)
-26   | R_RISCV_HI20         | Absolute address                | %hi(symbol) (U-Type)
-27   | R_RISCV_LO12_I       | Absolute address                | %lo(symbol) (I-Type)
-28   | R_RISCV_LO12_S       | Absolute address                | %lo(symbol) (S-Type)
-29   | R_RISCV_TPREL_HI20   | TLS LE thread offset            | %tprel_hi(symbol) (U-Type)
-30   | R_RISCV_TPREL_LO12_I | TLS LE thread offset            | %tprel_lo(symbol) (I-Type)
-31   | R_RISCV_TPREL_LO12_S | TLS LE thread offset            | %tprel_lo(symbol) (S-Type)
-32   | R_RISCV_TPREL_ADD    | TLS LE thread usage             | %tprel_add(symbol)
-33   | R_RISCV_ADD8         | 8-bit label addition            | word8 = old + S + A
-34   | R_RISCV_ADD16        | 16-bit label addition           | word16 = old + S + A
-35   | R_RISCV_ADD32        | 32-bit label addition           | word32 = old + S + A
-36   | R_RISCV_ADD64        | 64-bit label addition           | word64 = old + S + A
-37   | R_RISCV_SUB8         | 8-bit label subtraction         | word8 = old - S - A
-38   | R_RISCV_SUB16        | 16-bit label subtraction        | word16 = old - S - A
-39   | R_RISCV_SUB32        | 32-bit label subtraction        | word32 = old - S - A
-40   | R_RISCV_SUB64        | 64-bit label subtraction        | word64 = old - S - A
-41   | R_RISCV_GNU_VTINHERIT| GNU C++ vtable hierarchy        |
-42   | R_RISCV_GNU_VTENTRY  | GNU C++ vtable member usage     |
-43   | R_RISCV_ALIGN        | Alignment statement             |
-44   | R_RISCV_RVC_BRANCH   | PC-relative branch offset       | (CB-Type)
-45   | R_RISCV_RVC_JUMP     | PC-relative jump offset         | (CJ-Type)
-46   | R_RISCV_RVC_LUI      | Absolute address                | (CI-Type)
-47   | R_RISCV_GPREL_I      | GP-relative reference           | (I-Type)
-48   | R_RISCV_GPREL_S      | GP-relative reference           | (S-Type)
-49   | R_RISCV_TPREL_I      | TP-relative TLS LE load         | (I-Type)
-50   | R_RISCV_TPREL_S      | TP-relative TLS LE store        | (S-Type)
-51   | R_RISCV_RELAX        | Instruction pair can be relaxed |
-52   | R_RISCV_SUB6         | Local label subtraction         |
-53   | R_RISCV_SET6         | Local label subtraction         |
-54   | R_RISCV_SET8         | Local label subtraction         |
-55   | R_RISCV_SET16        | Local label subtraction         |
-56   | R_RISCV_SET32        | Local label subtraction         |
-57   | R_RISCV_32_PCREL     | PC-relative reference           | word32 = S + A - PC
-58   | R_RISCV_SET_ULEB128  | Local label subtraction         | uleb128 = S + A
-59   | R_RISCV_SUB_ULEB128  | Local label subtraction         | uleb128 = old - S - A
-60-191  | *Reserved*        | Reserved for future standard use |
-192-255 | *Reserved*        | Reserved for nonstandard ABI extensions |
+Enum | ELF Reloc Type        | Description                     | Field       | Calculation | Details
+:--- | :------------------   | :---------------                | :----       | :---------- | :-------
+0    | R_RISCV_NONE          | None                            |
+1    | R_RISCV_32            | Runtime relocation              | _word32_    | S + A
+2    | R_RISCV_64            | Runtime relocation              | _word64_    | S + A
+3    | R_RISCV_RELATIVE      | Runtime relocation              | _wordclass_ | B + A
+4    | R_RISCV_COPY          | Runtime relocation              |             |             | Must be in executable; not allowed in shared library
+5    | R_RISCV_JUMP_SLOT     | Runtime relocation              | _wordclass_ | S           | Handled by PLT unless `LD_BIND_NOW`
+6    | R_RISCV_TLS_DTPMOD32  | TLS relocation                  | _word32_    | S->TLSINDEX
+7    | R_RISCV_TLS_DTPMOD64  | TLS relocation                  | _word64_    | S->TLSINDEX
+8    | R_RISCV_TLS_DTPREL32  | TLS relocation                  | _word32_    | S + A + TLS - TLS_TP_OFFSET
+9    | R_RISCV_TLS_DTPREL64  | TLS relocation                  | _word64_    | S + A + TLS - TLS_TP_OFFSET
+10   | R_RISCV_TLS_TPREL32   | TLS relocation                  | _word32_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
+11   | R_RISCV_TLS_TPREL64   | TLS relocation                  | _word64_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
+16   | R_RISCV_BRANCH        | PC-relative branch              | _B-Type_    | S + A - P
+17   | R_RISCV_JAL           | PC-relative jump                | _J-Type_    | S + A - P
+18   | R_RISCV_CALL          | PC-relative call                | _J-Type_    | S + A - P   | Macros `call`, `tail`
+19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _J-Type_    | S + A - P   | Macros `call`, `tail` (PIC)
+20   | R_RISCV_GOT_HI20      | PC-relative GOT reference       | _U-Type_    | G + A - P   | `%got_pcrel_hi(symbol)`
+21   | R_RISCV_TLS_GOT_HI20  | PC-relative TLS IE GOT offset   | _U-Type_    |             | Macro `la.tls.ie`
+22   | R_RISCV_TLS_GD_HI20   | PC-relative TLS GD reference    | _U-Type_    |             | Macro `la.tls.gd`
+23   | R_RISCV_PCREL_HI20    | PC-relative reference           | _U-Type_    | S + A - P   | `%pcrel_hi(symbol)`
+24   | R_RISCV_PCREL_LO12_I  | PC-relative reference           | _I-type_    | S + A - P   | `%pcrel_lo(address of %pcrel_hi)`
+25   | R_RISCV_PCREL_LO12_S  | PC-relative reference           | _S-Type_    | S + A - P   | `%pcrel_lo(address of %pcrel_hi)`
+26   | R_RISCV_HI20          | Absolute address                | _U-Type_    | S + A       | `%hi(symbol)`
+27   | R_RISCV_LO12_I        | Absolute address                | _I-Type_    | S + A       | `%lo(symbol)`
+28   | R_RISCV_LO12_S        | Absolute address                | _S-Type_    | S + A       | `%lo(symbol)`
+29   | R_RISCV_TPREL_HI20    | TLS LE thread offset            | _U-Type_    |             | `%tprel_hi(symbol)`
+30   | R_RISCV_TPREL_LO12_I  | TLS LE thread offset            | _I-Type_    |             | `%tprel_lo(symbol)`
+31   | R_RISCV_TPREL_LO12_S  | TLS LE thread offset            | _S-Type_    |             | `%tprel_lo(symbol)`
+32   | R_RISCV_TPREL_ADD     | TLS LE thread usage             |             |             | `%tprel_add(symbol)`
+33   | R_RISCV_ADD8          | 8-bit label addition            | _word8_     | V + S + A
+34   | R_RISCV_ADD16         | 16-bit label addition           | _word16_    | V + S + A
+35   | R_RISCV_ADD32         | 32-bit label addition           | _word32_    | V + S + A
+36   | R_RISCV_ADD64         | 64-bit label addition           | _word64_    | V + S + A
+37   | R_RISCV_SUB8          | 8-bit label subtraction         | _word8_     | V - S - A
+38   | R_RISCV_SUB16         | 16-bit label subtraction        | _word16_    | V - S - A
+39   | R_RISCV_SUB32         | 32-bit label subtraction        | _word32_    | V - S - A
+40   | R_RISCV_SUB64         | 64-bit label subtraction        | _word64_    | V - S - A
+41   | R_RISCV_GNU_VTINHERIT | GNU C++ vtable hierarchy        |
+42   | R_RISCV_GNU_VTENTRY   | GNU C++ vtable member usage     |
+43   | R_RISCV_ALIGN         | Alignment statement             |
+44   | R_RISCV_RVC_BRANCH    | PC-relative branch offset       | _CB-Type_   | S + A - P
+45   | R_RISCV_RVC_JUMP      | PC-relative jump offset         | _CJ-Type_   | S + A - P
+46   | R_RISCV_RVC_LUI       | Absolute address                | _CI-Type_   | S + A
+47   | R_RISCV_GPREL_I       | GP-relative reference           | _I-Type_    | S + A - GP
+48   | R_RISCV_GPREL_S       | GP-relative reference           | _S-Type_    | S + A - GP
+49   | R_RISCV_TPREL_I       | TP-relative TLS LE load         | _I-Type_
+50   | R_RISCV_TPREL_S       | TP-relative TLS LE store        | _S-Type_
+51   | R_RISCV_RELAX         | Instruction pair can be relaxed |
+52   | R_RISCV_SUB6          | Local label subtraction         | _word6_     | V - S - A
+53   | R_RISCV_SET6          | Local label assignment          | _word6_     | S + A
+54   | R_RISCV_SET8          | Local label assignment          | _word8_     | S + A
+55   | R_RISCV_SET16         | Local label assignment          | _word16_    | S + A
+56   | R_RISCV_SET32         | Local label assignment          | _word32_    | S + A
+57   | R_RISCV_32_PCREL      | PC-relative reference           | _word32_    | S + A - P
+58   | R_RISCV_IRELATIVE     | Runtime relocation              | _wordclass_ | `ifunc_resolver(B + A)`
+59   | R_RISCV_SET_ULEB128   | Local label subtraction         | uleb128 = S + A
+60   | R_RISCV_SUB_ULEB128   | Local label subtraction         | uleb128 = old - S - A
+59-191  | *Reserved*         | Reserved for future standard use
+192-255 | *Reserved*         | Reserved for nonstandard ABI extensions
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
 purpose.  These relocations may conflict with other nonstandard extensions.
@@ -516,18 +578,44 @@ This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 [RISC-V Assembly Programmer's Manual](https://github.com/riscv/riscv-asm-manual).
 
-### Address Calculation Symbols
+### Calculation Symbols
 
-The following table provides details on the variables used in address calculation:
+The following table provides details on the variables used in relocation
+calculation:
 
-Variable       | Description
-:------------- | :----------------
-A              | Addend field in the relocation entry associated with the symbol
-B              | Base address of a shared object loaded into memory
-G              | Offset of the symbol into the GOT (Global Offset Table)
-S              | Value of the symbol in the symbol table
-GP             | Global Pointer register (x3)
+Variable | Description
+:------- | :----------------
+A        | Addend field in the relocation entry associated with the symbol
+B        | Base address of a shared object loaded into memory
+G        | Offset of the symbol into the GOT (Global Offset Table)
+P        | Position of the relocation
+S        | Value of the symbol in the symbol table
+V        | Value at the position of the relocation
+GP       | Value of `__global_pointer$` symbol
 
+**Global Pointer**: It is assumed that program startup code will load the value
+of the `__global_pointer$` symbol into register `gp` (aka `x3`).
+
+### Field Symbols
+
+The following table provides details on the variables used in relocation fields:
+
+Variable    | Description
+:-------    | :----------
+_word6_     | Specifies the 6 least significant bits of a _word8_ field
+_word8_     | Specifies an 8-bit word
+_word16_    | Specifies a 16-bit word
+_word32_    | Specifies a 32-bit word
+_word64_    | Specifies a 64-bit word
+_wordclass_ | Specifies a _word32_ field for ILP32 or a _word64_ field for LP64
+_B-Type_    | Specifies a field as the immediate field in a B-type instruction
+_CB-Type_   | Specifies a field as the immediate field in a CB-type instruction
+_CI-Type_   | Specifies a field as the immediate field in a CI-type instruction
+_CJ-Type_   | Specifies a field as the immediate field in a CJ-type instruction
+_I-Type_    | Specifies a field as the immediate field in an I-type instruction
+_S-Type_    | Specifies a field as the immediate field in an S-type instruction
+_U-Type_    | Specifies a field as the immediate field in an U-type instruction
+_J-Type_    | Specifies a field as the immediate field in a J-type instruction
 
 ### Absolute Addresses
 
@@ -549,9 +637,24 @@ The following assembly and relocations show loading an absolute address:
 
 ```
      lui  a0,%hi(symbol)     # R_RISCV_HI20 (symbol)
-     addi a0,a0,%lo(symbol)  # R_RISCV_LO12 (symbol)
+     addi a0,a0,%lo(symbol)  # R_RISCV_LO12_I (symbol)
 ```
 
+**GP-Relative Relocations**: If `symbol` is within the range of a signed 12-bit
+immediate offset from `__global_pointer$`, then the address can be loaded with a
+single instruction which has one relocation, a `R_RISCV_GPREL_I` or
+`R_RISCV_GPREL_S`.
+
+The instruction is an I-Type instruction (add immediate or load) with an
+`R_RISCV_GPREL_I` or an S-type instruction (store) with an `R_RISCV_GPREL_S`
+relocation. The following assembly show loading a gp-relative address:
+
+```
+     addi a0, gp, 0          # R_RISCV_GPREL_I (symbol)
+```
+
+This relies on the value of `__global_pointer$` being loaded into `gp` (aka
+`x3`). This can be used by linker relaxation to delete the `lui` instruction.
 
 ### Global Offset Table
 
@@ -685,7 +788,7 @@ immediate on the add, load or store instruction the linker finds the
 instruction. The addresses for pair of relocations are calculated like this:
 
  - `hi20 = ((symbol_address - hi20_reloc_offset + 0x800) >> 12);`
- - `lo12 = symbol_address - hi20_reloc_offset - hi20;`
+ - `lo12 = symbol_address - hi20_reloc_offset - (hi20 << 12);`
 
 The successive instruction has a signed 12-bit immediate so the value of the
 preceding high 20-bit relocation may have 1 added to it.
@@ -870,7 +973,9 @@ Dwarf Number  | Register Name | Description
 0-31          | x0-x31        | Integer Registers
 32-63         | f0-f31        | Floating-point Registers
 64            |               | Alternate Frame Return Column
-65 - 3071     |               | Reserved for future standard extensions
+65-95         |               | Reserved for future standard extensions
+96-127        | v0-v31        | Vector Registers
+128 - 3071    |               | Reserved for future standard extensions
 3072 - 4095   |               | Reserved for custom extensions
 4096 - 8191   |               | CSRs
 
@@ -907,3 +1012,10 @@ The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 abis.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
+
+# <a name=terms-definitions></a> Terms and Definitions
+
+* **ABI**: [Application binary interface](https://en.wikipedia.org/wiki/Application_binary_interface).
+    Here a combination of the **gABI** and the **psABI**
+* **gABI**: generic ABI
+* **psABI**: processor specific ABI
