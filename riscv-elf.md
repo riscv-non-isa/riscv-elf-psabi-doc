@@ -970,15 +970,15 @@ there is no differentiation between ILP32 and LP64 abis.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
 
-# <a name=code-relax /> Code relaxation
+# <a name=code-relax><a/> Code relaxation
 
 At link time, when all the memory objects have been resolved, the code sequence
 used to refer to them may be simplified and optimized by the linker by relaxing
 some assumptions about the memory layout made at compile time.
 
 Some relocation types, in certain situations, indicate to the linker where this
-can happen.  Additionally, some relocation types were added to indicate to the
-linker the assciated parts of a code sequence that can be thusly simplified,
+can happen.  Additionally, some relocation types indicate to the
+linker the associated parts of a code sequence that can be thusly simplified,
 rather than to instruct the linker how to apply a relocation.
 
 The linker should only perform such relaxations when a candidate relocation type
