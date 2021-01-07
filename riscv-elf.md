@@ -981,8 +981,8 @@ can happen.  Additionally, some relocation types indicate to the
 linker the associated parts of a code sequence that can be thusly simplified,
 rather than to instruct the linker how to apply a relocation.
 
-The linker should only perform such relaxations when a candidate relocation type
-is followed by the relocation R_RISCV_RELAX.
+The linker should only perform such relaxations when a R_RISCV_RELAX relocation
+is at the same position as a candidate relocation.
 
 # <a name=terms-definitions></a> Terms and Definitions
 
