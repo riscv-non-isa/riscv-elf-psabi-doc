@@ -700,8 +700,10 @@ GOT offsets lazily on the first call to any function, except when
 `LD_BIND_NOW` is set in which case the GOT entries are populated by the
 dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
-resolution to the first time the function is called. The first entry
-in the PLT occupies two 16 byte entries:
+resolution to the first time the function is called.
+
+For the small and medium code models, the first entry in the PLT occupies
+two 16 byte entries:
 
 ```
 1:   auipc  t2, %pcrel_hi(.got.plt)
@@ -714,16 +716,49 @@ in the PLT occupies two 16 byte entries:
      jr     t3
 ```
 
-Subsequent function entry stubs in the PLT take up 16 bytes and load a
-function pointer from the GOT. On the first call to a function, the
-entry redirects to the first PLT entry which calls `_dl_runtime_resolve`
-and fills in the GOT entry for subsequent calls to the function:
+For the compact code model, the third entry in the PLT has a stub that
+calculates the absolute address of a function pointer in the GOT.
+It occupies three 16 byte entries:
 
 ```
-1:  auipc   t3, %pcrel_hi(function@.got.plt)
-    l[w|d]  t3, %pcrel_lo(1b)(t3)
+1:  auipc t0, %hi_pcrel(2f) # address of 2f
+    addi  t0, %lo_pcrel(1b)
+    ld    t2, (t0)          # difference between .got.plt - 2f
+    add   t0, t0, t2        # address of .got.plt
+    add   t0, t0, t3        # address of the function pointer
+    ld    t3, (t0)          # dereference the function pointer
+    jr    t3
+    nop
+    nop
+    nop
+2:  .quad	.got.plt - ., 0
+```
+
+For the small and medium code models, subsequent function entries in the PLT
+take up 16 bytes and load a function pointer from the GOT.
+On the first call to a function, the entry redirects to the first PLT entr
+which calls `_dl_runtime_resolve` and fills in the GOT entry
+for subsequent calls to the function:
+
+```
+1:  auipc   t3, %pcrel_hi(function@.got.plt) # address of the function pointer
+    l[w|d]  t3, %pcrel_lo(1b)(t3)            # dereference the function pointer
     jalr    t1, t3
     nop
+```
+
+For the compact code model, subsequent function entries in the PLT
+take up 16 bytes and load a function pointer from the GOT.
+On the first call to a function, the entry redirects to the first PLT entr
+which calls `_dl_runtime_resolve` and fills in the GOT entry
+for subsequent calls to the function:
+
+```
+1:  lui	t3, %hi(function@.got.plt - .got.plt) # offset to the function pointer
+    addi	t3, %lo(function@.got.plt - .got.plt)
+    jal	t1, stub@.plt
+    nop
+
 ```
 
 
