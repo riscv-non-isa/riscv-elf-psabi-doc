@@ -455,7 +455,7 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
 
    Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 | Bit 5 - 31
   -------|------------|-------|-------|------------
-   RVC   | Float ABI  |  RVE  |  TSO  | _Reserved_
+   RVC   | Float ABI  |  RVE  |  TSO  | *Reserved*
 
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
@@ -716,7 +716,7 @@ two 16 byte entries:
      jr     t3
 ```
 
-For the compact code model, the third entry in the PLT has a stub that
+For the compact code model, the first entry in the PLT has a stub that
 calculates the absolute address of a function pointer in the GOT.
 It occupies three 16 byte entries:
 
@@ -726,7 +726,7 @@ It occupies three 16 byte entries:
     ld    t2, (t0)          # difference between .got.plt - 2f
     add   t0, t0, t2        # address of .got.plt
     add   t0, t0, t3        # address of the function pointer
-    ld    t3, (t0)          # dereference the function pointer
+    ld    t3, (t0)          # load the function pointer
     jr    t3
     nop
     nop
