@@ -571,20 +571,18 @@ Enum     | ELF Reloc Type               | Description                     | Fiel
 61       | R_RISCV_GPREL_LO12_I         | GP-relative reference           | _I-type_    | S + A - GP  | `%gprel_lo(symbol)`
 62       | R_RISCV_GPREL_LO12_S         | GP-relative reference           | _S-type_    | S + A - GP  | `%gprel_lo(symbol)`
 63       | R_RISCV_GPREL_ADD            | GP-relative usage               |             |             | `%gprel_add(symbol)`
-64       | R_RISCV_GPREL_LOAD           | GP-relative usage               |             |             | `%gprel(symbol)`
-65       | R_RISCV_GPREL_STORE          | GP-relative usage               |             |             | `%gprel(symbol)`
-66       | R_RISCV_GOT_GPREL_HI20       | GP-relative GOT reference       | _U-type_    | G + A - GP  | `%got_gprel_hi(symbol)`
-67       | R_RISCV_GOT_GPREL_LO12_I     | GP-relative GOT reference       | _I-type_    | G + A - GP  | `%got_gprel_lo(symbol)`
-68       | R_RISCV_GOT_GPREL_ADD        | GP-relative GOT usage           |             |             | `%got_gprel_add(symbol)`
-69       | R_RISCV_GOT_GPREL_LOAD       | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
-70       | R_RISCV_GOT_GPREL_STORE      | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
-71       | R_RISCV_TLS_GOT_GPREL_HI20   | GP-relative TLS GOT reference   |             |             | Macro `la.tls.ie.gprel`
-72       | R_RISCV_TLS_GOT_GPREL_LO20_I | GP-relative TLS GOT reference   |             |             | Macro `la.tls.ie.gprel`
-73       | R_RISCV_TLS_GOT_GPREL_ADD    | GP-relative TLS GOT usage       |             |             | `%tls_ie_gprel(<symbol>)`
-74       | R_RISCV_TLS_GD_GPREL_HI20    | GP-relative TLS GD reference    |             |             | Macro `la.tls.gd.gprel`
-75       | R_RISCV_TLS_GD_GPREL_LO20_I  | GP-relative TLS GD reference    |             |             | Macro `la.tls.gd.gprel`
-76       | R_RISCV_TLS_GD_GPREL_ADD     | GP-relative TLS GD usage        |             |             | `%tls_gd_gprel(<symbol>)`
-77-191   | *Reserved*                   | Reserved for future standard use
+64       | R_RISCV_GOT_GPREL_HI20       | GP-relative GOT reference       | _U-type_    | G + A - GP  | `%got_gprel_hi(symbol)`
+65       | R_RISCV_GOT_GPREL_LO12_I     | GP-relative GOT reference       | _I-type_    | G + A - GP  | `%got_gprel_lo(symbol)`
+66       | R_RISCV_GOT_GPREL_ADD        | GP-relative GOT usage           |             |             | `%got_gprel_add(symbol)`
+67       | R_RISCV_GOT_GPREL_LOAD       | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
+68       | R_RISCV_GOT_GPREL_STORE      | GP-relative GOT usage           |             |             | `%got_gprel(symbol)`
+69       | R_RISCV_TLS_GOT_GPREL_HI20   | GP-relative TLS GOT reference   |             |             | Macro `la.tls.ie.gprel`
+70       | R_RISCV_TLS_GOT_GPREL_LO20_I | GP-relative TLS GOT reference   |             |             | Macro `la.tls.ie.gprel`
+71       | R_RISCV_TLS_GOT_GPREL_ADD    | GP-relative TLS GOT usage       |             |             | `%tls_ie_gprel(<symbol>)`
+72       | R_RISCV_TLS_GD_GPREL_HI20    | GP-relative TLS GD reference    |             |             | Macro `la.tls.gd.gprel`
+73       | R_RISCV_TLS_GD_GPREL_LO20_I  | GP-relative TLS GD reference    |             |             | Macro `la.tls.gd.gprel`
+74       | R_RISCV_TLS_GD_GPREL_ADD     | GP-relative TLS GD usage        |             |             | `%tls_gd_gprel(<symbol>)`
+75-191   | *Reserved*                   | Reserved for future standard use
 192-255  | *Reserved*                   | Reserved for nonstandard ABI extensions
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
@@ -956,6 +954,22 @@ label:
    {ld,lw} a5, 0(a5)             # R_RISCV_PCREL_LO12_I (label)
 ```
 
+For the compact code model,
+the pseudoinstruction `la.tls.ie.gprel` is used instead:
+
+```
+   la.tls.ie.gprel a5, symbol, gp
+```
+
+Assuming that the `gp` register holds the value of `__global_pointer$`,
+it expands to the following assembly instructions and relocations:
+
+```
+   lui a5, %tls_ie_gprel_hi(symbol)         # R_RISCV_TLS_GOT_GPREL_HI20 (symbol)
+   add a5, gp, a5,  %tls_ie_gprel(symbol)   # R_RISCV_TLS_GOT_GPREL_ADD (symbol)
+   addi a5, a5, %tls_ie_gprel_lo(symbol)    # R_RISCV_TLS_GOT_GPREL_LO12_I (symbol)
+```
+
 
 ### Global Dynamic
 
@@ -993,6 +1007,22 @@ expands to the following assembly instructions and relocations:
 label:
    auipc a0,0                    # R_RISCV_TLS_GD_HI20 (symbol)
    addi  a0,a0,0                 # R_RISCV_PCREL_LO12_I (label)
+```
+
+For the compact code model,
+the pseudoinstruction `la.tls.gd.gprel` is used instead:
+
+```
+   la.tls.gd.gprel a5, symbol, t0
+```
+
+Assuming that the `t0` register holds the value of `__global_pointer$`,
+it expands to the following assembly instructions and relocations:
+
+```
+   lui a5, %tls_gd_gprel_hi(symbol)         # R_RISCV_TLS_GD_GPREL_HI20 (symbol)
+   add a5, gp, a5,  %tls_gd_gprel(symbol)   # R_RISCV_TLS_GD_GPREL_ADD (symbol)
+   addi a5, a5, %tls_gd_gprel_lo(symbol)    # R_RISCV_TLS_GD_GPREL_LO12_I (symbol)
 ```
 
 In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
