@@ -1,6 +1,7 @@
 # RISC-V ELF psABI specification
 
 ## Table of Contents
+
 1. [Register Convention](#register-convention)
 	* [Integer Register Convention](#integer-register-convention)
 	* [Floating-point Register Convention](#floating-point-register-convention)
@@ -93,7 +94,9 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 <fenv.h>".
 
 # <a name=procedure-calling-convention></a> Procedure Calling Convention
+
 ## <a name=integer-calling-convention></a> Integer Calling Convention
+
 The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
 
@@ -362,6 +365,7 @@ to address literals in the GOT.  This code model is position independent.
 Does not apply to the ILP32 ABIs.
 
 # <a name=c-types></a> C type details
+
 ## <a name=c-type-sizes></a> C type sizes and alignments
 
 There are two conventions for C type sizes and alignments.
@@ -457,7 +461,6 @@ rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
    Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 | Bit 5 - 31
   -------|------------|-------|-------|------------
    RVC   | Float ABI  |  RVE  |  TSO  | *Reserved*
-
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
     which allows instructions to be aligned to 16-bit boundaries (the base RV32
@@ -669,7 +672,6 @@ directly, as can be done in static code, addresses are loaded from the GOT.
 This allows runtime binding to external objects and functions at the expense of
 a slightly higher runtime overhead for access to extern objects and functions.
 
-
 ### Program Linkage Table
 
 The PLT (Program Linkage Table) exists to allow function calls between
@@ -708,7 +710,6 @@ and fills in the GOT entry for subsequent calls to the function:
     jalr    t1, t3
     nop
 ```
-
 
 ### Procedure Calls
 
@@ -753,7 +754,6 @@ and when `-fpic` is enabled it expands to:
     jalr  ra, ra, 0
 ```
 
-
 ### PC-Relative Jumps and Branches
 
 Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
@@ -761,7 +761,6 @@ that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
 can represent an even signed 13-bit offset (-4096 to +4094).
-
 
 ### PC-Relative Symbol Addresses
 
@@ -813,7 +812,6 @@ label:
    sw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_S (label)
 ```
 
-
 ## <a name=thread-local-storage></a>Thread Local Storage
 
 RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
@@ -842,7 +840,6 @@ TLS GD   | Global Dynamic | `-ftls-model=global-dynamic`
 The program linker in the case of static TLS or the dynamic linker in the case
 of dynamic TLS allocate TLS offsets for storage of thread local variables.
 
-
 ### Local Exec
 
 Local exec is a form of static thread local storage. This model is used
@@ -865,7 +862,6 @@ relocations are in comments.
 
 The `%tprel_add` assembler function does not return a value and is used purely
 to associate the `R_RISCV_TPREL_ADD` relocation with the `add` instruction.
-
 
 ### Initial Exec
 
@@ -903,7 +899,6 @@ label:
    auipc a5, 0                   # R_RISCV_TLS_GOT_HI20 (symbol)
    {ld,lw} a5, 0(a5)             # R_RISCV_PCREL_LO12_I (label)
 ```
-
 
 ### Global Dynamic
 
