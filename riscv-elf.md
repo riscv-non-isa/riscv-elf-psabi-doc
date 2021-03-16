@@ -779,8 +779,8 @@ with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store)
 and an `R_RISCV_PCREL_LO12_S` relocation.
 
 The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
-a label pointing to an instruction with a `R_RISCV_PCREL_HI20` relocation
-entry that points to the target symbol:
+a label pointing to an instruction in the same section with an
+`R_RISCV_PCREL_HI20` relocation entry that points to the target symbol:
 
  - At label: `R_RISCV_PCREL_HI20` relocation entry ⟶ symbol
  - `R_RISCV_PCREL_LO12_I` relocation entry ⟶ label
