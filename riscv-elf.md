@@ -1,3 +1,5 @@
+<!-- BEGIN TITLE -->
+
 # RISC-V ELF psABI specification
 
 ## Table of Contents
@@ -37,6 +39,8 @@
 
 ## Copyright and license information
 
+<!-- BEGIN COPYRIGHT -->
+
 This RISC-V ELF psABI specification document is
 
  &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>  
@@ -53,6 +57,9 @@ This RISC-V ELF psABI specification document is
 It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
 https://creativecommons.org/licenses/by/4.0/.
+
+<!-- END COPYRIGHT -->
+<!-- END TITLE -->
 
 # <a name=register-convention></a> Register Convention
 
@@ -108,20 +115,20 @@ sign-extended to XLEN bits.
 When passed in registers or on the stack, floating-point types narrower than
 XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
-Scalars that are 2✕XLEN bits wide are passed in a pair of argument registers,
+Scalars that are 2&times;XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
 XLEN bits in the higher-numbered register.  If no argument registers are
 available, the scalar is passed on the stack by value.  If exactly one
 register is available, the low-order XLEN bits are passed in the register and
 the high-order XLEN bits are passed on the stack.
 
-Scalars wider than 2✕XLEN are passed by reference and are replaced in the
+Scalars wider than 2&times;XLEN are passed by reference and are replaced in the
 argument list with the address.
 
 Aggregates whose total size is no more than XLEN bits are passed in
 a register, with the fields laid out as though they were passed in memory. If
 no register is available, the aggregate is passed on the stack.
-Aggregates whose total size is no more than 2✕XLEN bits are passed in a pair
+Aggregates whose total size is no more than 2&times;XLEN bits are passed in a pair
 of registers; if only one register is available, the first half is passed in
 a register and the second half is passed on the stack. If no registers are
 available, the aggregate is passed on the stack. Bits unused due to
@@ -131,7 +138,7 @@ divisible by XLEN, are undefined.
 Aggregates or scalars passed on the stack are aligned to the greater of the
 type alignment and XLEN bits, but never more than the stack alignment.
 
-Aggregates larger than 2✕XLEN bits are passed by reference and are replaced in
+Aggregates larger than 2&times;XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are C++ aggregates with nontrivial copy
 constructors, destructors, or vtables.
 
@@ -156,7 +163,7 @@ convention is augmented by the hardware floating-point calling convention.)
 
 In the base integer calling convention, variadic arguments are passed in the
 same manner as named arguments, with one exception.  Variadic arguments with
-2✕XLEN-bit alignment and size at most 2✕XLEN bits are passed in an
+2&times;XLEN-bit alignment and size at most 2&times;XLEN bits are passed in an
 *aligned* register pair (i.e., the first register in the pair is
 even-numbered), or on the stack by value if none is available. After a
 variadic argument has been passed on the stack, all future arguments will also
@@ -437,7 +444,7 @@ vararg save area, which must be contiguous with arguments passed on the stack.
 The `va_start` macro initializes its `va_list` argument to point to the start
 of the vararg save area.  The `va_arg` macro will increment its `va_list`
 argument according to the size of the given type, taking into account the
-rules about 2✕XLEN aligned arguments being passed in "aligned" register pairs.
+rules about 2&times;XLEN aligned arguments being passed in "aligned" register pairs.
 
 # <a name=elf-object-file></a> ELF Object Files
 
@@ -781,8 +788,8 @@ The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
 a label pointing to an instruction with a `R_RISCV_PCREL_HI20` relocation
 entry that points to the target symbol:
 
- - At label: `R_RISCV_PCREL_HI20` relocation entry ⟶ symbol
- - `R_RISCV_PCREL_LO12_I` relocation entry ⟶ label
+ - At label: `R_RISCV_PCREL_HI20` relocation entry &rarr; symbol
+ - `R_RISCV_PCREL_LO12_I` relocation entry &rarr; label
 
 To get the symbol address to perform the calculation to fill the 12-bit
 immediate on the add, load or store instruction the linker finds the
