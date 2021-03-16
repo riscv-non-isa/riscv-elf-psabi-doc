@@ -1,3 +1,5 @@
+<!-- BEGIN TITLE -->
+
 # RISC-V ELF psABI specification
 
 ## Table of Contents
@@ -37,6 +39,8 @@
 
 ## Copyright and license information
 
+<!-- BEGIN COPYRIGHT -->
+
 This RISC-V ELF psABI specification document is
 
  &copy; 2016 Palmer Dabbelt <palmer@dabbelt.com>  
@@ -53,6 +57,9 @@ This RISC-V ELF psABI specification document is
 It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
 https://creativecommons.org/licenses/by/4.0/.
+
+<!-- END COPYRIGHT -->
+<!-- END TITLE -->
 
 # <a name=register-convention></a> Register Convention
 
