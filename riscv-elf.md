@@ -528,12 +528,12 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 3    | R_RISCV_RELATIVE      | Runtime relocation              | _wordclass_ | B + A
 4    | R_RISCV_COPY          | Runtime relocation              |             |             | Must be in executable; not allowed in shared library
 5    | R_RISCV_JUMP_SLOT     | Runtime relocation              | _wordclass_ | S           | Handled by PLT unless `LD_BIND_NOW`
-6    | R_RISCV_TLS_DTPMOD32  | TLS relocation                  | _word32_    | S->TLSINDEX
-7    | R_RISCV_TLS_DTPMOD64  | TLS relocation                  | _word64_    | S->TLSINDEX
-8    | R_RISCV_TLS_DTPREL32  | TLS relocation                  | _word32_    | S + A + TLS - TLS_TP_OFFSET
-9    | R_RISCV_TLS_DTPREL64  | TLS relocation                  | _word64_    | S + A + TLS - TLS_TP_OFFSET
-10   | R_RISCV_TLS_TPREL32   | TLS relocation                  | _word32_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
-11   | R_RISCV_TLS_TPREL64   | TLS relocation                  | _word64_    | S + A + TLS + S_TLS_OFFSET - TLS_DTV_OFFSET
+6    | R_RISCV_TLS_DTPMOD32  | Runtime TLS relocation          | _word32_    | TLSMODULE
+7    | R_RISCV_TLS_DTPMOD64  | Runtime TLS relocation          | _word64_    | TLSMODULE
+8    | R_RISCV_TLS_DTPREL32  | Runtime TLS relocation          | _word32_    | S + A - TLS_DTV_OFFSET
+9    | R_RISCV_TLS_DTPREL64  | Runtime TLS relocation          | _word64_    | S + A - TLS_DTV_OFFSET
+10   | R_RISCV_TLS_TPREL32   | Runtime TLS relocation          | _word32_    | S + A + TLSOFFSET
+11   | R_RISCV_TLS_TPREL64   | Runtime TLS relocation          | _word64_    | S + A + TLSOFFSET
 16   | R_RISCV_BRANCH        | PC-relative branch              | _B-Type_    | S + A - P
 17   | R_RISCV_JAL           | PC-relative jump                | _J-Type_    | S + A - P
 18   | R_RISCV_CALL          | PC-relative call                | _J-Type_    | S + A - P   | Macros `call`, `tail`
@@ -592,15 +592,17 @@ assembler syntax, including that of the relocations, is described in the
 The following table provides details on the variables used in relocation
 calculation:
 
-Variable | Description
-:------- | :----------------
-A        | Addend field in the relocation entry associated with the symbol
-B        | Base address of a shared object loaded into memory
-G        | Offset of the symbol into the GOT (Global Offset Table)
-P        | Position of the relocation
-S        | Value of the symbol in the symbol table
-V        | Value at the position of the relocation
-GP       | Value of `__global_pointer$` symbol
+Variable  | Description
+:-------  | :----------------
+A         | Addend field in the relocation entry associated with the symbol
+B         | Base address of a shared object loaded into memory
+G         | Offset of the symbol into the GOT (Global Offset Table)
+P         | Position of the relocation
+S         | Value of the symbol in the symbol table
+V         | Value at the position of the relocation
+GP        | Value of `__global_pointer$` symbol
+TLSMODULE | TLS module index for the object containing the symbol
+TLSOFFSET | TLS static block offset (relative to `tp`) for the object containing the symbol
 
 **Global Pointer**: It is assumed that program startup code will load the value
 of the `__global_pointer$` symbol into register `gp` (aka `x3`).
@@ -625,6 +627,14 @@ _I-Type_    | Specifies a field as the immediate field in an I-type instruction
 _S-Type_    | Specifies a field as the immediate field in an S-type instruction
 _U-Type_    | Specifies a field as the immediate field in an U-type instruction
 _J-Type_    | Specifies a field as the immediate field in a J-type instruction
+
+### Constants
+
+The following table provides details on the constants used in relocation fields:
+
+Name           | Value
+:---           | :----
+TLS_DTV_OFFSET | 0x800
 
 ### Absolute Addresses
 
@@ -831,7 +841,9 @@ See [https://www.akkadia.org/drepper/tls.pdf](https://www.akkadia.org/drepper/tl
 In The ELF Thread Local Storage Model, TLS offsets are used instead of pointers.
 The ELF TLS sections are initialization images for the thread local variables of
 each new thread. A TLS offset defines an offset into the dynamic thread vector
-which is pointed to by the TCB (Thread Control Block) held in the `tp` register.
+which is pointed to by the TCB (Thread Control Block). RISC-V uses Variant I as
+described by the ELF TLS specification, with `tp` containing the address one
+past the end of the TCB.
 
 There are various thread local storage models for statically allocated or
 dynamically allocated thread local storage. The following table lists the
