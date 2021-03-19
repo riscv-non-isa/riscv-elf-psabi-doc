@@ -55,7 +55,6 @@ jobs:
           tag_name: draft-${{ steps.date.outputs.date }}
           release_name: Draft release ${{ steps.date.outputs.date }}
           body: Latest snapshot (${{ github.sha }})
-          draft: true
           prerelease: true
 
       - name: Upload release asset
