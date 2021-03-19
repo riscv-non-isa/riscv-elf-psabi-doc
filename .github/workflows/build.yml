@@ -1,0 +1,93 @@
+name: Build
+
+on:
+  push:
+  pull_request:
+  release:
+    types:
+      - created
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Ubuntu 20.04's Pandoc treats the LaTeX in our YAML file as Markdown
+      # that needs escaping, so use a new enough release (the latest at time of
+      # writing). Once Debian 11 "bullseye" is released we can use that instead
+      # as its Pandoc is new enough.
+      - name: Download Pandoc
+        run: wget 'https://github.com/jgm/pandoc/releases/download/2.12/pandoc-2.12-1-amd64.deb'
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y make texlive-latex-extra ./pandoc-2.12-1-amd64.deb
+
+      - name: Build
+        run: make
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: riscv-elf.pdf
+          path: riscv-elf.pdf
+
+  draft-release:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: riscv-elf.pdf
+          path: ./
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date -u +'%Y%m%d')"
+
+      - name: Create release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: draft-${{ steps.date.outputs.date }}
+          release_name: Draft release ${{ steps.date.outputs.date }}
+          body: Latest snapshot (${{ github.sha }})
+          draft: true
+          prerelease: true
+
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: riscv-elf.pdf
+          asset_name: riscv-elf.pdf
+          asset_content_type: application/pdf
+
+  release:
+    if: github.event_name == 'release' && github.event.action == 'created'
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifact
+        uses: actions/download-artifact@v2
+        with:
+          name: riscv-elf.pdf
+          path: ./
+
+      - name: Upload release asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ github.event.release.upload_url }}
+          asset_path: riscv-elf.pdf
+          asset_name: riscv-elf.pdf
+          asset_content_type: application/pdf
