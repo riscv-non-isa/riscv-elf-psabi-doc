@@ -542,8 +542,8 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 11   | R_RISCV_TLS_TPREL64   | Runtime TLS relocation          | _word64_    | S + A + TLSOFFSET
 16   | R_RISCV_BRANCH        | PC-relative branch              | _B-Type_    | S + A - P
 17   | R_RISCV_JAL           | PC-relative jump                | _J-Type_    | S + A - P
-18   | R_RISCV_CALL          | PC-relative call                | _J-Type_    | S + A - P   | Macros `call`, `tail`
-19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _J-Type_    | S + A - P   | Macros `call`, `tail` (PIC)
+18   | R_RISCV_CALL          | PC-relative call                | _U+J-Type_  | S + A - P   | Macros `call`, `tail`
+19   | R_RISCV_CALL_PLT      | PC-relative call (PLT)          | _U+J-Type_  | S + A - P   | Macros `call`, `tail` (PIC)
 20   | R_RISCV_GOT_HI20      | PC-relative GOT reference       | _U-Type_    | G + A - P   | `%got_pcrel_hi(symbol)`
 21   | R_RISCV_TLS_GOT_HI20  | PC-relative TLS IE GOT offset   | _U-Type_    |             | Macro `la.tls.ie`
 22   | R_RISCV_TLS_GD_HI20   | PC-relative TLS GD reference    | _U-Type_    |             | Macro `la.tls.gd`
@@ -633,6 +633,7 @@ _I-Type_    | Specifies a field as the immediate field in an I-type instruction
 _S-Type_    | Specifies a field as the immediate field in an S-type instruction
 _U-Type_    | Specifies a field as the immediate field in an U-type instruction
 _J-Type_    | Specifies a field as the immediate field in a J-type instruction
+_U+J-Type_  | Specifies a field as the immediate fields in a U-type and J-type instruction pair
 
 ### Constants
 
@@ -779,7 +780,7 @@ and when `-fpic` is enabled it expands to:
 
 ### PC-Relative Jumps and Branches
 
-Unconditional jump (UJ-Type) instructions have a `R_RISCV_JAL` relocation
+Unconditional jump (U+J-Type) instructions have a `R_RISCV_JAL` relocation
 that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
