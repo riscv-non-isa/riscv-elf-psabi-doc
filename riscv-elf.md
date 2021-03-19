@@ -499,9 +499,15 @@ rules about 2&times;XLEN aligned arguments being passed in "aligned" register pa
 
 ## <a name=sections></a>Sections
 
+There are no RISC-V specific definitions relating to ELF sections.
+
 ## <a name=string-tables></a>String Tables
 
+There are no RISC-V specific definitions relating to ELF string tables.
+
 ## <a name=symbol-table></a>Symbol Table
+
+There are no RISC-V specific definitions relating to ELF symbol tables.
 
 ## <a name=relocations></a>Relocations
 
@@ -975,11 +981,19 @@ typedef struct
 
 ## <a name=program-header-table></a>Program Header Table
 
+There are no RISC-V specific definitions relating to program header tables.
+
 ## <a name=note-sections></a>Note Sections
+
+There are no RISC-V specific definitions relating to ELF note sections.
 
 ## <a name=dynamic-table></a>Dynamic Table
 
+There are no RISC-V specific definitions relating to dynamic tables.
+
 ## <a name=hash-table></a>Hash Table
+
+There are no RISC-V specific definitions relating to ELF hash tables.
 
 # <a name=dwarf></a>DWARF
 
