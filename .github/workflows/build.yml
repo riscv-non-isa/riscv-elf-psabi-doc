@@ -15,8 +15,7 @@ jobs:
 
       # Ubuntu 20.04's Pandoc treats the LaTeX in our YAML file as Markdown
       # that needs escaping, so use a new enough release (the latest at time of
-      # writing). Once Debian 11 "bullseye" is released we can use that instead
-      # as its Pandoc is new enough.
+      # writing).
       - name: Download Pandoc
         run: wget 'https://github.com/jgm/pandoc/releases/download/2.12/pandoc-2.12-1-amd64.deb'
 
