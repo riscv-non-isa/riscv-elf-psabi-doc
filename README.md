@@ -20,3 +20,6 @@ RISC-V Assembly Programmer's Manual | https://github.com/riscv/riscv-asm-manual 
 RISC-V Toolchain Conventions        | https://github.com/riscv/riscv-toolchain-conventions  | RISC-V-specific toolchain behavior and command line option.
 RISC-V Semihosting Spec             | https://github.com/riscv/riscv-semihosting-spec       | Spec for semihosting.
 RISC-V Supervisor Binary Interface  | https://github.com/riscv/riscv-sbi-doc                | Spec for SBI.
+
+# Links
+[Policy of Merge Pull Request](policy.md)
