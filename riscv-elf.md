@@ -436,6 +436,12 @@ A null pointer (for all types) has the value zero.
 corresponding real type (`float`, `double`, or `long double`), with the first
 member holding the real part and the second member holding the imaginary part.
 
+Atomic types (for instance using `_Atomic(T)` (C11) or `std::atomic<T>` (C++11))
+with a width less than or equal to 128 bits, should, if they are not a
+power-of-two width, be padded to the next power-of-two width. They should be
+aligned to their width including any padding. This should be done regardless of
+whether any atomic extensions are enabled.
+
 ## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
 
 The `va_list` type is `void*`. A callee with variadic arguments is responsible
