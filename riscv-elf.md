@@ -548,8 +548,8 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 21   | R_RISCV_TLS_GOT_HI20  | PC-relative TLS IE GOT offset   | _U-Type_    |             | Macro `la.tls.ie`
 22   | R_RISCV_TLS_GD_HI20   | PC-relative TLS GD reference    | _U-Type_    |             | Macro `la.tls.gd`
 23   | R_RISCV_PCREL_HI20    | PC-relative reference           | _U-Type_    | S + A - P   | `%pcrel_hi(symbol)`
-24   | R_RISCV_PCREL_LO12_I  | PC-relative reference           | _I-type_    | S - P       | `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0 (*note 1)
-25   | R_RISCV_PCREL_LO12_S  | PC-relative reference           | _S-Type_    | S - P       | `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0 (*note 1)
+24   | R_RISCV_PCREL_LO12_I  | PC-relative reference           | _I-type_    | S - P       | `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
+25   | R_RISCV_PCREL_LO12_S  | PC-relative reference           | _S-Type_    | S - P       | `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
 26   | R_RISCV_HI20          | Absolute address                | _U-Type_    | S + A       | `%hi(symbol)`
 27   | R_RISCV_LO12_I        | Absolute address                | _I-Type_    | S + A       | `%lo(symbol)`
 28   | R_RISCV_LO12_S        | Absolute address                | _S-Type_    | S + A       | `%lo(symbol)`
@@ -592,13 +592,6 @@ purpose.  These relocations may conflict with other nonstandard extensions.
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 [RISC-V Assembly Programmer's Manual](https://github.com/riscv/riscv-asm-manual).
-
-```
-NOTE:
-
-1: GNU Toolchain support `R_RISCV_PCREL_LO12_I` and `R_RISCV_PCREL_LO12_S`
-   with non-zero addend, but it's deprecated, and will be obsoleted in future.
-```
 
 ### Calculation Symbols
 
