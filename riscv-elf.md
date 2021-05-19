@@ -1049,8 +1049,7 @@ Each attribute is described in the following structure:
 Tag_RISCV_strict_align records the N-byte stack alignment for this object. The
 default value is 16 for RV32I or RV64I, and 4 for RV32E.
 
-The smallest value will be used if object files with different Tag_RISCV_stack_align
-values are merged.
+It will report erros if link object files with different Tag_RISCV_stack_align values.
 
 #### Tag_RISCV_arch, 5, NTBS=subarch
 Tag_RISCV_arch contains a string for the target architecture taken from
