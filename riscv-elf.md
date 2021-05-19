@@ -1068,8 +1068,8 @@ to the IMAFD combination with default versions of the standard extensions.
 #### Tag_RISCV_unaligned_access, 6, uleb128=value
 Tag_RISCV_unaligned_access denotes the code generation policy for this object
 file. Its values are defined as follows:
- - 0: This object does not allow any unaligned memory accesses.
- - 1: This object allows unaligned memory accesses.
+ - 0: This object does not perform any unaligned memory accesses.
+ - 1: This object may perform unaligned memory accesses.
 
 #### Tag_RISCV_priv_spec, 8, uleb128=version
 #### Tag_RISCV_priv_spec_minor, 10, uleb128=version
