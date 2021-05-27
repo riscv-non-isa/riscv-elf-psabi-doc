@@ -280,7 +280,7 @@ calling convention must not be used with the D ISA extension.
 
 ## <a name=ilp32e-calling-convention></a> ILP32X/LP64X Calling Convention
 
-The ILP32X/LP64 calling convention is designed to be usable with the zfinx
+The ILP32X/LP64X calling convention is designed to be usable with the zfinx
 extension. This calling convention is the same as the integer calling
 convention, but this calling convention must be used with Zfinx extension, that
 also implied this calling convention can't used with F extension.
