@@ -1001,7 +1001,14 @@ Name                       | Type                 | Attributes
 
 ## <a name=program-header-table></a>Program Header Table
 
-There are no RISC-V specific definitions relating to program header tables.
+The defined processor-specific segment types are listed in following
+table.
+
+Name                 | Value       | Meaning
+:------------------- | :---------- | :-------------
+PT_RISCV_ATTRIBUTES  | 0x70000003  | RISC-V ELF attribute section.
+
+`PT_RISCV_ATTRIBUTES` describes the location of RISC-V ELF attribute section.
 
 ## <a name=note-sections></a>Note Sections
 
