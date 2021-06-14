@@ -1,48 +1,56 @@
-# Policy of Merge Pull Request
+# Policy for Merging Pull Request
 
-Each type of modification require different policy, the policy is based on
-following rules:
+Each type of modification has a different policy, based on the following rules:
 
-- Changes require linker change.
-  - Require an open source PoC implmenation for `binutils` or `LLD`
-    - Available on either mailing list, phabricator or github repo is acceptable.
+- Changes requiring linker changes
+  - Require an open source PoC implementation for binutils or LLD, either as a
+    patch on the mailing list/Phabricator as appropriate or in a GitHub fork
   - Require at least one binutils developer **_AND_** one LLD developer to
-    approve.
+    approve
 
-- Changes require compiler change.
-  - Require an open source PoC implmenation for `GCC` or `LLVM`
-    - Available on either mailing list, phabricator or github repo is acceptable.
-  - Require at least one GCC developer **_AND_** one LLVM developer to approve.
+- Changes requiring compiler changes
+  - Require an open source PoC implementation for GCC or LLVM, either as a
+    patch on the mailing list/Phabricator as appropriate or in a GitHub fork
+  - Require at least one GCC developer **_AND_** one LLVM developer to approve
 
-- Clarification on current implmenation behavior.
-  - Require approve from a developer of corresponding component.
+- Clarifications for currently-implemented behaviour
+  - Require approval from a developer of the corresponding component
+    (binutils/LLD or GCC/LLVM)
 
-- General document improvement and clarification.
+- General improvements and clarification
   - One of the psABI TG chair or co-chair.
 
-- Do **_NOT_** make incompatible change.
-  - Incompatible are generally unacceptable.
-  - In case, it's a ABI bug fix or a very conner case, it require all
-    psABI TG chair or co-chair to approve.
+- Do **_NOT_** make incompatible changes
+  - Changes that break compatibility are generally not acceptable
+  - In the rare case there is a bug in the ABI that needs fixing and that
+    cannot be done in a backwards-compatible way, or possibly for some
+    edge-case behaviour that is not currently relied upon, breaking the ABI can
+    be considered, but will require both the psABI TG chair and co-chair to
+    approve, and is subject to the above requirements as appropriate
 
 # FAQ
 
-- Could I leave comment, LGTM or approve the PR even if I am not a toolchain developer or chair/co-chair?
-  - Don't hesitate to leave your comment, we are encourage anyone who intend
-    to contribute to the RISC-V community.
+- Can I leave a comment, LGTM or approve the PR even if I am not a toolchain
+  developer or chair/co-chair?
+  - Don't hesitate to leave your comment, we encourage anyone who intends
+    to contribute to the RISC-V community to participate in discussion.
 
-- When do I need to modify compiler and/or linker?
-  - Change or add new stuffs to the ELF format require linker
-    change, e.g. new relocation type, new flags for e_flags field.
-  - Change or add new ABI, new calling convention or new code model require compiler
-    change.
+- When do I need to modify the compiler and/or linker?
+  - Changes and additions to the ELF format itself generally require linker
+    changes, e.g. new relocation types, new flags in the `e_flags` field, new
+    sections and new symbol flags.
+  - Changes and additions to calling conventions and code models generally
+    require compiler changes.
 
-- Who is psABI TG chair/co-chair
-  - psABI TG chair and co-chair are election by RISC-V international,
-    current chair is Kito Cheng ([@kito-cheng](https://github.com/kito-cheng)) and
-    co-chair is Jessica Clarke ([@jrtc27](https://github.com/jrtc27)).
+- Who are the psABI TG chair and co-chair?
+  - The current chair is Kito Cheng ([@kito-cheng]) and the current co-chair is
+    Jessica Clarke ([@jrtc27]).
 
-- Where can I find a RISC-V GCC/LLVM/binutils/LLD developers to review my PR?
-  - psABI TG chair/co-chair will contact right people to review generally, but in
-    case you want to reach out those developer you could found an incomplete list
-    from [RISC-V International's wiki page](https://wiki.riscv.org/display/TECH/Toolchain+Projects).
+- Where can I find a RISC-V GCC/LLVM/binutils/LLD developer to review my PR?
+  - The psABI TG chair or co-chair will generally contact the right people as
+    needed for reviews, but in case you want to reach out yourself you can find
+    an incomplete list from [RISC-V International's wiki page].
+
+[@kito-cheng]: https://github.com/kito-cheng
+[@jrtc27]: https://github.com/jrtc27
+[RISC-V International's wiki page]: https://wiki.riscv.org/display/TECH/Toolchain+Projects
