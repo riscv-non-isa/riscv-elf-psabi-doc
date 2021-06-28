@@ -1,4 +1,4 @@
-# Policy for Merging Pull Request
+# Policy for Merging Pull Requests
 
 Each type of modification has a different policy, based on the following rules:
 

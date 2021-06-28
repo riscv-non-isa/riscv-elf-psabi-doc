@@ -22,4 +22,4 @@ RISC-V Semihosting Spec             | https://github.com/riscv/riscv-semihosting
 RISC-V Supervisor Binary Interface  | https://github.com/riscv/riscv-sbi-doc                | Spec for SBI.
 
 # Links
-[Policy of Merge Pull Request](policy.md)
+[Policy for Merging Pull Requests](policy.md)
