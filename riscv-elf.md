@@ -18,7 +18,7 @@
 	* [C/c++ type sizes and alignments](#c-type-sizes)
 	* [C/c++ type representations](#c-type-representation)
 	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
-	* [C++ Mangling](#c++-mangling)
+	* [C++ Name Mangling](#c++-name-mangling)
 4. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
 	* [Sections](#sections)
@@ -451,9 +451,9 @@ of the vararg save area.  The `va_arg` macro will increment its `va_list`
 argument according to the size of the given type, taking into account the
 rules about 2&times;XLEN aligned arguments being passed in "aligned" register pairs.
 
-## <a name=c++-mangling></a>C++ Mangling for types
+## <a name=c++-name-mangling></a>C++ Name Mangling
 
-C++ Mangling for RISC-V is following the [Itanium C++ ABI](http://itanium-cxx-abi.github.io/cxx-abi/), there are no RISC-V
+C++ name mangling for RISC-V is following the [Itanium C++ ABI](http://itanium-cxx-abi.github.io/cxx-abi/), there are no RISC-V
 specific mangling rules.
 
 See [Type encodings](http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-type)
