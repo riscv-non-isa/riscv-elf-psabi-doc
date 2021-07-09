@@ -1053,7 +1053,7 @@ Reserved for non-standard attribute | >= 32768 | -              | -
 #### How does this specification describe public attributes?
 
 Each attribute is described in the following structure:
-```<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]```
+`<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]`
 
 #### Tag_RISCV_stack_align, 4, uleb128=value
 Tag_RISCV_strict_align records the N-byte stack alignment for this object. The
