@@ -62,7 +62,7 @@ https://creativecommons.org/licenses/by/4.0/.
 <!-- END COPYRIGHT -->
 <!-- END TITLE -->
 
-# <a name=register-convention></a> Register Convention
+# <a name=register-convention></a>Register Convention
 
 Integer Register Convention <a name=integer-register-convention>
 -------------------------------------------------------------------------
@@ -104,9 +104,9 @@ The Floating-Point Control and Status Register (fcsr) must have thread storage
 duration in accordance with C11 section 7.6 "Floating-point environment
 <fenv.h>".
 
-# <a name=procedure-calling-convention></a> Procedure Calling Convention
+# <a name=procedure-calling-convention></a>Procedure Calling Convention
 
-## <a name=integer-calling-convention></a> Integer Calling Convention
+## <a name=integer-calling-convention></a>Integer Calling Convention
 
 The base integer calling convention provides eight argument registers,
 a0-a7, the first two of which are also used to return values.
@@ -203,7 +203,7 @@ No floating-point registers, if present, are preserved across calls. (This
 property changes when the integer calling convention is augmented by the 
 hardware floating-point calling convention.)
 
-## <a name=hardware-floating-point-calling-convention></a> Hardware Floating-point Calling Convention
+## <a name=hardware-floating-point-calling-convention></a>Hardware Floating-point Calling Convention
 
 The hardware floating-point calling convention adds eight floating-point
 argument registers, fa0-fa7, the first two of which are also used to return
@@ -266,7 +266,7 @@ type would be passed.
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than FLEN bits wide.
 
-## <a name=ilp32e-calling-convention></a> ILP32E Calling Convention
+## <a name=ilp32e-calling-convention></a>ILP32E Calling Convention
 
 The ILP32E calling convention is designed to be usable with the RV32E ISA. This
 calling convention is the same as the integer calling convention, except for the
@@ -282,36 +282,36 @@ The ILP32E calling convention is not compatible with ISAs that have registers
 that require load and store alignments of more than 32 bits. In particular, this
 calling convention must not be used with the D ISA extension.
 
-## <a name=named-abis></a> Named ABIs
+## <a name=named-abis></a>Named ABIs
 
 This specification defines the following named ABIs:
 
-* <a name=abi-ilp32></a> **ILP32**: Integer calling-convention only, hardware
+* <a name=abi-ilp32></a>**ILP32**: Integer calling-convention only, hardware
   floating-point calling convention is not used (i.e. ELFCLASS32 and
   EF_RISCV_FLOAT_ABI_SOFT).
 
-* <a name=abi-ilp32f></a> **ILP32F**: ILP32 with hardware floating-point calling
+* <a name=abi-ilp32f></a>**ILP32F**: ILP32 with hardware floating-point calling
   convention for FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
 
-* <a name=abi-ilp32d></a> **ILP32D**: ILP32 with hardware floating-point calling
+* <a name=abi-ilp32d></a>**ILP32D**: ILP32 with hardware floating-point calling
   convention for FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
-* <a name=abi-ilp32e></a> **ILP32E**: [ILP32E
+* <a name=abi-ilp32e></a>**ILP32E**: [ILP32E
   calling-convention](#ilp32e-calling-convention) only, hardware floating-point
   calling convention is not used (i.e. ELFCLASS32, EF_RISCV_FLOAT_ABI_SOFT, and
   EF_RISCV_RVE).
 
-* <a name=abi-lp64></a> **LP64**: Integer calling-convention only, hardware
+* <a name=abi-lp64></a>**LP64**: Integer calling-convention only, hardware
   floating-point calling convention is not used (i.e. ELFCLASS64 and
   EF_RISCV_FLOAT_ABI_SOFT).
 
-* <a name=abi-lp64f></a> **LP64F**: LP64 with hardware floating-point calling
+* <a name=abi-lp64f></a>**LP64F**: LP64 with hardware floating-point calling
   convention for FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
 
-* <a name=abi-lp64d></a> **LP64D**: LP64 with hardware floating-point calling
+* <a name=abi-lp64d></a>**LP64D**: LP64 with hardware floating-point calling
   convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
-* <a name=abi-lp64q></a> **LP64Q**: LP64 with hardware floating-point calling
+* <a name=abi-lp64q></a>**LP64Q**: LP64 with hardware floating-point calling
   convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
 
 The ILP32\* ABIs are only compatible with RV32\* ISAs, and the LP64\* ABIs are
@@ -322,7 +322,7 @@ operating mode.
 The \*F ABIs require the \*F ISA extension, the \*D ABIs require the \*D ISA
 extension, and the LP64Q ABI requires the Q ISA extension.
 
-## <a name=default-abis></a> Default ABIs
+## <a name=default-abis></a>Default ABIs
 
 While various different ABIs are technically possible, for software
 compatibility reasons it is strongly recommended to use the following
@@ -336,7 +336,7 @@ default ABIs for specific architectures:
 
   * **on RV32G**: [ILP32D](#abi-ilp32d)
 
-## <a name=code-models /> Code models
+## <a name=code-models></a>Code models
 
 The RISC-V architecture constrains the addressing of positions in the
 address space.  There is no single instruction that can refer to an arbitrary 
@@ -375,9 +375,9 @@ offset, relative to the value of the `gp` register, can be produced, referring
 to address literals in the GOT.  This code model is position independent.
 Does not apply to the ILP32 ABIs.
 
-# <a name=c-types></a> C type details
+# <a name=c-types></a>C type details
 
-## <a name=c-type-sizes></a> C type sizes and alignments
+## <a name=c-type-sizes></a>C type sizes and alignments
 
 There are two conventions for C type sizes and alignments.
 
@@ -427,7 +427,7 @@ The alignment of `max_align_t` is 16.
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
 
-## <a name=c-type-representation></a> C type representations
+## <a name=c-type-representation></a>C type representations
 
 `char` is unsigned.
 
@@ -440,7 +440,7 @@ A null pointer (for all types) has the value zero.
 corresponding real type (`float`, `double`, or `long double`), with the first
 member holding the real part and the second member holding the imaginary part.
 
-## <a name=va-list-va-start-and-va-arg></a> va_list, va_start, and va_arg
+## <a name=va-list-va-start-and-va-arg></a>va_list, va_start, and va_arg
 
 The `va_list` type is `void*`. A callee with variadic arguments is responsible
 for copying the contents of registers used to pass variadic arguments to the
@@ -450,9 +450,9 @@ of the vararg save area.  The `va_arg` macro will increment its `va_list`
 argument according to the size of the given type, taking into account the
 rules about 2&times;XLEN aligned arguments being passed in "aligned" register pairs.
 
-# <a name=elf-object-file></a> ELF Object Files
+# <a name=elf-object-file></a>ELF Object Files
 
-## <a name=file-header></a> File Header
+## <a name=file-header></a>File Header
 
 * e_ident
   * EI_CLASS: Specifies the base ISA, either RV32 or RV64.  We don't let users
@@ -1112,7 +1112,7 @@ There space for 4096 CSRs.  Each CSR is assigned a DWARF register
 number corresponding to its CSR number given in **Volume II: Privileged
 Architecture** of **The RISC-V Instruction Set Manual** plus 4096.
 
-# <a name=linux-abi></a> Linux-specific ABI
+# <a name=linux-abi></a>Linux-specific ABI
 
 **This section of the RISC-V ELF psABI specification only applies to Linux-based
 systems.**
@@ -1121,7 +1121,7 @@ In order to ensure compatibility between different implementations of the C
 library for Linux, we provide some extra definitions which only apply on those
 systems. These are noted in this section.
 
-## <a name=linux-c-type-sizes></a> Linux-specific C type sizes and alignments
+## <a name=linux-c-type-sizes></a>Linux-specific C type sizes and alignments
 
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 abis.
@@ -1131,14 +1131,14 @@ Type        | Size (Bytes)  | Alignment (Bytes)
 wchar_t     |  4            |  4
 wint_t      |  4            |  4
 
-## <a name=linux-c-type-representations></a> Linux-specific C type representations
+## <a name=linux-c-type-representations></a>Linux-specific C type representations
 
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 abis.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
 
-# <a name=code-relax><a/> Code relaxation
+# <a name=code-relax></a>Code relaxation
 
 At link time, when all the memory objects have been resolved, the code sequence
 used to refer to them may be simplified and optimized by the linker by relaxing
@@ -1152,7 +1152,7 @@ rather than to instruct the linker how to apply a relocation.
 The linker should only perform such relaxations when a R_RISCV_RELAX relocation
 is at the same position as a candidate relocation.
 
-# <a name=terms-definitions></a> Terms and Definitions
+# <a name=terms-definitions></a>Terms and Definitions
 
 * **ABI**: [Application binary interface](https://en.wikipedia.org/wiki/Application_binary_interface).
     Here a combination of the **gABI** and the **psABI**
