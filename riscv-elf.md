@@ -486,7 +486,7 @@ rules about 2&times;XLEN aligned arguments being passed in "aligned" register pa
     that ends up in registers as part of the ABI (but do not control if code
     generation is allowed to use floating-point internally).  The rule is that
     if you have a floating-point type in a register, then you also have all
-    smaller floating-point types in registers.  For example _DOUBLE would
+    smaller floating-point types in registers.  For example \_DOUBLE would
     store "float" and "double" values in F registers, but would not store "long
     double" values in F registers.  If none of the float ABI flags are set, the
     object is taken to use the soft-float ABI.
