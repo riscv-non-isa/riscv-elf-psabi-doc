@@ -988,6 +988,7 @@ typedef struct
 ### Section Types
 
 The defined processor-specific section types are listed in following table.
+
 Name                  | Value       | Attributes
 :-------------------- | :---------- | :-------------
 SHT_RISCV_ATTRIBUTES  | 0x70000003  | none
