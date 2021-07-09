@@ -572,10 +572,7 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 44   | R_RISCV_RVC_BRANCH    | PC-relative branch offset       | _CB-Type_   | S + A - P
 45   | R_RISCV_RVC_JUMP      | PC-relative jump offset         | _CJ-Type_   | S + A - P
 46   | R_RISCV_RVC_LUI       | Absolute address                | _CI-Type_   | S + A
-47   | R_RISCV_GPREL_I       | GP-relative reference           | _I-Type_    | S + A - GP
-48   | R_RISCV_GPREL_S       | GP-relative reference           | _S-Type_    | S + A - GP
-49   | R_RISCV_TPREL_I       | TP-relative TLS LE load         | _I-Type_
-50   | R_RISCV_TPREL_S       | TP-relative TLS LE store        | _S-Type_
+47-50 | *Reserved*           | Reserved for future standard use
 51   | R_RISCV_RELAX         | Instruction can be relaxed      |             |              | Paired with a normal relocation at the same address
 52   | R_RISCV_SUB6          | Local label subtraction         | _word6_     | V - S - A
 53   | R_RISCV_SET6          | Local label assignment          | _word6_     | S + A
