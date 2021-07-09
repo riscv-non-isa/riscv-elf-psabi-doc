@@ -95,7 +95,10 @@ f10-f17 | fa0-fa7      | Argument registers     | No
 f18-f27 | fs2-fs11     | Callee-saved registers | Yes*
 f28-f31 | ft8-ft11     | Temporary registers    | No
 
-*: Floating-point values in callee-saved registers are only preserved across calls if they are no larger than the width of a floating-point register in the targeted ABI. Therefore, these registers can always be considered temporaries if targeting the base integer calling convention.
+\*: Floating-point values in callee-saved registers are only preserved across
+calls if they are no larger than the width of a floating-point register in the
+targeted ABI. Therefore, these registers can always be considered temporaries
+if targeting the base integer calling convention.
 
 The Floating-Point Control and Status Register (fcsr) must have thread storage
 duration in accordance with C11 section 7.6 "Floating-point environment
