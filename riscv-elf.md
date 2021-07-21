@@ -394,6 +394,7 @@ There are two conventions for C type sizes and alignments.
     long long            |  8            |  8
     __int128             | 16            | 16
     void *               |  8            |  8
+    _Float16             |  2            |  2
     float                |  4            |  4
     double               |  8            |  8
     long double          | 16            | 16
@@ -413,6 +414,7 @@ There are two conventions for C type sizes and alignments.
     long                 |  4            |  4
     long long            |  8            |  8
     void *               |  4            |  4
+    _Float16             |  2            |  2
     float                |  4            |  4
     double               |  8            |  8
     long double          | 16            | 16
@@ -435,6 +437,8 @@ Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
 arguments are either `0` (`false`) or `1` (`true`).
 
 A null pointer (for all types) has the value zero.
+
+`_Float16` is as defined in the C ISO/IEC TS 18661-3 extension.
 
 `_Complex` types have the same layout as a struct containing two fields of the
 corresponding real type (`float`, `double`, or `long double`), with the first
