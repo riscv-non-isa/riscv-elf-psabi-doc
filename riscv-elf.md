@@ -365,16 +365,6 @@ a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
 This code model is position independent.
 
-### Compact
-
-The compact code model allows the code to address the whole 64-bit address space,
-especially when code and data are located far apart.  By using the Global
-Offset Table, or GOT, to hold the 64-bit address literals, any memory position
-can be referred.  By using the instructions `lui` and `addi`, a signed 32-bit
-offset, relative to the value of the `gp` register, can be produced, referring
-to address literals in the GOT.  This code model is position independent.
-Does not apply to the ILP32 ABIs.
-
 # <a name=c-types></a>C type details
 
 ## <a name=c-type-sizes></a>C type sizes and alignments
