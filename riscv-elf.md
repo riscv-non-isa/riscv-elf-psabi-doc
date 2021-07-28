@@ -15,8 +15,8 @@
 	* [Default ABIs](#default-abis)
 	* [Code models](#code-models)
 3. [C/C++ type details](#c-types)
-	* [C/c++ type sizes and alignments](#c-type-sizes)
-	* [C/c++ type representations](#c-type-representation)
+	* [C/C++ type sizes and alignments](#c-type-sizes)
+	* [C/C++ type representations](#c-type-representation)
 	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
 	* [C++ Name Mangling](#c++-name-mangling)
 4. [ELF Object Files](#elf-object-file)
@@ -453,11 +453,11 @@ rules about 2&times;XLEN aligned arguments being passed in "aligned" register pa
 
 ## <a name=c++-name-mangling></a>C++ Name Mangling
 
-C++ name mangling for RISC-V is following the [Itanium C++ ABI](http://itanium-cxx-abi.github.io/cxx-abi/), there are no RISC-V
+C++ name mangling for RISC-V follows the [Itanium C++ ABI](http://itanium-cxx-abi.github.io/cxx-abi/); there are no RISC-V
 specific mangling rules.
 
 See [Type encodings](http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-type)
-for more detail of how to mangle a type.
+for more detail on how to mangle types.
 
 # <a name=elf-object-file></a>ELF Object Files
 
