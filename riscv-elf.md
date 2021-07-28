@@ -322,6 +322,11 @@ operating mode.
 The \*F ABIs require the \*F ISA extension, the \*D ABIs require the \*D ISA
 extension, and the LP64Q ABI requires the Q ISA extension.
 
+> NOTE:
+> This means code targeting the Zfinx extension always uses the ILP32, ILP32E
+> or LP64 integer calling-convention only ABIs as there is no dedicated
+> hardware floating-point register file.
+
 ## <a name=default-abis></a>Default ABIs
 
 While various different ABIs are technically possible, for software
