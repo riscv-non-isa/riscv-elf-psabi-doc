@@ -371,7 +371,6 @@ a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
 This code model is position independent.
 
-
 # <a name=c-types></a>C/C++ type details
 
 ## <a name=c-type-sizes></a>C/C++ type sizes and alignments
