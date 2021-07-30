@@ -14,10 +14,11 @@
 	* [Named ABIs](#named-abis)
 	* [Default ABIs](#default-abis)
 	* [Code models](#code-models)
-3. [C type details](#c-types)
-	* [C type sizes and alignments](#c-type-sizes)
-	* [C type representations](#c-type-representation)
+3. [C/C++ type details](#c-types)
+	* [C/C++ type sizes and alignments](#c-type-sizes)
+	* [C/C++ type representations](#c-type-representation)
 	* [va_list, va_start, and va_arg](#va-list-va-start-and-va-arg)
+	* [C++ Name Mangling](#c++-name-mangling)
 4. [ELF Object Files](#elf-object-file)
 	* [File Header](#file-header)
 	* [Sections](#sections)
@@ -370,11 +371,12 @@ a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
 This code model is position independent.
 
-# <a name=c-types></a>C type details
 
-## <a name=c-type-sizes></a>C type sizes and alignments
+# <a name=c-types></a>C/C++ type details
 
-There are two conventions for C type sizes and alignments.
+## <a name=c-type-sizes></a>C/C++ type sizes and alignments
+
+There are two conventions for C/C++ type sizes and alignments.
 
   * **LP64, LP64F, LP64D, and LP64Q**: use the following type sizes and
     alignments (based on the LP64 convention):
@@ -424,7 +426,7 @@ The alignment of `max_align_t` is 16.
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
 
-## <a name=c-type-representation></a>C type representations
+## <a name=c-type-representation></a>C/C++ type representations
 
 `char` is unsigned.
 
@@ -448,6 +450,14 @@ The `va_start` macro initializes its `va_list` argument to point to the start
 of the vararg save area.  The `va_arg` macro will increment its `va_list`
 argument according to the size of the given type, taking into account the
 rules about 2&times;XLEN aligned arguments being passed in "aligned" register pairs.
+
+## <a name=c++-name-mangling></a>C++ Name Mangling
+
+C++ name mangling for RISC-V follows the [Itanium C++ ABI](http://itanium-cxx-abi.github.io/cxx-abi/); there are no RISC-V
+specific mangling rules.
+
+See [Type encodings](http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-type)
+for more detail on how to mangle types.
 
 # <a name=elf-object-file></a>ELF Object Files
 
