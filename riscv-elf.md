@@ -477,9 +477,9 @@ for more detail on how to mangle types.
 * e_flags: Describes the format of this ELF file.  These flags are used by the
   linker to disallow linking ELF files with incompatible ABIs together.
 
-   Bit 0 | Bit  1 - 2 | Bit 3 | Bit 4 | Bit 5 - 31
-  -------|------------|-------|-------|------------
-   RVC   | Float ABI  |  RVE  |  TSO  | *Reserved*
+   Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 23 | Bits 24 - 31
+  -------|------------|-------|-------|-------------|---------------------------
+   RVC   | Float ABI  | RVE   | TSO   | *Reserved*  | *Non-standard extensions*
 
   * EF_RISCV_RVC (0x0001): This bit is set when the binary targets the C ABI,
     which allows instructions to be aligned to 16-bit boundaries (the base RV32
@@ -505,9 +505,18 @@ for more detail on how to mangle types.
   * EF_RISCV_TSO (0x0010): This bit is set when the binary requires the RVTSO
     memory consistency model.
 
-  Until such a time that the *Reserved* bits (0xffffffe0) are allocated by
+  Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by
   future versions of this specification, they shall not be set by standard
-  software.
+  software. Non-standard extensions are free to use bits 24-31 for any purpose.
+  This many conflict with other non-standard extensions.
+
+  > NOTE:
+  > There is no provision for compatibility between conflicting uses of the
+  > e_flags bits reserved for non-standard extensions, and many standard RISC-V
+  > tools will ignore them. Do not use them unless you control both the
+  > toolchain and the operating system, and the ABI differences are so
+  > significant they cannot be done with a .RISCV.attributes tag nor an ELF
+  > note, such as using a different syscall ABI.
 
 ## <a name=sections></a>Sections
 
