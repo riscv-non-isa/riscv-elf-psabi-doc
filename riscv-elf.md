@@ -371,6 +371,17 @@ a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
 This code model is position independent.
 
+As a special edge-case, undefined weak symbols must still be supported, whose
+addresses will be 0 and may be out of range depending on the address at which
+the code is linked. Any references to possibly-undefined weak symbols should be
+made indirectly through the GOT as is used for position-independent code. Not
+doing so is deprecated and a future version of this specification will require
+using the GOT, not just advise.
+
+> NOTE: This is not yet a requirement as existing toolchains predating this
+> part of the specification do not adhere to this, and without improvements to
+> linker relaxation support doing so would regress performance and code size.
+
 # <a name=c-types></a>C/C++ type details
 
 ## <a name=c-type-sizes></a>C/C++ type sizes and alignments
