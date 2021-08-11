@@ -15,14 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      # Ubuntu 20.04's Pandoc treats the LaTeX in our YAML file as Markdown
-      # that needs escaping, so use a new enough release (the latest at time of
-      # writing).
-      - name: Download Pandoc
-        run: wget 'https://github.com/jgm/pandoc/releases/download/2.12/pandoc-2.12-1-amd64.deb'
-
       - name: Install packages
-        run: sudo apt-get update && sudo apt-get install -y make texlive-latex-extra ./pandoc-2.12-1-amd64.deb
+        run: sudo apt-get update && sudo apt-get install -y make ruby
+
+      - name: Install gems
+        run: sudo gem install asciidoctor asciidoctor-pdf
 
       - name: Build
         run: make
@@ -30,8 +27,8 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: riscv-elf.pdf
-          path: riscv-elf.pdf
+          name: riscv-abi.pdf
+          path: riscv-abi.pdf
 
   draft-release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -41,7 +38,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: riscv-elf.pdf
+          name: riscv-abi.pdf
           path: ./
 
       - name: Get current date
@@ -66,8 +63,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: riscv-elf.pdf
-          asset_name: riscv-elf.pdf
+          asset_path: riscv-abi.pdf
+          asset_name: riscv-abi.pdf
           asset_content_type: application/pdf
 
   release:
@@ -78,7 +75,7 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v2
         with:
-          name: riscv-elf.pdf
+          name: riscv-abi.pdf
           path: ./
 
       - name: Upload release asset
@@ -88,6 +85,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ github.event.release.upload_url }}
-          asset_path: riscv-elf.pdf
-          asset_name: riscv-elf.pdf
+          asset_path: riscv-abi.pdf
+          asset_name: riscv-abi.pdf
           asset_content_type: application/pdf
