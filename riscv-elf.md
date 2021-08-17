@@ -443,6 +443,13 @@ member. The size of any object is a multiple of its alignment.
 Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
 arguments are either `0` (`false`) or `1` (`true`).
 
+`enum` types use `int` as storage type if the value range fits into the value
+range of `signed int` or into the value range of `unsigned int`. If the value
+range is larger, the enum values use an 64bit integer storage type:
+
+* `long` for an LP64 calling convention,
+* `long long` for an ILP32 calling convention.
+
 A null pointer (for all types) has the value zero.
 
 `_Float16` is as defined in the C ISO/IEC TS 18661-3 extension.
