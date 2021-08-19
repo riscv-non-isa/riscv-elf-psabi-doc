@@ -612,7 +612,9 @@ Enum | ELF Reloc Type        | Description                     | Field       | C
 56   | R_RISCV_SET32         | Local label assignment          | _word32_    | S + A
 57   | R_RISCV_32_PCREL      | PC-relative reference           | _word32_    | S + A - P
 58   | R_RISCV_IRELATIVE     | Runtime relocation              | _wordclass_ | `ifunc_resolver(B + A)`
-59-191  | *Reserved*         | Reserved for future standard use
+59   | R_RISCV_SET_ULEB128   | Local label subtraction         | uleb128 = S + A
+60   | R_RISCV_SUB_ULEB128   | Local label subtraction         | uleb128 = old - S - A
+61-191  | *Reserved*         | Reserved for future standard use
 192-255 | *Reserved*         | Reserved for nonstandard ABI extensions
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
