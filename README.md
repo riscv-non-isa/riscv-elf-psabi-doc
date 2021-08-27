@@ -9,6 +9,8 @@ This document includes the following items:
 - Relocation
 - Relaxation
 
+The AsciiDoc sources can be rendered by GitHub, and pre-built PDFs can be downloaded from the repository's [releases](https://github.com/riscv/riscv-elf-psabi-doc/releases).
+
 # Navigation
 ----------------------------------------------------------------------------------------------------------
 Name                                | URL                                                   | Description
