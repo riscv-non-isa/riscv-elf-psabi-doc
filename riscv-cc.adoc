@@ -1,0 +1,411 @@
+[[riscv-cc]]
+= RISC-V Calling Conventions
+ifeval::["{docname}" == "riscv-cc"]
+include::prelude.adoc[]
+endif::[]
+
+== Register Convention
+
+=== Integer Register Convention
+
+[%autowidth]
+|===
+| Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+
+| x0      | zero         | Zero                   | -- (Immutable)
+| x1      | ra           | Return address         | No
+| x2      | sp           | Stack pointer          | Yes
+| x3      | gp           | Global pointer         | -- (Unallocatable)
+| x4      | tp           | Thread pointer         | -- (Unallocatable)
+| x5-x7   | t0-t2        | Temporary registers    | No
+| x8-x9   | s0-s1        | Callee-saved registers | Yes
+| x10-x17 | a0-a7        | Argument registers     | No
+| x18-x27 | s2-s11       | Callee-saved registers | Yes
+| x28-x31 | t3-t6        | Temporary registers    | No
+|===
+
+In the standard ABI, procedures should not modify the integer registers tp and
+gp, because signal handlers may rely upon their values.
+
+The presence of a frame pointer is optional.  If a frame pointer exists
+it must reside in x8 (s0), the register remains callee-saved.
+
+=== Floating-point Register Convention
+
+[%autowidth]
+|===
+| Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+
+| f0-f7   | ft0-ft7      | Temporary registers    | No
+| f8-f9   | fs0-fs1      | Callee-saved registers | Yes*
+| f10-f17 | fa0-fa7      | Argument registers     | No
+| f18-f27 | fs2-fs11     | Callee-saved registers | Yes*
+| f28-f31 | ft8-ft11     | Temporary registers    | No
+|===
+
+*: Floating-point values in callee-saved registers are only preserved across
+calls if they are no larger than the width of a floating-point register in the
+targeted ABI. Therefore, these registers can always be considered temporaries
+if targeting the base integer calling convention.
+
+The Floating-Point Control and Status Register (fcsr) must have thread storage
+duration in accordance with C11 section 7.6 "Floating-point environment
+<fenv.h>".
+
+== Procedure Calling Convention
+
+=== Integer Calling Convention
+
+The base integer calling convention provides eight argument registers,
+a0-a7, the first two of which are also used to return values.
+
+Scalars that are at most XLEN bits wide are passed in a single argument
+register, or on the stack by value if none is available.
+When passed in registers or on the stack, integer scalars narrower than XLEN
+bits are widened according to the sign of their type up to 32 bits, then
+sign-extended to XLEN bits.
+When passed in registers or on the stack, floating-point types narrower than
+XLEN bits are widened to XLEN bits, with the upper bits undefined.
+
+Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
+with the low-order XLEN bits in the lower-numbered register and the high-order
+XLEN bits in the higher-numbered register.  If no argument registers are
+available, the scalar is passed on the stack by value.  If exactly one
+register is available, the low-order XLEN bits are passed in the register and
+the high-order XLEN bits are passed on the stack.
+
+Scalars wider than 2×XLEN are passed by reference and are replaced in the
+argument list with the address.
+
+Aggregates whose total size is no more than XLEN bits are passed in
+a register, with the fields laid out as though they were passed in memory. If
+no register is available, the aggregate is passed on the stack.
+Aggregates whose total size is no more than 2×XLEN bits are passed in a pair
+of registers; if only one register is available, the first half is passed in
+a register and the second half is passed on the stack. If no registers are
+available, the aggregate is passed on the stack. Bits unused due to
+padding, and bits past the end of an aggregate whose size in bits is not
+divisible by XLEN, are undefined.
+
+Aggregates or scalars passed on the stack are aligned to the greater of the
+type alignment and XLEN bits, but never more than the stack alignment.
+
+Aggregates larger than 2×XLEN bits are passed by reference and are replaced in
+the argument list with the address, as are C++ aggregates with nontrivial copy
+constructors, destructors, or vtables.
+
+Empty structs or union arguments or return values are ignored by C compilers
+which support them as a non-standard extension.  This is not the case for C++,
+which requires them to be sized types.
+
+Bitfields are packed in little-endian fashion. A bitfield that would span the
+alignment boundary of its integer type is padded to begin at the next
+alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
+a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
+undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
+type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and 15-10
+undefined.
+
+Arguments passed by reference may be modified by the callee.
+
+Floating-point reals are passed the same way as aggregates of the same size,
+complex floating-point numbers are passed the same way as a struct containing
+two floating-point reals. (This constraint changes when the integer calling
+convention is augmented by the hardware floating-point calling convention.)
+
+In the base integer calling convention, variadic arguments are passed in the
+same manner as named arguments, with one exception.  Variadic arguments with
+2×XLEN-bit alignment and size at most 2×XLEN bits are passed in an
+*aligned* register pair (i.e., the first register in the pair is
+even-numbered), or on the stack by value if none is available. After a
+variadic argument has been passed on the stack, all future arguments will also
+be passed on the stack (i.e. the last argument register may be left unused due
+to the aligned register pair rule).
+
+Values are returned in the same manner as a first named argument of the same
+type would be passed.  If such an argument would have been passed by
+reference, the caller allocates memory for the return value, and passes the
+address as an implicit first parameter.
+
+The stack grows downwards (towards lower addresses) and the stack pointer shall
+be aligned to a 128-bit boundary upon procedure entry.
+The first argument passed on the stack is located at offset zero of the stack pointer
+on function entry; following arguments are stored at correspondingly
+higher addresses.
+
+In the standard ABI, the stack pointer must remain
+aligned throughout procedure execution. Non-standard ABI code must realign the
+stack pointer prior to invoking standard ABI procedures.  The operating system
+must realign the stack pointer prior to invoking a signal handler; hence,
+POSIX signal handlers need not realign the stack pointer.  In systems that
+service interrupts using the interruptee's stack, the interrupt service
+routine must realign the stack pointer if linked with any code that uses
+a non-standard stack-alignment discipline, but need not realign the stack
+pointer if all code adheres to the standard ABI.
+
+Procedures must not rely upon the persistence of
+stack-allocated data whose addresses lie below the stack pointer.
+
+Registers s0-s11 shall be preserved across procedure calls.
+No floating-point registers, if present, are preserved across calls. (This
+property changes when the integer calling convention is augmented by the
+hardware floating-point calling convention.)
+
+=== Hardware Floating-point Calling Convention
+
+The hardware floating-point calling convention adds eight floating-point
+argument registers, fa0-fa7, the first two of which are also used to return
+values.  Values are passed in floating-point registers whenever possible,
+whether or not the integer registers have been exhausted.
+
+The remainder of this section applies only to named arguments.  Variadic
+arguments are passed according to the integer calling convention.
+
+For the purposes of this section, FLEN refers to the width of a floating-point
+register in the ABI.  The ABI's FLEN must be no wider than the ISA's FLEN.  The
+ISA might have wider floating-point registers than the ABI.
+
+For the purposes of this section, "struct" refers to a C struct with its
+hierarchy flattened, including any array fields.  That is, `struct { struct
+{ float f[1]; } g[2]; }` and `struct { float f; float g; }` are
+treated the same.  Fields containing empty structs or unions are ignored while
+flattening, even in C++, unless they have nontrivial copy constructors or
+destructors.  Fields containing zero-length bit-fields are ignored while
+flattening.  Attributes such as `aligned` or `packed` do not interfere with a
+struct's eligibility for being passed in registers according to the rules
+below, i.e. `struct { int i; double d; }` and `struct
+__attribute__((__packed__)) { int i; double d }` are treated the same, as are
+`struct { float f; float g; }` and `struct { float f; float g __attribute__
+((aligned (8))); }`.
+
+A real floating-point argument is passed in a floating-point argument
+register if it is no more than FLEN bits wide and at least one floating-point
+argument register is available.  Otherwise, it is passed according to the
+integer calling convention.
+When a floating-point argument narrower than FLEN bits is passed in a
+floating-point register, it is 1-extended (NaN-boxed) to FLEN bits.
+
+A struct containing just one floating-point real is passed as though it were
+a standalone floating-point real.
+
+A struct containing two floating-point reals is passed in two floating-point
+registers, if neither is more than FLEN bits wide and at least two floating-point
+argument registers are available.  (The registers need not be an aligned pair.)
+Otherwise, it is passed according to the integer calling convention.
+
+A complex floating-point number, or a struct containing just one complex
+floating-point number, is passed as though it were a struct containing two
+floating-point reals.
+
+A struct containing one floating-point real and one integer (or bitfield), in
+either order, is passed in a floating-point register and an integer register,
+without extending the integer to XLEN bits, provided the floating-point real
+is no more than FLEN bits wide and the integer is no more than XLEN bits wide,
+and at least one floating-point argument register and at least one integer
+argument register is available. Otherwise, it is passed according to the
+integer calling convention.
+
+Unions are never flattened and are always passed according to the integer
+calling convention.
+
+Values are returned in the same manner as a first named argument of the same
+type would be passed.
+
+Floating-point registers fs0-fs11 shall be preserved across procedure calls,
+provided they hold values no more than FLEN bits wide.
+
+=== ILP32E Calling Convention
+
+The ILP32E calling convention is designed to be usable with the RV32E ISA. This
+calling convention is the same as the integer calling convention, except for the
+following differences.  The stack pointer need only be aligned to a 32-bit
+boundary.  Registers x16-x31 do not participate in the calling convention, so
+there are only six argument registers, a0-a5, only two callee-saved registers,
+s0-s1, and only three temporaries, t0-t2.
+
+If used with an ISA that has any of the registers x16-x31 and f0-f31, then
+these registers are considered temporaries.
+
+The ILP32E calling convention is not compatible with ISAs that have registers
+that require load and store alignments of more than 32 bits. In particular, this
+calling convention must not be used with the D ISA extension.
+
+=== Named ABIs
+
+This specification defines the following named ABIs:
+
+[[abi-ilp32]]
+ILP32:: Integer calling-convention only, hardware
+floating-point calling convention is not used (i.e. ELFCLASS32 and
+EF_RISCV_FLOAT_ABI_SOFT).
+
+[[abi-ilp32f]]
+ILP32F:: ILP32 with hardware floating-point calling
+convention for FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+[[abi-ilp32d]]
+ILP32D:: ILP32 with hardware floating-point calling
+convention for FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+[[abi-ilp32e]]
+ILP32E:: <<ILP32E Calling Convention,ILP32E calling-convention>> only,
+hardware floating-point calling convention is not used (i.e. ELFCLASS32,
+EF_RISCV_FLOAT_ABI_SOFT, and EF_RISCV_RVE).
+
+[[abi-lp64]]
+LP64:: Integer calling-convention only, hardware
+floating-point calling convention is not used (i.e. ELFCLASS64 and
+EF_RISCV_FLOAT_ABI_SOFT).
+
+[[abi-lp64f]]
+LP64F:: LP64 with hardware floating-point calling
+convention for FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
+
+[[abi-lp64d]]
+LP64D:: LP64 with hardware floating-point calling
+convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+
+[[abi-lp64q]]
+LP64Q:: LP64 with hardware floating-point calling
+convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
+
+The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
+only compatible with RV64* ISAs. A future version of this specification may
+define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
+operating mode.
+
+The *F ABIs require the *F ISA extension, the *D ABIs require the *D ISA
+extension, and the LP64Q ABI requires the Q ISA extension.
+
+NOTE: This means code targeting the Zfinx extension always uses the ILP32,
+ILP32E or LP64 integer calling-convention only ABIs as there is no dedicated
+hardware floating-point register file.
+
+=== Default ABIs
+
+While various different ABIs are technically possible, for software
+compatibility reasons it is strongly recommended to use the following
+default ABIs for specific architectures:
+
+[horizontal]
+on RV32G:: <<abi-ilp32d,ILP32D>>
+on RV64G:: <<abi-lp64d,LP64D>>
+
+NOTE: Although RV64GQ systems can technically use <<abi-lp64q,LP64Q>>, it is
+strongly recommended to use LP64D on general-purpose RV64GQ systems for
+compatibility with standard RV64G software.
+
+== C/C++ type details
+
+=== C/C++ type sizes and alignments
+
+There are two conventions for C/C++ type sizes and alignments.
+
+ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
+alignments (based on the ILP32 convention):
++
+[%autowidth]
+|===
+| Type                 | Size (Bytes)  | Alignment (Bytes)
+
+| bool/_Bool           |  1            |  1
+| char                 |  1            |  1
+| short                |  2            |  2
+| int                  |  4            |  4
+| long                 |  4            |  4
+| long long            |  8            |  8
+| void *               |  4            |  4
+| _Float16             |  2            |  2
+| float                |  4            |  4
+| double               |  8            |  8
+| long double          | 16            | 16
+| float _Complex       |  8            |  4
+| double _Complex      | 16            |  8
+| long double _Complex | 32            | 16
+|===
+
+LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
+alignments (based on the LP64 convention):
++
+[%autowidth]
+|===
+| Type                 | Size (Bytes)  | Alignment (Bytes)
+
+| bool/_Bool           |  1            |  1
+| char                 |  1            |  1
+| short                |  2            |  2
+| int                  |  4            |  4
+| long                 |  8            |  8
+| long long            |  8            |  8
+| +++__int128+++       | 16            | 16
+| void *               |  8            |  8
+| _Float16             |  2            |  2
+| float                |  4            |  4
+| double               |  8            |  8
+| long double          | 16            | 16
+| float _Complex       |  8            |  4
+| double _Complex      | 16            |  8
+| long double _Complex | 32            | 16
+|===
+
+The alignment of `max_align_t` is 16.
+
+`CHAR_BIT` is 8.
+
+Structs and unions are aligned to the alignment of their most strictly aligned
+member. The size of any object is a multiple of its alignment.
+
+=== C/C++ type representations
+
+`char` is unsigned.
+
+Booleans (`bool`/`_Bool`) stored in memory or when being passed as scalar
+arguments are either `0` (`false`) or `1` (`true`).
+
+A null pointer (for all types) has the value zero.
+
+`_Float16` is as defined in the C ISO/IEC TS 18661-3 extension.
+
+`_Complex` types have the same layout as a struct containing two fields of the
+corresponding real type (`float`, `double`, or `long double`), with the first
+member holding the real part and the second member holding the imaginary part.
+
+=== va_list, va_start, and va_arg
+
+The `va_list` type is `void*`. A callee with variadic arguments is responsible
+for copying the contents of registers used to pass variadic arguments to the
+vararg save area, which must be contiguous with arguments passed on the stack.
+The `va_start` macro initializes its `va_list` argument to point to the start
+of the vararg save area.  The `va_arg` macro will increment its `va_list`
+argument according to the size of the given type, taking into account the
+rules about 2×XLEN aligned arguments being passed in "aligned" register pairs.
+
+[appendix]
+== Linux-specific ABI
+
+NOTE: This section of the RISC-V calling convention specification only applies
+to Linux-based systems.
+
+In order to ensure compatibility between different implementations of the C
+library for Linux, we provide some extra definitions which only apply on those
+systems. These are noted in this section.
+
+=== Linux-specific C type sizes and alignments
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+[%autowidth]
+|===
+| Type    | Size (Bytes) | Alignment (Bytes)
+
+| wchar_t |  4           |  4
+| wint_t  |  4           |  4
+|===
+
+=== Linux-specific C type representations
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 abis.
+
+`wchar_t` is signed.  `wint_t` is unsigned.
