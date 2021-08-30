@@ -683,6 +683,68 @@ label:
     sw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_S (label)
 ----
 
+==== Relocation for Alignment
+
+The relocation type `R_RISCV_ALIGN` marks a location that must be aligned to
+`N`-bytes, where `N` is the smallest power of two that is greater than the value
+of the addend field, e.g. `R_RISCV_ALIGN` with addend value 2 means align to 4
+bytes, `R_RISCV_ALIGN` with addend value 4 means align to 8 bytes; this
+relocation is only required if the containing section has any `R_RISCV_RELAX`
+relocations, `R_RISCV_ALIGN` points to the beginning of the padding bytes,
+and the instruction that actually needs to be aligned is located at the point
+of `R_RISCV_ALIGN` plus its addend.
+
+To ensure the linker can always satisfy the required alignment solely by
+deleting bytes, the compiler or assembler must emit a `R_RISCV_ALIGN` relocation
+and then insert `N` - <<IALIGN>> padding bytes before the location where we need to
+align, it could be mark by an alignment directive like `.align`, `.p2align` or
+`.balign` or emit by compiler directly, the addend value of that relocation
+is the number of padding bytes.
+
+The compiler and assembler must ensure padding bytes are valid instructions
+without any side-effect like `nop` or `c.nop`, and make sure those instructions
+are aligned to IALIGN if possible.
+
+The linker may remove part of the padding bytes at the linking process to meet
+the alignment requirement, and must make sure those padding bytes still are
+valid instructions and each instruction is aligned to at least IALIGN byte.
+
+Here is example to showing how `R_RISCV_ALIGN` is used:
+[,asm]
+----
+
+0x0    c.nop           # R_RISCV_ALIGN with addend 2
+0x2    add t1, t2, t3  # This instruction must align to 4 byte.
+
+----
+
+
+NOTE: `R_RISCV_ALIGN` relocation is needed because linker relaxation can shrink
+preceding code during the linking process, which may cause an aligned location
+to become mis-aligned.
+
+NOTE: IALIGN[[IALIGN]] means the instruction-address alignment constraint. IALIGN is 4
+bytes in the base ISA, but some ISA extensions, including the compressed ISA
+extension, relax IALIGN to 2 bytes. IALIGN may not take on any value other than
+4 or 2. This term is also defined in `The RISC-V Instruction Set Manual` with a
+similar meaning, the only difference being it is specified in terms of the number
+of bits instead of the number of bytes.
+
+NOTE: Here is pseudocode to decide the alignment of `R_RISCV_ALIGN` relocation:
+[,python]
+----
+# input:
+#   addend: addend value of relocation with R_RISCV_ALIGN type.
+# output:
+#   Alignment of this relocation.
+
+def align(addend):
+  ALIGN = 1
+  while addend >= ALIGN:
+    ALIGN *= 2
+  return ALIGN
+----
+
 === Thread Local Storage
 
 RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
