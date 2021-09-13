@@ -44,7 +44,7 @@ NOTE: This is not yet a requirement as existing toolchains predating this part
 of the specification do not adhere to this, and without improvements to linker
 relaxation support doing so would regress performance and code size.
 
-=== C++ Name Mangling
+== C++ Name Mangling
 
 {Cpp} name mangling for RISC-V follows the
 http://itanium-cxx-abi.github.io/cxx-abi/[Itanium {Cpp} ABI]; there are no RISC-V
