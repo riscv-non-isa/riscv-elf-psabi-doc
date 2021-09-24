@@ -304,23 +304,6 @@ The following assembly and relocations show loading an absolute address:
     addi a0, a0, %lo(symbol) # R_RISCV_LO12_I (symbol)
 ----
 
-**GP-Relative Relocations**: If `symbol` is within the range of a signed 12-bit
-immediate offset from `__global_pointer$`, then the address can be loaded with a
-single instruction which has one relocation, a `R_RISCV_GPREL_I` or
-`R_RISCV_GPREL_S`.
-
-The instruction is an I-Type instruction (add immediate or load) with an
-`R_RISCV_GPREL_I` or an S-type instruction (store) with an `R_RISCV_GPREL_S`
-relocation. The following assembly show loading a gp-relative address:
-
-[,asm]
-----
-    addi a0, gp, 0          # R_RISCV_GPREL_I (symbol)
-----
-
-This relies on the value of `__global_pointer$` being loaded into `gp` (aka
-`x3`). This can be used by linker relaxation to delete the `lui` instruction.
-
 ==== Global Offset Table
 
 For position independent code in dynamically linked objects, each shared
