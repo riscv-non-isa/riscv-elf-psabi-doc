@@ -2,12 +2,12 @@
 Processor-specific application binary interface document for RISC-V.
 
 This document includes the following items:
-- Procedure Calling Convention
-- ELF Object Files Format
-- DWARF Debug Information Format
-- Code Model
-- Relocation
-- Relaxation
+- [Procedure Calling Convention](riscv-cc.adoc)
+- [DWARF Debug Information Format](riscv-dwarf.adoc)
+- [ELF Object Files Format](riscv-elf.adoc)
+  - [Code Model](riscv-elf.adoc#code-models)
+  - [Relocation](riscv-elf.adoc#relocations)
+  - [Relaxation](riscv-elf.adoc#code-relaxation)
 
 The AsciiDoc sources can be rendered by GitHub, and pre-built PDFs can be downloaded from the repository's [releases](https://github.com/riscv/riscv-elf-psabi-doc/releases).
 
