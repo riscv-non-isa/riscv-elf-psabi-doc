@@ -396,16 +396,9 @@ pseudoinstructions.  Originally, these relocations had slightly different
 behavior, but that has turned out to be unnecessary, and they are now
 interchangeable.
 
-In position dependent code (`-fno-pic`), with relaxation enabled,
-the `AUIPC` instruction in the
-`AUIPC+JALR` pair has both a `R_RISCV_CALL` relocation and a `R_RISCV_RELAX`
+With relaxation enabled, the `AUIPC` instruction in the `AUIPC+JALR` pair has
+both a `R_RISCV_CALL` or `R_RISCV_CALL_PLT` relocation and an `R_RISCV_RELAX`
 relocation indicating the instruction sequence can be relaxed during linking.
-
-In position independent code (`-fPIC`, `-fpic` or `-fpie`),
-with relaxation enabled, the `AUIPC`
-instruction in the `AUIPC+JALR` pair has both a `R_RISCV_CALL_PLT` relocation
-and a `R_RISCV_RELAX` relocation indicating the instruction sequence can be
-relaxed during linking.
 
 Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
 to the `JAL` instruction when the procedure or PLT entry is within (-1MiB to
@@ -416,6 +409,7 @@ The pseudoinstruction:
 [,asm]
 ----
     call symbol
+    call symbol@plt
 ----
 
 expands to the following assembly and relocation:
@@ -426,7 +420,7 @@ expands to the following assembly and relocation:
     jalr  ra, ra, 0
 ----
 
-and when `-fpic` is enabled it expands to:
+and when symbol has an `@plt` suffix it expands to:
 
 [,asm]
 ----
