@@ -165,8 +165,8 @@ table.
 +
 See <<Dynamic Linking>> for the meaning of `STO_RISCV_VARIANT_CC`.
 
-`__global_pointer$` must export to dynamic symbol table for dynamically-linked
-executable if there is any reference to that symbol.
+`__global_pointer$` must be exported in the dynamic symbol table of dynamically-linked
+executables if there are any GP-relative accesses present in the executable.
 
 === Relocations
 
