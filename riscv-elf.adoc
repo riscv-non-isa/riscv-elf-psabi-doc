@@ -704,6 +704,9 @@ An object must have the dynamic tag `DT_RISCV_VARIANT_CC` if it has one or more
 `R_RISCV_JUMP_SLOT` relocations against symbols with the `STO_RISCV_VARIANT_CC`
 attribute.
 
+`DT_INIT` and `DT_FINI` are not required to be supported and should be avoided
+in favour of `DT_PREINIT_ARRAY`, `DT_INIT_ARRAY` and `DT_FINI_ARRAY`.
+
 === Hash Table
 
 There are no RISC-V specific definitions relating to ELF hash tables.
