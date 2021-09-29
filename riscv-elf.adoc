@@ -165,6 +165,9 @@ table.
 +
 See <<Dynamic Linking>> for the meaning of `STO_RISCV_VARIANT_CC`.
 
+`__global_pointer$` must be exported in the dynamic symbol table of dynamically-linked
+executables if there are any GP-relative accesses present in the executable.
+
 === Relocations
 
 RISC-V is a classical RISC architecture that has densely packed non-word
