@@ -91,7 +91,8 @@ this support is implicit.
 e_flags:: Describes the format of this ELF file.  These flags are used by the
 linker to disallow linking ELF files with incompatible ABIs together.
 +
-[%autowidth]
+[cols="1,2,1,1,3,5"]
+[width=80%]
 |===
 | Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 23 | Bits 24 - 31
 
@@ -156,7 +157,8 @@ the ABI in use.
 The defined processor-specific `st_other` flags are listed in the following
 table.
 +
-[%autowidth]
+[cols="3,1"]
+[width=60%]
 |===
 | Name                 | Mask
 
@@ -185,7 +187,8 @@ Global Offset Table or DWARF meta data.
 The following table provides details of the RISC-V ELF relocations (instruction
 specific relocations show the instruction type in the Details column):
 
-[%autowidth]
+[cols=">1,5,2,2,2,3"]
+[width=100%]
 |===
 | Enum | ELF Reloc Type        | Description                     | Field       | Calculation | Details
 
@@ -304,7 +307,8 @@ The following table provides details on the variables used in relocation fields:
 
 The following table provides details on the constants used in relocation fields:
 
-[%autowidth]
+[cols="3,1"]
+[width=30%]
 |===
 | Name           | Value
 
@@ -511,7 +515,8 @@ There are various thread local storage models for statically allocated or
 dynamically allocated thread local storage. The following table lists the
 thread local storage models:
 
-[%autowidth]
+[cols="1,2,3"]
+[width=70%]
 |===
 | Mnemonic | Model          | Compiler flags
 
@@ -653,7 +658,8 @@ typedef struct
 
 The defined processor-specific section types are listed in following table.
 
-[%autowidth]
+[cols="3,3,1"]
+[width=80%]
 |===
 | Name                  | Value       | Attributes
 
@@ -664,7 +670,8 @@ The defined processor-specific section types are listed in following table.
 
 The following table lists the special sections defined by this ABI.
 
-[%autowidth]
+[cols="3,3,1"]
+[width=80%]
 |===
 | Name                       | Type                 | Attributes
 
@@ -678,7 +685,8 @@ The following table lists the special sections defined by this ABI.
 The defined processor-specific segment types are listed in following
 table.
 
-[%autowidth]
+[cols="3,2,3"]
+[width=80%]
 |===
 | Name                 | Value       | Meaning
 
@@ -696,7 +704,8 @@ There are no RISC-V specific definitions relating to ELF note sections.
 The defined processor-specific dynamic array tags are listed in the following
 table.
 
-[%autowidth]
+[cols="4,2,1,3,3"]
+[width=90%]
 |===
 | Name                | Value      | d_un  | Executable        | Shared Object
 
@@ -728,7 +737,8 @@ value if the tag number is even.
 
 ==== List of attributes
 
-[%autowidth]
+[cols="4,>2,2,5"]
+[width=100%]
 |===
 | Tag                                 | Value    | Parameter type | Description
 
