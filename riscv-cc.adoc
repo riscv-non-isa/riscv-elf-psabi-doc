@@ -320,6 +320,13 @@ NOTE: Although RV64GQ systems can technically use <<abi-lp64q,LP64Q>>, it is
 strongly recommended to use LP64D on general-purpose RV64GQ systems for
 compatibility with standard RV64G software.
 
+== Calling Convention for System Calls
+
+The calling convention for system calls does not fall within the scope of this
+document.
+Please refer to the documentation of the RISC-V execution environment interface
+(e.g OS kernel ABI, SBI).
+
 == C/C++ type details
 
 === C/C++ type sizes and alignments
