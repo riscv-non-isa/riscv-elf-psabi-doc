@@ -8,20 +8,20 @@ endif::[]
 
 === Integer Register Convention
 
-[%autowidth]
+[cols="1,1,2,2"]
 |===
-| Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+| Name      | ABI Mnemonic | Meaning                | Preserved across calls?
 
-| x0      | zero         | Zero                   | -- (Immutable)
-| x1      | ra           | Return address         | No
-| x2      | sp           | Stack pointer          | Yes
-| x3      | gp           | Global pointer         | -- (Unallocatable)
-| x4      | tp           | Thread pointer         | -- (Unallocatable)
-| x5-x7   | t0-t2        | Temporary registers    | No
-| x8-x9   | s0-s1        | Callee-saved registers | Yes
-| x10-x17 | a0-a7        | Argument registers     | No
-| x18-x27 | s2-s11       | Callee-saved registers | Yes
-| x28-x31 | t3-t6        | Temporary registers    | No
+| x0        | zero         | Zero                   | -- (Immutable)
+| x1        | ra           | Return address         | No
+| x2        | sp           | Stack pointer          | Yes
+| x3        | gp           | Global pointer         | -- (Unallocatable)
+| x4        | tp           | Thread pointer         | -- (Unallocatable)
+| x5 - x7   | t0 - t2      | Temporary registers    | No
+| x8 - x9   | s0 - s1      | Callee-saved registers | Yes
+| x10 - x17 | a0 - a7      | Argument registers     | No
+| x18 - x27 | s2 - s11     | Callee-saved registers | Yes
+| x28 - x31 | t3 - t6      | Temporary registers    | No
 |===
 
 In the standard ABI, procedures should not modify the integer registers tp and
@@ -32,15 +32,15 @@ it must reside in x8 (s0), the register remains callee-saved.
 
 === Floating-point Register Convention
 
-[%autowidth]
+[cols="1,1,2,2"]
 |===
-| Name    | ABI Mnemonic | Meaning                | Preserved across calls?
+| Name      | ABI Mnemonic | Meaning                | Preserved across calls?
 
-| f0-f7   | ft0-ft7      | Temporary registers    | No
-| f8-f9   | fs0-fs1      | Callee-saved registers | Yes*
-| f10-f17 | fa0-fa7      | Argument registers     | No
-| f18-f27 | fs2-fs11     | Callee-saved registers | Yes*
-| f28-f31 | ft8-ft11     | Temporary registers    | No
+| f0 - f7   | ft0 - ft7    | Temporary registers    | No
+| f8 - f9   | fs0 - fs1    | Callee-saved registers | Yes*
+| f10 - f17 | fa0 - fa7    | Argument registers     | No
+| f18 - f27 | fs2 - fs11   | Callee-saved registers | Yes*
+| f28 - f31 | ft8 - ft11   | Temporary registers    | No
 |===
 
 *: Floating-point values in callee-saved registers are only preserved across
@@ -329,7 +329,8 @@ There are two conventions for C/C++ type sizes and alignments.
 ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
 alignments (based on the ILP32 convention):
 +
-[%autowidth]
+[cols="4,>2,>3"]
+[width=60%]
 |===
 | Type                 | Size (Bytes)  | Alignment (Bytes)
 
@@ -352,7 +353,8 @@ alignments (based on the ILP32 convention):
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
 alignments (based on the LP64 convention):
 +
-[%autowidth]
+[cols="4,>2,>3"]
+[width=60%]
 |===
 | Type                 | Size (Bytes)  | Alignment (Bytes)
 
@@ -420,7 +422,8 @@ systems. These are noted in this section.
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 abis.
 
-[%autowidth]
+[cols="2,>1,>1"]
+[width=80%]
 |===
 | Type    | Size (Bytes) | Alignment (Bytes)
 
