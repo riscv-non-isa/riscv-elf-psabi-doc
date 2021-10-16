@@ -1,11 +1,32 @@
 :company: RISC-V.org
-:revdate: {date}
+// These are the definitions from docs-template:
+//
+//   development: Assume everything can change
+//   stable: Assume everything could change
+//   frozen: If you implement this version you assume the risk that something
+//           might change because of the public review cycle but we expect
+//           little to no change.
+//   ratified: You can implement this and be assured nothing will change. If
+//             something needs to change due to an errata or enhancement, it
+//             will come out in a new extension. we do not revise extensions.
+//
+// These don't really make sense for our development process, so we merge
+// development and stable together into a single dev version that we brand as
+// Pre-release, but anything featuring in the document is implicitly frozen (in
+// fact, stronger, as frozen can still change in incompatible ways) as we
+// cannot break ABI once features are implemented in toolchains.
+:revlifecycle: dev
 :revnumber: 0.01
-:revremark: Pre-release version
-//development: assume everything can change
-//stable: assume everything could change
-//frozen: of you implement this version you assume the risk that something might change because of the public review cycle  but we expect little to no change.
-//ratified: you can implement this and be assured nothing will change. if something needs to change due to an errata or enhancement, it will come out in a new extension. we do not revise extensions.
+ifeval::["{revlifecycle}" == "dev"]
+:revdate: {date}
+:revremark: Pre-release
+endif::[]
+ifeval::["{revlifecycle}" == "frozen"]
+:revremark: Frozen
+endif::[]
+ifeval::["{revlifecycle}" == "ratified"]
+:revremark: Ratified
+endif::[]
 :url-riscv: http://riscv.org
 :doctype: book
 :preface-title: Preamble
