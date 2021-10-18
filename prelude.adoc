@@ -16,8 +16,8 @@
 // as frozen can still change in incompatible ways) as we cannot break ABI once
 // features are implemented in toolchains. Similarly stable is still frozen
 // just by another name for policy reasons.
-:revlifecycle: dev
-:revnumber: 0.01
+:revlifecycle: stable
+:revnumber: 0.9.0
 ifeval::["{revlifecycle}" == "dev"]
 :revdate: {date}
 :revremark: Pre-release
