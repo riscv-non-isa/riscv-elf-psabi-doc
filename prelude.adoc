@@ -10,16 +10,20 @@
 //             something needs to change due to an errata or enhancement, it
 //             will come out in a new extension. we do not revise extensions.
 //
-// These don't really make sense for our development process, so we merge
-// development and stable together into a single dev version that we brand as
-// Pre-release, but anything featuring in the document is implicitly frozen (in
-// fact, stronger, as frozen can still change in incompatible ways) as we
-// cannot break ABI once features are implemented in toolchains.
+// These don't really make sense for our development process, so we replace
+// development with a single dev version that we brand as Pre-release, but
+// anything featuring in the document is implicitly frozen (in fact, stronger,
+// as frozen can still change in incompatible ways) as we cannot break ABI once
+// features are implemented in toolchains. Similarly stable is still frozen
+// just by another name for policy reasons.
 :revlifecycle: dev
 :revnumber: 0.01
 ifeval::["{revlifecycle}" == "dev"]
 :revdate: {date}
 :revremark: Pre-release
+endif::[]
+ifeval::["{revlifecycle}" == "stable"]
+:revremark: Stable
 endif::[]
 ifeval::["{revlifecycle}" == "frozen"]
 :revremark: Frozen
