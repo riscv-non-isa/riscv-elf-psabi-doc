@@ -73,8 +73,8 @@ for more detail on how to mangle types.
 === File Header
 
 e_ident::
-  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.  We don't let users
-  link RV32 and RV64 code together.
+  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.  The linker disallow
+  linking RV32 and RV64 code together.
 +
 --
 [horizontal]
