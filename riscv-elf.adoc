@@ -72,6 +72,9 @@ for more detail on how to mangle types.
 
 === File Header
 
+The section below lists the defined RISC-V-specific values for several ELF
+header fields.
+
 e_ident::
   EI_CLASS::: Specifies the base ISA, either RV32 or RV64.  The linker disallow
   linking RV32 and RV64 code together.
