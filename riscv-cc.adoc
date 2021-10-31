@@ -427,7 +427,7 @@ systems. These are noted in this section.
 === Linux-specific C type sizes and alignments
 
 The following definitions apply for all ABIs defined in this document. Here
-there is no differentiation between ILP32 and LP64 abis.
+there is no differentiation between ILP32 and LP64 ABIs.
 
 [cols="2,>1,>1"]
 [width=80%]
@@ -441,6 +441,6 @@ there is no differentiation between ILP32 and LP64 abis.
 === Linux-specific C type representations
 
 The following definitions apply for all ABIs defined in this document. Here
-there is no differentiation between ILP32 and LP64 abis.
+there is no differentiation between ILP32 and LP64 ABIs.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
