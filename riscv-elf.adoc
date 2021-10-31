@@ -73,7 +73,8 @@ for more detail on how to mangle types.
 === File Header
 
 The section below lists the defined RISC-V-specific values for several ELF
-header fields.
+header fields, field not listed in this section means those field didn't have
+RISC-V specific values.
 
 e_ident::
   EI_CLASS::: Specifies the base ISA, either RV32 or RV64.  The linker disallow
@@ -84,8 +85,6 @@ e_ident::
 ELFCLASS64:::: ELF-64 Object File
 ELFCLASS32:::: ELF-32 Object File
 --
-
-e_type:: Nothing RISC-V specific.
 
 e_machine:: Identifies the machine this ELF file targets.  Always contains
 EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
