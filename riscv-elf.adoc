@@ -207,11 +207,22 @@ specific relocations show the instruction type in the Details column):
 [cols=">1,5,2,2,2,3"]
 [width=100%]
 |===
-| Enum | ELF Reloc Type        | Description                     | Field       | Calculation | Details
+   | Enum    | ELF Reloc Type   | Description             | Field / Calculation  | Details
 
-| 0    | R_RISCV_NONE          | None                            |             |             |
-| 1    | R_RISCV_32            | Runtime relocation              | _word32_    | S + A       |
-| 2    | R_RISCV_64            | Runtime relocation              | _word64_    | S + A       |
+.2+| 0    .2+| R_RISCV_NONE  .2+| None                    |                   .2+| Details
+                                                         <|
+
+.2+| 1    .2+| R_RISCV_32    .2+| Runtime relocation      | _word32_          .2+|
+                                                         <| S + A
+.2+| 2    .2+| R_RISCV_64    .2+| Runtime relocation      | _word64_          .2+|
+                                                         <| S + A
+|===
+
+[cols=">1,5,2,2,2,3"]
+[width=100%]
+|===
+| Enum | ELF Reloc Type        | Description                     | Field /Calculation  | Details |
+
 | 3    | R_RISCV_RELATIVE      | Runtime relocation              | _wordclass_ | B + A       |
 | 4    | R_RISCV_COPY          | Runtime relocation              |             |             | Must be in executable; not allowed in shared library
 | 5    | R_RISCV_JUMP_SLOT     | Runtime relocation              | _wordclass_ | S           | Handled by PLT unless `LD_BIND_NOW`
