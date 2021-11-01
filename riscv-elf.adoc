@@ -85,6 +85,21 @@ e_ident::
 ELFCLASS64:::: ELF-64 Object File
 ELFCLASS32:::: ELF-32 Object File
 --
+  EI_DATA::: Specifies the endian, either big-endian or little-endian.
+  The linker disallow linking big-endian and little code together.
++
+--
+[horizontal]
+ELFDATA2LSB:::: Little-endian Object File
+ELFDATA2MSB:::: Big-endian Object File
+--
++
+NOTE: RISC-V was only support little-endian, but RISC-V spec added big-endian
+since https://github.com/riscv/riscv-isa-manual/commit/2151617320bc7d27d3ce8415be306ab51c362508[Jun, 2019].
++
+  EI_ABIVERSION::: Specifies the ABI version, this field have to be set to 0,
+  and might defined other value by future versions of this specification.
++
 
 e_machine:: Identifies the machine this ELF file targets.  Always contains
 EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
