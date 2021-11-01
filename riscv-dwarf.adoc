@@ -4,6 +4,12 @@ ifeval::["{docname}" == "riscv-dwarf"]
 include::prelude.adoc[]
 endif::[]
 
+== DWARF Debugging Format
+
+The DWARF debugging format for RISC-V follows the
+https://dwarfstd.org/[standard DWARF specification]; this specification only
+describes RISC-V-specific definitions.
+
 == DWARF Register Numbers
 
 [cols="2,2,4"]
