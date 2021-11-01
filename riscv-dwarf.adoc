@@ -4,12 +4,12 @@ ifeval::["{docname}" == "riscv-dwarf"]
 include::prelude.adoc[]
 endif::[]
 
-== Dwarf Register Numbers
+== DWARF Register Numbers
 
 [cols="2,2,4"]
 [width=80%]
 |===
-| Dwarf Number | Register Name | Description
+| DWARF Number | Register Name | Description
 
 | 0 - 31       | x0 - x31      | Integer Registers
 | 32 - 63      | f0 - f31      | Floating-point Registers
