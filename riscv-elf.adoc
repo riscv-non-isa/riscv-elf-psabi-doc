@@ -144,6 +144,8 @@ this support is implicit.
 e_flags:: Describes the format of this ELF file.  These flags are used by the
 linker to disallow linking ELF files with incompatible ABIs together.
 +
+
+.Layout of e_flags
 [cols="1,2,1,1,3,5"]
 [width=80%]
 |===
@@ -207,9 +209,11 @@ remaining 6 bits have no defined meaning in the ELF gABI. We use the highest
 bit to mark functions that do not follow the standard calling convention for
 the ABI in use.
 +
-The defined processor-specific `st_other` flags are listed in the following
-table.
+The defined processor-specific `st_other` flags are listed in <<rv-st-other>>.
 +
+
+[[rv-st-other]]
+.RISC-V-specific `st_other` flags
 [cols="3,1"]
 [width=60%]
 |===
@@ -257,6 +261,7 @@ Calculation:: Formula for how to resolve the relocation value; definitions of th
 Description:: Additional information about the relocation
 
 [[reloc-table]]
+.Relocation types
 [cols=">2,6,3,6,11"]
 [width=100%]
 |===
@@ -381,9 +386,11 @@ _RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
 
 ==== Calculation Symbols
 
-The following table provides details on the variables used in relocation
+<<var-reloc-calc>> provides details on the variables used in relocation
 calculation:
 
+[[var-reloc-calc]]
+.Variables used in relocation calculation
 [%autowidth]
 |===
 | Variable  | Description
@@ -404,8 +411,10 @@ of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 
 ==== Field Symbols
 
-The following table provides details on the variables used in relocation fields:
+<<var-reloc-field>> provides details on the variables used in relocation fields:
 
+[[var-reloc-field]]
+.Variables used in relocation fields
 [%autowidth]
 |===
 | Variable    | Description
@@ -429,8 +438,10 @@ The following table provides details on the variables used in relocation fields:
 
 ==== Constants
 
-The following table provides details on the constants used in relocation fields:
+<<const-reloc-field>> provides details on the constants used in relocation fields:
 
+[[const-reloc-field]]
+.Constants used in relocation fields
 [cols="3,1"]
 [width=30%]
 |===
@@ -636,9 +647,11 @@ described by the ELF TLS specification, with `tp` containing the address one
 past the end of the TCB.
 
 There are various thread local storage models for statically allocated or
-dynamically allocated thread local storage. The following table lists the
+dynamically allocated thread local storage. <<tls-model>> lists the
 thread local storage models:
 
+[[tls-model]]
+.TLS models
 [cols="1,2,3"]
 [width=70%]
 |===
@@ -780,8 +793,10 @@ typedef struct
 
 ==== Section Types
 
-The defined processor-specific section types are listed in following table.
+The defined processor-specific section types are listed in <<rv-section-type>>.
 
+[[rv-section-type]]
+.RISC-V-specific section types
 [cols="3,3,1"]
 [width=80%]
 |===
@@ -792,8 +807,10 @@ The defined processor-specific section types are listed in following table.
 
 ==== Special Sections
 
-The following table lists the special sections defined by this ABI.
+<<rv-section>> lists the special sections defined by this ABI.
 
+[[rv-section]]
+.RISC-V-specific sections
 [cols="3,3,1"]
 [width=80%]
 |===
@@ -806,9 +823,10 @@ The following table lists the special sections defined by this ABI.
 
 === Program Header Table
 
-The defined processor-specific segment types are listed in following
-table.
+The defined processor-specific segment types are listed in <<rv-seg-type>>.
 
+[[rv-seg-type]]
+.RISC-V-specific segment types
 [cols="3,2,3"]
 [width=80%]
 |===
@@ -825,9 +843,10 @@ There are no RISC-V specific definitions relating to ELF note sections.
 
 === Dynamic Section
 
-The defined processor-specific dynamic array tags are listed in the following
-table.
+The defined processor-specific dynamic array tags are listed in <<rv-dyn-tag>>.
 
+[[rv-dyn-tag]]
+.RISC-V-specific dynamic array tags
 [cols="4,2,1,3,3"]
 [width=90%]
 |===
@@ -861,6 +880,7 @@ value if the tag number is even.
 
 ==== List of attributes
 
+.RISC-V attributes
 [cols="4,>2,2,5"]
 [width=100%]
 |===
