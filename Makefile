@@ -9,7 +9,7 @@ all: $(NAME).pdf
 clean:
 	rm -f $(NAME).pdf
 
-$(NAME).pdf: $(NAME).adoc $(wildcard *.adoc)
+$(NAME).pdf: $(NAME).adoc $(wildcard *.adoc) resources/themes/risc-v_spec-pdf.yml
 	asciidoctor-pdf \
 	    -a compress \
 	    -a date="$(DATE)" \
