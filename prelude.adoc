@@ -21,15 +21,19 @@
 ifeval::["{revlifecycle}" == "dev"]
 :revdate: {date}
 :revremark: Pre-release
+:refrev: {date}-draft
 endif::[]
 ifeval::["{revlifecycle}" == "stable"]
 :revremark: Stable
+:refrev: {revnumber}
 endif::[]
 ifeval::["{revlifecycle}" == "frozen"]
 :revremark: Frozen
+:refrev: {revnumber}
 endif::[]
 ifeval::["{revlifecycle}" == "ratified"]
 :revremark: Ratified
+:refrev: {revnumber}
 endif::[]
 :url-riscv: http://riscv.org
 :doctype: book
