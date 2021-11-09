@@ -14,6 +14,10 @@ via its literal.  And, when not, other data structures are used to help the
 code to address the memory space.  The coding conventions governing their use
 are known as code models.
 
+However, some code models can't access the whole address space. The linker may
+raise an error if it cannot adjust the instructions to access the target address
+in the current code model.
+
 === Small
 
 The small code model, or `medlow`, allows the code to address the whole RV32
