@@ -27,6 +27,24 @@ By using the instructions `lui` and `ld` or `st`, when referring to an object, o
 a 32-bit address literal can be produced.
 This code model is not position independent.
 
+The following instructions show how to load a value, store a value, or calculate
+an address in the `medlow` code model.
+
+[,asm]
+----
+    # Load value from a symbol
+    lui  a0, %hi(symbol)
+    lw   a0, %lo(symbol)(a0)
+
+    # Store value to a symbol
+    lui  a0, %hi(symbol)
+    sw   a1, %lo(symbol)(a0)
+
+    # Calculate address
+    lui  a0, %hi(symbol)
+    addi a0, a0, %lo(symbol)
+----
+
 === Medium
 
 The medium code model, or `medany`, allows the code to address the range
@@ -47,6 +65,24 @@ using the GOT, not just advise.
 NOTE: This is not yet a requirement as existing toolchains predating this part
 of the specification do not adhere to this, and without improvements to linker
 relaxation support doing so would regress performance and code size.
+
+The following instructions show how to load a value, store a value, or calculate
+an address in the medany code model.
+
+[,asm]
+----
+    # Load value from a symbol
+0:  auipc a0, %pcrel_hi(symbol)
+    lw    a0, %pcrel_lo(0b)(a0)
+
+    # Store value to a symbol
+1:  auipc a0, %pcrel_hi(symbol)
+    sw    a1, %pcrel_lo(1b)(a0)
+
+    # Calculate address
+2:  auipc a0, %pcrel_hi(symbol)
+    addi  a0, a0, %pcrel_lo(2b)
+----
 
 == Dynamic Linking
 
