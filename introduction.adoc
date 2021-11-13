@@ -1,0 +1,30 @@
+= Introduction
+
+This specification provides the processor-specific application binary interface
+document for RISC-V.
+
+This specification consists of the following three parts:
+
+- Calling convention
+- ELF specification
+- DWARF specification
+
+= Terms and Abbreviations
+
+This specification uses the following terms and abbreviations:
+
+[width=80%]
+|===
+| Term  | Meaning
+
+| ABI   | Application Binary Interface
+| gABI  | Generic System V Application Binary Interface
+| ELF   | Executable and Linking Format
+| psABI | Processor-Specific ABI
+| DWARF | Debugging With Arbitrary Record Formats
+| GOT   | Global Offset Table
+| PLT   | Program Linkage Table
+| PC    | Program Counter
+| TLS   | Thread-Local Storage
+| NTBS  | Null-Terminated Byte String
+|===
