@@ -60,15 +60,18 @@ required to save/restore them and can instead eagerly bind such functions.
 
 == C++ Name Mangling
 
-{Cpp} name mangling for RISC-V follows the
-http://itanium-cxx-abi.github.io/cxx-abi/[Itanium {Cpp} ABI]; there are no RISC-V
-specific mangling rules.
+{Cpp} name mangling for RISC-V follows
+the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>;
+there are no RISC-V specific mangling rules.
 
-See
-http://itanium-cxx-abi.github.io/cxx-abi/abi.html#mangling-type[Type encodings]
+See the "Type encodings" section in _Itanium {Cpp} ABI_
 for more detail on how to mangle types.
 
 == ELF Object Files
+
+The ELF object file format for RISC-V follows the
+_Generic System V Application Binary Interface_ <<gabi>>
+("gABI"); this specification only describes RISC-V-specific definitions.
 
 === File Header
 
@@ -263,7 +266,7 @@ purpose.  These relocations may conflict with other nonstandard extensions.
 
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
-https://github.com/riscv/riscv-asm-manual[RISC-V Assembly Programmer's Manual].
+_RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
 
 ==== Calculation Symbols
 
@@ -512,7 +515,7 @@ RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
 TLS "initialization images" for new threads. The `.tbss` and `.tdata` sections
 are not referenced directly like regular segments, rather they are copied or
 allocated to the thread local storage space of newly created threads.
-See https://www.akkadia.org/drepper/tls.pdf.
+See _ELF Handling For Thread-Local Storage_ <<tls>>.
 
 In The ELF Thread Local Storage Model, TLS offsets are used instead of pointers.
 The ELF TLS sections are initialization images for the thread local variables of
@@ -817,3 +820,18 @@ rather than to instruct the linker how to apply a relocation.
 
 The linker should only perform such relaxations when a R_RISCV_RELAX relocation
 is at the same position as a candidate relocation.
+
+[bibliography]
+== References
+
+* [[[gabi]]] "Generic System V Application Binary Interface"
+http://www.sco.com/developers/gabi/latest/contents.html
+
+* [[[itanium-cxx-abi]]] "Itanium C++ ABI"
+http://itanium-cxx-abi.github.io/cxx-abi/
+
+* [[[rv-asm]]] "RISC-V Assembly Programmer's Manual"
+https://github.com/riscv-non-isa/riscv-asm-manual
+
+* [[[tls]]] "ELF Handling For Thread-Local Storage"
+https://www.akkadia.org/drepper/tls.pdf, Ulrich Drepper
