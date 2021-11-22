@@ -72,17 +72,27 @@ for more detail on how to mangle types.
 
 === File Header
 
+The section below lists the defined RISC-V-specific values for several ELF
+header fields; any fields not listed in this section have no RISC-V-specific
+values.
+
 e_ident::
-  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.  We don't let users
-  link RV32 and RV64 code together.
+  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.
+  Linking RV32 and RV64 code together is not supported.
 +
 --
 [horizontal]
 ELFCLASS64:::: ELF-64 Object File
 ELFCLASS32:::: ELF-32 Object File
 --
-
-e_type:: Nothing RISC-V specific.
+  EI_DATA::: Specifies the endianness; either big-endian or little-endian.
+  Linking big-endian and little-endian code together is not supported.
++
+--
+[horizontal]
+ELFDATA2LSB:::: Little-endian Object File
+ELFDATA2MSB:::: Big-endian Object File
+--
 
 e_machine:: Identifies the machine this ELF file targets.  Always contains
 EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
