@@ -29,5 +29,9 @@ It is licensed under the Creative Commons Attribution 4.0 International
 License (CC-BY 4.0).  The full license text is available at
 https://creativecommons.org/licenses/by/4.0/.
 
+Please cite as: `RISC-V ABIs Specification,
+ Document Version {refrev}', Editors
+Kito Cheng and Jessica Clarke, RISC-V International, {monthyear}.
+
 The latest version of this document can be found here:
 https://github.com/riscv-non-isa/riscv-elf-psabi-doc.

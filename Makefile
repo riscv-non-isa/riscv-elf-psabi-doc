@@ -1,6 +1,7 @@
 NAME = riscv-abi
 
 DATE = $(shell date '+%B %d, %Y')
+MONTHYEAR = $(shell date '+%B %Y')
 
 .PHONY: all
 all: $(NAME).pdf
@@ -13,6 +14,7 @@ $(NAME).pdf: $(NAME).adoc $(wildcard *.adoc) resources/themes/risc-v_spec-pdf.ym
 	asciidoctor-pdf \
 	    -a compress \
 	    -a date="$(DATE)" \
+	    -a monthyear="$(MONTHYEAR)" \
 	    -a pdf-style=resources/themes/risc-v_spec-pdf.yml \
 	    -a pdf-fontsdir=resources/fonts \
 	    -v \
