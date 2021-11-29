@@ -17,7 +17,7 @@
 // features are implemented in toolchains. Similarly stable is still frozen
 // just by another name for policy reasons.
 :revlifecycle: stable
-:revnumber: 0.9.0
+:revnumber: 0.9.1
 ifeval::["{revlifecycle}" == "dev"]
 :revdate: {date}
 :revremark: Pre-release
