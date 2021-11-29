@@ -8,6 +8,7 @@ endif::[]
 
 === Integer Register Convention
 
+.Integer register convention
 [cols="1,1,2,2"]
 |===
 | Name      | ABI Mnemonic | Meaning                | Preserved across calls?
@@ -32,6 +33,7 @@ it must reside in x8 (s0), the register remains callee-saved.
 
 === Floating-point Register Convention
 
+.Floating-point register convention
 [cols="1,1,2,2"]
 |===
 | Name      | ABI Mnemonic | Meaning                | Preserved across calls?
@@ -54,6 +56,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 === Vector Register Convention
 
+.Vector register convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -336,6 +339,7 @@ There are two conventions for C/C++ type sizes and alignments.
 ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
 alignments (based on the ILP32 convention):
 +
+.C/C++ type sizes and alignments for RV32
 [cols="4,>2,>3"]
 [width=60%]
 |===
@@ -360,6 +364,7 @@ alignments (based on the ILP32 convention):
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
 alignments (based on the LP64 convention):
 +
+.C/C++ type sizes and alignments for RV64
 [cols="4,>2,>3"]
 [width=60%]
 |===
@@ -429,6 +434,7 @@ systems. These are noted in this section.
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 ABIs.
 
+.Linux-specific C type sizes and alignments
 [cols="2,>1,>1"]
 [width=80%]
 |===

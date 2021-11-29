@@ -142,8 +142,12 @@ EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
 this support is implicit.
 
 e_flags:: Describes the format of this ELF file.  These flags are used by the
-linker to disallow linking ELF files with incompatible ABIs together.
+linker to disallow linking ELF files with incompatible ABIs together,
+<<e-flags-layout>> shows the layout of e_flags, and flag details are listed
+below.
 +
+[[e-flags-layout]]
+.Layout of e_flags
 [cols="1,2,1,1,3,5"]
 [width=80%]
 |===
@@ -152,6 +156,8 @@ linker to disallow linking ELF files with incompatible ABIs together.
 | RVC   | Float ABI  | RVE   | TSO   | *Reserved*  | *Non-standard extensions*
 |===
 
++
+--
   EF_RISCV_RVC (0x0001)::: This bit is set when the binary targets the C ABI,
   which allows instructions to be aligned to 16-bit boundaries (the base RV32
   and RV64 ISAs only allow 32-bit instruction alignment).  When linking
@@ -179,18 +185,19 @@ linker to disallow linking ELF files with incompatible ABIs together.
 
   EF_RISCV_TSO (0x0010)::: This bit is set when the binary requires the RVTSO
   memory consistency model.
-+
+
 Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This many
 conflict with other non-standard extensions.
-+
+
 NOTE: There is no provision for compatibility between conflicting uses of the
 e_flags bits reserved for non-standard extensions, and many standard RISC-V
 tools will ignore them. Do not use them unless you control both the toolchain
 and the operating system, and the ABI differences are so significant they
 cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
 different syscall ABI.
+--
 
 === Sections
 
@@ -207,9 +214,10 @@ remaining 6 bits have no defined meaning in the ELF gABI. We use the highest
 bit to mark functions that do not follow the standard calling convention for
 the ABI in use.
 +
-The defined processor-specific `st_other` flags are listed in the following
-table.
+The defined processor-specific `st_other` flags are listed in <<rv-st-other>>.
 +
+[[rv-st-other]]
+.RISC-V-specific `st_other` flags
 [cols="3,1"]
 [width=60%]
 |===
@@ -257,6 +265,7 @@ Calculation:: Formula for how to resolve the relocation value; definitions of th
 Description:: Additional information about the relocation
 
 [[reloc-table]]
+.Relocation types
 [cols=">2,6,3,6,11"]
 [width=100%]
 |===
@@ -381,9 +390,11 @@ _RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
 
 ==== Calculation Symbols
 
-The following table provides details on the variables used in relocation
+<<var-reloc-calc>> provides details on the variables used in relocation
 calculation:
 
+[[var-reloc-calc]]
+.Variables used in relocation calculation
 [%autowidth]
 |===
 | Variable  | Description
@@ -404,8 +415,10 @@ of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 
 ==== Field Symbols
 
-The following table provides details on the variables used in relocation fields:
+<<var-reloc-field>> provides details on the variables used in relocation fields:
 
+[[var-reloc-field]]
+.Variables used in relocation fields
 [%autowidth]
 |===
 | Variable    | Description
@@ -429,8 +442,10 @@ The following table provides details on the variables used in relocation fields:
 
 ==== Constants
 
-The following table provides details on the constants used in relocation fields:
+<<const-reloc-field>> provides details on the constants used in relocation fields:
 
+[[const-reloc-field]]
+.Constants used in relocation fields
 [cols="3,1"]
 [width=30%]
 |===
@@ -636,9 +651,11 @@ described by the ELF TLS specification, with `tp` containing the address one
 past the end of the TCB.
 
 There are various thread local storage models for statically allocated or
-dynamically allocated thread local storage. The following table lists the
+dynamically allocated thread local storage. <<tls-model>> lists the
 thread local storage models:
 
+[[tls-model]]
+.TLS models
 [cols="1,2,3"]
 [width=70%]
 |===
@@ -780,8 +797,10 @@ typedef struct
 
 ==== Section Types
 
-The defined processor-specific section types are listed in following table.
+The defined processor-specific section types are listed in <<rv-section-type>>.
 
+[[rv-section-type]]
+.RISC-V-specific section types
 [cols="3,3,1"]
 [width=80%]
 |===
@@ -792,8 +811,10 @@ The defined processor-specific section types are listed in following table.
 
 ==== Special Sections
 
-The following table lists the special sections defined by this ABI.
+<<rv-section>> lists the special sections defined by this ABI.
 
+[[rv-section]]
+.RISC-V-specific sections
 [cols="3,3,1"]
 [width=80%]
 |===
@@ -806,9 +827,10 @@ The following table lists the special sections defined by this ABI.
 
 === Program Header Table
 
-The defined processor-specific segment types are listed in following
-table.
+The defined processor-specific segment types are listed in <<rv-seg-type>>.
 
+[[rv-seg-type]]
+.RISC-V-specific segment types
 [cols="3,2,3"]
 [width=80%]
 |===
@@ -825,9 +847,10 @@ There are no RISC-V specific definitions relating to ELF note sections.
 
 === Dynamic Section
 
-The defined processor-specific dynamic array tags are listed in the following
-table.
+The defined processor-specific dynamic array tags are listed in <<rv-dyn-tag>>.
 
+[[rv-dyn-tag]]
+.RISC-V-specific dynamic array tags
 [cols="4,2,1,3,3"]
 [width=90%]
 |===
@@ -861,6 +884,7 @@ value if the tag number is even.
 
 ==== List of attributes
 
+.RISC-V attributes
 [cols="4,>2,2,5"]
 [width=100%]
 |===
