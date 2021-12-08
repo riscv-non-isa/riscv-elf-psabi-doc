@@ -907,7 +907,7 @@ Each attribute is described in the following structure:
 `<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]`
 
 ===== Tag_RISCV_stack_align, 4, uleb128=value
-Tag_RISCV_strict_align records the N-byte stack alignment for this object. The
+Tag_RISCV_stack_align records the N-byte stack alignment for this object. The
 default value is 16 for RV32I or RV64I, and 4 for RV32E.
 
 It will report erros if link object files with different Tag_RISCV_stack_align values.
