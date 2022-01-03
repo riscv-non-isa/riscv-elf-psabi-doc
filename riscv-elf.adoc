@@ -317,9 +317,9 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 26      .2+| HI20          .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit absolute address, `%hi(symbol)`
                                             <| S + A
-.2+| 27      .2+| LO12_I        .2+| Static  | _I-Type_          .2+| High 12 bits of 32-bit absolute address, `%lo(symbol)`
+.2+| 27      .2+| LO12_I        .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit absolute address, `%lo(symbol)`
                                             <| S + A
-.2+| 28      .2+| LO12_S        .2+| Static  | _S-Type_          .2+| High 12 bits of 32-bit absolute address, `%lo(symbol)`
+.2+| 28      .2+| LO12_S        .2+| Static  | _S-Type_          .2+| Low 12 bits of 32-bit absolute address, `%lo(symbol)`
                                             <| S + A
 .2+| 29      .2+| TPREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of TLS LE thread pointer offset, `%tprel_hi(symbol)`
                                             <|
