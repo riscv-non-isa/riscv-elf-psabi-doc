@@ -53,7 +53,7 @@ and `ld` or `st`, when referring to an object, or
 `addi`, when calculating an address literal, for example,
 a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
-This code model is position independent.
+This code model is not position independent.
 
 As a special edge-case, undefined weak symbols must still be supported, whose
 addresses will be 0 and may be out of range depending on the address at which
