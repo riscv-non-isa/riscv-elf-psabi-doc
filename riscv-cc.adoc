@@ -244,6 +244,11 @@ provided they hold values no more than FLEN bits wide.
 
 === ILP32E Calling Convention
 
+IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
+stability of ILP32E, in contrast with the rest of this document. This documents
+the current implementation in GCC as of the time of writing, but may be subject
+to change.
+
 The ILP32E calling convention is designed to be usable with the RV32E ISA. This
 calling convention is the same as the integer calling convention, except for the
 following differences.  The stack pointer need only be aligned to a 32-bit
