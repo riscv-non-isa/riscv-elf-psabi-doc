@@ -35,3 +35,17 @@ Kito Cheng and Jessica Clarke, RISC-V International, {monthyear}.
 
 The latest version of this document can be found here:
 https://github.com/riscv-non-isa/riscv-elf-psabi-doc.
+
+This specification is written in collaboration with the development communities
+of the major open-source toolchain and operating system communities, and as
+such specifies what has been agreed upon and implemented. As a result, any
+changes to this specification that are not backwards-compatible would break ABI
+compatibility for those toolchains, which is not permitted unless for features
+explicitly marked as experimental, and so will not be made unless absolutely
+necessary, regardless of whether the specification is a pre-release version,
+ratified version or anything in between. This means any version of this
+specification published at the above link can be regarded as stable in the
+technical sense of the word (but not necessarily in the official RISC-V
+International specification state meaning), with the official specification
+state being an indicator of the completeness, clarity and general editorial
+quality of the specification.
