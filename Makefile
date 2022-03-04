@@ -15,7 +15,7 @@ $(NAME).pdf: $(NAME).adoc $(wildcard *.adoc) docs-resources/themes/riscv-pdf.yml
 	    -a compress \
 	    -a date="$(DATE)" \
 	    -a monthyear="$(MONTHYEAR)" \
-	    -a pdf-style=docs-resources/themes/riscv-pdf.yml \
+	    -a pdf-style=themes/psabi-themes.yml \
 	    -a pdf-fontsdir=docs-resources/fonts \
 	    -v \
 	    $< -o $@
