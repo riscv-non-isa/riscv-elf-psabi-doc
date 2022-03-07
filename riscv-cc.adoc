@@ -155,6 +155,10 @@ type would be passed.  If such an argument would have been passed by
 reference, the caller allocates memory for the return value, and passes the
 address as an implicit first parameter.
 
+NOTE: There is no requirement that the address be returned from the function
+and so software should not assume that a0 will hold the address of the return
+value on return.
+
 The stack grows downwards (towards lower addresses) and the stack pointer shall
 be aligned to a 128-bit boundary upon procedure entry.
 The first argument passed on the stack is located at offset zero of the stack pointer
