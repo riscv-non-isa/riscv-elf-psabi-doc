@@ -18,14 +18,13 @@ However, some code models can't access the whole address space. The linker may
 raise an error if it cannot adjust the instructions to access the target address
 in the current code model.
 
-=== Small
+=== Small code model
 
 The small code model, or `medlow`, allows the code to address the whole RV32
 address space or the lower 2 GiB of the RV64 address space.
 By using the instructions `lui` and `ld` or `st`, when referring to an object, or
 `addi`, when calculating an address literal, for example,
 a 32-bit address literal can be produced.
-This code model is not position independent.
 
 The following instructions show how to load a value, store a value, or calculate
 an address in the `medlow` code model.
@@ -45,7 +44,7 @@ an address in the `medlow` code model.
     addi a0, a0, %lo(symbol)
 ----
 
-=== Medium
+=== Medium code model
 
 The medium code model, or `medany`, allows the code to address the range
 between -2 GiB and +2 GiB from its position.  By using the instructions `auipc`
@@ -53,7 +52,6 @@ and `ld` or `st`, when referring to an object, or
 `addi`, when calculating an address literal, for example,
 a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
-This code model is position independent.
 
 As a special edge-case, undefined weak symbols must still be supported, whose
 addresses will be 0 and may be out of range depending on the address at which
@@ -82,6 +80,34 @@ an address in the medany code model.
     # Calculate address
 2:  auipc a0, %pcrel_hi(symbol)
     addi  a0, a0, %pcrel_lo(2b)
+----
+
+NOTE: Although the generated code is technically position independent, it's not
+suitable for ELF shared libraries due to differing symbol interposition rules;
+for that, please use the medium position independent code model below.
+
+=== Medium position independent code model
+
+This model is similar to the medium code model, but uses the global offset
+table (GOT) for non-local symbol addresses.
+
+[,asm]
+----
+    # Load value from a local symbol
+0:  auipc a0, %pcrel_hi(symbol)
+    lw    a0, %pcrel_lo(0b)(a0)
+
+    # Store value to a local symbol
+1:  auipc a0, %pcrel_hi(symbol)
+    sw    a1, %pcrel_lo(1b)(a0)
+
+    # Calculate address of a local symbol
+2:  auipc a0, %pcrel_hi(symbol)
+    addi  a0, a0, %pcrel_lo(2b)
+
+    # Calculate address of non-local symbol
+3:  auipc  a0, %got_pcrel_hi(symbol)
+    l[w|d] a0, a0, %pcrel_lo(3b)
 ----
 
 == Dynamic Linking
