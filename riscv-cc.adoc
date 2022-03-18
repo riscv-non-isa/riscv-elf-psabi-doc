@@ -64,12 +64,17 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | v0-v31  |              | Temporary registers          | No
 | vl      |              | Vector length                | No
 | vtype   |              | Vector data type register    | No
+| vxrm    |              | Vector fixed-point rounding mode register    | No
+| vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
 
 Vector registers are not used for passing arguments or return values; we
 intend to define a new calling convention variant to allow that as a future
 software optimization.
+
+The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and the
+value is unspecified upon entry.
 
 Procedures may assume that `vstart` is zero upon entry. Procedures may assume
 that `vstart` is zero upon return from a procedure call.
