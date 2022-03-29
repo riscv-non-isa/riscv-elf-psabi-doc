@@ -325,12 +325,12 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 17      .2+| JAL           .2+| Static  | _J-Type_          .2+| 20-bit PC-relative jump offset
                                             <| S + A - P
-.2+| 18      .2+| CALL          .2+| Static  | _U+J-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail`
+.2+| 18      .2+| CALL          .2+| Static  | _U+I-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail`
                                             <| S + A - P
-.2+| 19      .2+| CALL_PLT      .2+| Static  | _U+J-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail` (PIC)
+.2+| 19      .2+| CALL_PLT      .2+| Static  | _U+I-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail` (PIC)
                                             <| S + A - P
 .2+| 20      .2+| GOT_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative GOT access, `%got_pcrel_hi(symbol)`
-                                            <| G + A - P
+                                            <| G + GOT + A - P
 .2+| 21      .2+| TLS_GOT_HI20  .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS IE GOT access, macro `la.tls.ie`
                                             <|
 .2+| 22      .2+| TLS_GD_HI20   .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS GD GOT reference, macro `la.tls.gd`
@@ -428,6 +428,7 @@ calculation:
 | A         | Addend field in the relocation entry associated with the symbol
 | B         | Base address of a shared object loaded into memory
 | G         | Offset of the symbol into the GOT (Global Offset Table)
+| GOT       | Address of the GOT (Global Offset Table)
 | P         | Position of the relocation
 | S         | Value of the symbol in the symbol table
 | V         | Value at the position of the relocation
@@ -463,7 +464,7 @@ of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 | _S-Type_    | Specifies a field as the immediate field in an S-type instruction
 | _U-Type_    | Specifies a field as the immediate field in an U-type instruction
 | _J-Type_    | Specifies a field as the immediate field in a J-type instruction
-| _U+J-Type_  | Specifies a field as the immediate fields in a U-type and J-type instruction pair
+| _U+I-Type_  | Specifies a field as the immediate fields in a U-type and I-type instruction pair
 |===
 
 ==== Constants
@@ -602,7 +603,7 @@ and when symbol has an `@plt` suffix it expands to:
 
 ==== PC-Relative Jumps and Branches
 
-Unconditional jump (U+J-Type) instructions have a `R_RISCV_JAL` relocation
+Unconditional jump (J-Type) instructions have a `R_RISCV_JAL` relocation
 that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
