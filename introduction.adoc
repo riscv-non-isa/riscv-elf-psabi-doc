@@ -27,4 +27,6 @@ This specification uses the following terms and abbreviations:
 | PC    | Program Counter
 | TLS   | Thread-Local Storage
 | NTBS  | Null-Terminated Byte String
+| XLEN  | The width of an integer register in bits
+| FLEN  | The width of a floating-point register in bits
 |===
