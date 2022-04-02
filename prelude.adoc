@@ -1,4 +1,32 @@
-:company: RISC-V.org
+// These variables should not require customization
+:company: RISC-V
+:url-riscv: http://riscv.org
+:doctype: book
+:preface-title: Preamble
+:colophon:
+:appendix-caption: Appendix
+:title-logo-image: image:docs-resources/images/risc-v_logo.svg[pdfwidth=3.25in,align=center]
+// Settings:
+:experimental:
+:reproducible:
+:WaveDromEditorApp: wavedrom-cli
+:icons: font
+:lang: en
+:listing-caption: Listing
+:sectnums:
+:sectnumlevels: 5
+:toclevels: 5
+:toc: left
+:source-highlighter: pygments
+ifdef::backend-pdf[]
+:source-highlighter: coderay
+endif::[]
+:data-uri:
+:hide-uri-scheme:
+:stem: latexmath
+:footnote:
+:xrefstyle: short
+
 // These are the definitions from docs-template:
 //
 //   development: Assume everything can change
@@ -35,30 +63,6 @@ ifeval::["{revlifecycle}" == "ratified"]
 :revremark: Ratified
 :refrev: {revnumber}
 endif::[]
-:url-riscv: http://riscv.org
-:doctype: book
-:preface-title: Preamble
-:colophon:
-:appendix-caption: Appendix
-:imagesdir: images
-:title-logo-image: image:risc-v_logo.png[pdfwidth=3.25in,align=center]
-//:back-cover-image: image:backpage.png[opacity=25%]
-:experimental:
-:reproducible:
-:icons: font
-:lang: en
-:listing-caption: Listing
-:sectnums:
-:toc: left
-:toclevels: 3
-:source-highlighter: pygments
-ifdef::backend-pdf[]
-:source-highlighter: coderay
-endif::[]
-:data-uri:
-:hide-uri-scheme:
-:stem: latexmath
-:footnote:
-:xrefstyle: short
+
 
 include::preamble.adoc[]

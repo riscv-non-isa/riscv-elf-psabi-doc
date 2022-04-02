@@ -1,13 +1,20 @@
 font:
   catalog:
-    # Computer Modern
-    Computer Modern:
-      normal: cmunss.ttf
-      bold: cmunsx.ttf
-      italic: cmunsi.ttf
-      bold_italic: cmunso.ttf
-      header_thin: cmunbmr.ttf
-    Code:
+    merge: false 
+ #Petrona
+    body:
+      normal: Petrona-Light.ttf
+      bold: Petrona-Medium.ttf
+      italic: Petrona-LightItalic.ttf
+      bold_italic: Petrona-MediumItalic.ttf
+      header_thin: Petrona-Thin.ttf
+  #Montserrat
+    headings:
+      normal: Montserrat-Regular.ttf
+      italic: Montserrat-Italic.ttf
+      bold: Montserrat-Medium.ttf
+      light: Montserrat-Light.ttf
+    code:
       normal: cmunbtl.ttf
       bold: cmunbtl.ttf
       italic: cmunbto.ttf
@@ -16,23 +23,20 @@ font:
     M+ 1mn:
       normal: mplus-1mn-regular.ttf
       bold: mplus-1mn-bold.ttf
-      italic: mplus-1mn-regular.ttf
-      bold_italic: mplus-1mn-bold.ttf
-    # M+ 1p supports Latin, Latin-1 Supplement, Latin Extended, Greek, Cyrillic, Vietnamese, Japanese & an assortment of symbols
-    # It also provides arrows for ->, <-, => and <= replacements in case these glyphs are missing from font
+      italic: mplus-1mn-light.ttf
+      bold_italic: mplus-1mn-medium.ttf
     M+ 1p Fallback:
       normal: mplus-1p-regular-fallback.ttf
       bold: mplus-1p-regular-fallback.ttf
       italic: mplus-1p-regular-fallback.ttf
       bold_italic: mplus-1p-regular-fallback.ttf
-#    Droid Fallback:
-#      normal: droid-regular-fallback.ttf
-#      bold: droid-regular-fallback.ttf
-#      italic: droid-regular-fallback.ttf
-#      bold_italic: droid-regular-fallback.ttf
+    Droid Fallback:
+      normal: droid-sans-fallback.ttf
+    # M+ 1p supports Latin, Latin-1 Supplement, Latin Extended, Greek, Cyrillic, Vietnamese, Japanese & an assortment of symbols
+    # It also provides arrows for ->, <-, => and <= replacements in case these glyphs are missing from font
   fallbacks:
     - M+ 1p Fallback
-#    - Droid Fallback
+    - Droid Fallback
 page:
   background_color: ffffff
   layout: portrait
@@ -42,88 +46,59 @@ page:
   margin_outer: 0.59in
   size: A4
 base:
-  align: justify
-  # color as hex string (leading # is optional)
-  font_color: 383838
-  # color as RGB array
-  #font_color: [51, 51, 51]
-  # color as CMYK array (approximated)
-  #font_color: [0, 0, 0, 0.92]
-  #font_color: [0, 0, 0, 92%]
-  font_family: Computer Modern
-  # choose one of these font_size/line_height_length combinations
-  #font_size: 14
-  #line_height_length: 20
-  #font_size: 11.25
-  #line_height_length: 18
-  #font_size: 11.2
-  #line_height_length: 16
-  font_size: 10.5
-  #line_height_length: 15
-  # correct line height for Computer Modern metrics
+  font-family: body
+  font_size: 11.5
   line_height_length: 12
-  #font_size: 11.25
-  #line_height_length: 18
-  line_height: $base_line_height_length / $base_font_size
+  font_style: normal
   font_size_large: round($base_font_size * 1.25)
   font_size_small: round($base_font_size * 0.85)
   font_size_min: $base_font_size * 0.75
-  font_style: normal
-  border_color: eeeeee
   border_radius: 3
-  border_width: 0.2
-# FIXME vertical_rhythm is weird; we should think in terms of ems
-#vertical_rhythm: $base_line_height_length * 2 / 3
-# correct line height for Computer Modern metrics (comes with built-in line height)
+  border_width: 0.25
 vertical_rhythm: $base_line_height_length
 horizontal_rhythm: $base_line_height_length
-# QUESTION should vertical_spacing be block_spacing instead?
-vertical_spacing: $vertical_rhythm
+ # QUESTION should vertical_spacing be block_spacing instead?
+vertical_spacing: $vertical_rhythm  
 link:
-  font_color: 428bca
-# literal is currently used for inline monospaced in prose and table cells
+    font_color: 428bca
+  # literal is currently used for inline monospaced in prose and table cells
 literal:
-  font_color: b12146
-  font_family: Code
+    font_color: b12146
+    font_family: code
 menu_caret_content: " <font size=\"1.15em\"><color rgb=\"b12146\">\u203a</color></font> "
 heading:
-  align: left
-  font_color: 3e058e
-  #font_color: $base_font_color
-  font_family: $base_font_family
-  font_style: normal
-  # h1 is used for part titles (book doctype only)
-  h1_font_size: floor($base_font_size * 2.6)
-  # h2 is used for chapter titles (book doctype only)
-  h2_font_size: floor($base_font_size * 2.15)
-  h3_font_size: round($base_font_size * 1.7)
-  h4_font_size: $base_font_size_large
-  h5_font_size: $base_font_size
-  h6_font_size: $base_font_size_small
-  #line_height: 1.4
-  # correct line height for Computer Modern metrics (comes with built-in line height)
-  line_height: 1
-  margin_top: $vertical_rhythm * 0.4
-  margin_bottom: $vertical_rhythm * 0.9
+    align: left
+    font_color: 3e058e
+    font_family: headings
+    font_style: light
+    h1_font_size: floor($base_font_size * 2.8)
+    # h2 is used for chapter titles (book doctype only)
+    h2_font_size: floor($base_font_size * 2.15)
+    h3_font_size: round($base_font_size * 1.7)
+    h4_font_size: $base_font_size_large
+    h5_font_size: $base_font_size
+    h6_font_size: $base_font_size_small
 title_page:
-  align: right
-  logo:
-    top: 10%
-  title:
-    top: 55%
-    font_size: $heading_h1_font_size
-    font_color: 3e058e
-    line_height: 0.9
-  subtitle:
-    font_size: $heading_h3_font_size
-    font_style: bold_italic
-    line_height: 1
-  authors:
-    margin_top: $base_font_size * 1.25
-    font_size: $base_font_size_large
-    font_color: 3e058e
-  revision:
-    margin_top: $base_font_size * 1.25
+    align: right
+    logo:
+     top: 10%
+    title:
+     font_family: headings
+     font_style: light
+     font_size: floor($base_font_size * 2.8)
+     top: 55%
+     font_color: 3e058e
+    subtitle:
+     font_family: headings
+     font_style: light
+     font_size: floor($base_font_size * 1.2)
+    authors:
+     font_family: headings
+     font_color: 3e058e
+     font_style: light
+     font_size: floor($base_font_size * .8)
+    revision:
+     margin_top: $base_font_size * 1.25
 block:
   margin_top: 0
   margin_bottom: $vertical_rhythm
@@ -145,7 +120,7 @@ abstract:
   font_style: italic
   first_line_font_style: bold
   title:
-    align: center
+    align: left
     font_color: $heading_font_color
     font_family: $heading_font_family
     font_size: $heading_h4_font_size
@@ -157,11 +132,13 @@ sidebar:
   border-radius: 3
   border-width: 0.2
 sidebar-title:
-  font-style: italic
+  font_family: $heading_font_family
+  font-style: light
   font-color: $heading-font-color
   font-size: 11
   align: left
 admonition:
+  font-style: italic
   column_rule_color: $base_border_color
   column_rule_width: $base_border_width
   padding: [0, $horizontal_rhythm, 0, $horizontal_rhythm]
@@ -174,8 +151,8 @@ admonition:
       stroke_color: 646b74
       size: 24
     important:
-      name: hand-pointer-o
-      stroke_color: b58f5b
+      name: info
+      stroke_color: 5f8c8b
     warning:
       stroke_color: 9c4d4b
     caution: 
@@ -196,9 +173,10 @@ admonition:
 code:
   font_color: $base_font_color
   font_family: $literal_font_family
-  font_size: ceil($base_font_size)
+  #font_size: ceil($base_font_size)
+  font-size: 11
   padding: $code_font_size
-  line_height: 1.25
+  line_height: 1.15
   # line_gap is an experimental property to control how a background color is applied to an inline block element
   line_gap: 3.8
   background_color: f4f4fb
@@ -316,12 +294,4 @@ footer:
       content: $footer_recto_right_content
       #center: '{page-number}'
     #content: '{page-number}'
-role:
-  Changed:
-    border:
-      width: .25
-      changebar: 1
-      color: $base_font_color
-      offset: 2
-
 
