@@ -21,7 +21,7 @@ in the current code model.
 === Small code model
 
 The small code model, or `medlow`, allows the code to address the whole RV32
-address space or the lower 2 GiB and highest 2GiB of the RV64 address space
+address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
 (`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~ `0x000000007FFFF7FF`).
 By using the instructions `lui` and `ld` or `st`, when referring to an object, or
 `addi`, when calculating an address literal, for example,
@@ -178,7 +178,7 @@ ELFDATA2MSB:::: Big-endian Object File
 --
 
 e_machine:: Identifies the machine this ELF file targets.  Always contains
-EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs,
+EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs;
 this support is implicit.
 
 e_flags:: Describes the format of this ELF file.  These flags are used by the
@@ -290,7 +290,7 @@ column is given below:
 
 Enum:: The number of the relocation, encoded in the r_info field
 
-ELF Reloc Type:: The name of the relocation, omitted the prefix of `R_RISCV_` here.
+ELF Reloc Type:: The name of the relocation, omitting the prefix of `R_RISCV_`.
 
 Type:: Whether the relocation is a static or runtime relocation:
 +
@@ -523,7 +523,7 @@ The following assembly and relocations show loading an absolute address:
 ==== Global Offset Table
 
 For position independent code in dynamically linked objects, each shared
-object contains a GOT (Global Offset Table) which contains addresses of
+object contains a GOT (Global Offset Table), which contains addresses of
 global symbols (objects and functions) referred to by the dynamically
 linked shared object. The GOT in each shared library is filled in by the
 dynamic linker during program loading, or on the first call to extern functions.
@@ -823,7 +823,7 @@ In the Global Dynamic model, the runtime library provides the `__tls_get_addr` f
 extern void *__tls_get_addr (tls_index *ti);
 ----
 
-where the type tls index are defined as:
+where the type tls_index is defined as:
 
 [,c]
 ----

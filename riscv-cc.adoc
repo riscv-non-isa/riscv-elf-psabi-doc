@@ -28,8 +28,8 @@ endif::[]
 In the standard ABI, procedures should not modify the integer registers tp and
 gp, because signal handlers may rely upon their values.
 
-The presence of a frame pointer is optional.  If a frame pointer exists
-it must reside in x8 (s0), the register remains callee-saved.
+The presence of a frame pointer is optional.  If a frame pointer exists,
+it must reside in x8 (s0); the register remains callee-saved.
 
 === Floating-point Register Convention
 
@@ -100,7 +100,7 @@ available, the scalar is passed on the stack by value.  If exactly one
 register is available, the low-order XLEN bits are passed in the register and
 the high-order XLEN bits are passed on the stack.
 
-Scalars wider than 2×XLEN are passed by reference and are replaced in the
+Scalars wider than 2×XLEN bits are passed by reference and are replaced in the
 argument list with the address.
 
 Aggregates whose total size is no more than XLEN bits are passed in
@@ -134,7 +134,7 @@ undefined.
 
 Arguments passed by reference may be modified by the callee.
 
-Floating-point reals are passed the same way as aggregates of the same size,
+Floating-point reals are passed the same way as aggregates of the same size;
 complex floating-point numbers are passed the same way as a struct containing
 two floating-point reals. (This constraint changes when the integer calling
 convention is augmented by the hardware floating-point calling convention.)
@@ -219,7 +219,7 @@ A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
 
 A struct containing two floating-point reals is passed in two floating-point
-registers, if neither is more than FLEN bits wide and at least two floating-point
+registers, if neither real is more than FLEN bits wide and at least two floating-point
 argument registers are available.  (The registers need not be an aligned pair.)
 Otherwise, it is passed according to the integer calling convention.
 
