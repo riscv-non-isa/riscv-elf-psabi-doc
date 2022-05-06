@@ -84,17 +84,17 @@ an address in the medany code model.
 
 [,asm]
 ----
-    # Load value from a symbol
-0:  auipc a0, %pcrel_hi(symbol)
-    lw    a0, %pcrel_lo(0b)(a0)
+         # Load value from a symbol
+.Ltmp0:  auipc a0, %pcrel_hi(symbol)
+         lw    a0, %pcrel_lo(.Ltmp0)(a0)
 
-    # Store value to a symbol
-1:  auipc a0, %pcrel_hi(symbol)
-    sw    a1, %pcrel_lo(1b)(a0)
+         # Store value to a symbol
+.Ltmp1:  auipc a0, %pcrel_hi(symbol)
+         sw    a1, %pcrel_lo(.Ltmp1)(a0)
 
-    # Calculate address
-2:  auipc a0, %pcrel_hi(symbol)
-    addi  a0, a0, %pcrel_lo(2b)
+         # Calculate address
+.Ltmp2:  auipc a0, %pcrel_hi(symbol)
+         addi  a0, a0, %pcrel_lo(.Ltmp2)
 ----
 
 NOTE: Although the generated code is technically position independent, it's not
@@ -108,21 +108,21 @@ table (GOT) for non-local symbol addresses.
 
 [,asm]
 ----
-    # Load value from a local symbol
-0:  auipc a0, %pcrel_hi(symbol)
-    lw    a0, %pcrel_lo(0b)(a0)
+         # Load value from a local symbol
+.Ltmp0:  auipc a0, %pcrel_hi(symbol)
+         lw    a0, %pcrel_lo(.Ltmp0)(a0)
 
-    # Store value to a local symbol
-1:  auipc a0, %pcrel_hi(symbol)
-    sw    a1, %pcrel_lo(1b)(a0)
+         # Store value to a local symbol
+.Ltmp1:  auipc a0, %pcrel_hi(symbol)
+         sw    a1, %pcrel_lo(.Ltmp1)(a0)
 
-    # Calculate address of a local symbol
-2:  auipc a0, %pcrel_hi(symbol)
-    addi  a0, a0, %pcrel_lo(2b)
+         # Calculate address of a local symbol
+.Ltmp2:  auipc a0, %pcrel_hi(symbol)
+         addi  a0, a0, %pcrel_lo(.Ltmp2)
 
-    # Calculate address of non-local symbol
-3:  auipc  a0, %got_pcrel_hi(symbol)
-    l[w|d] a0, a0, %pcrel_lo(3b)
+         # Calculate address of non-local symbol
+.Ltmp3:  auipc  a0, %got_pcrel_hi(symbol)
+         l[w|d] a0, a0, %pcrel_lo(.Ltmp3)
 ----
 
 == Dynamic Linking
