@@ -21,11 +21,11 @@ in the current code model.
 === Medium low code model
 
 The medium low code model, or `medlow`, allows the code to address the whole RV32
-address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
-(`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~ `0x000000007FFFF7FF`).
-By using the instructions `lui` and `ld` or `st`, when referring to an object, or
-`addi`, when calculating an address literal, for example,
-a 32-bit address literal can be produced.
+address space or any 2 GiB region within the lower 2 GiB and highest 2 GiB of
+the RV64 address space (`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~
+`0x000000007FFFF7FF`).  By using the instructions `lui` and `ld` or `st`, when
+referring to an object, or `addi`, when calculating an address literal, for
+example, a 32-bit address literal can be produced.
 
 The following instructions show how to load a value, store a value, or calculate
 an address in the `medlow` code model.
