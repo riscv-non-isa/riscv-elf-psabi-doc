@@ -18,9 +18,9 @@ However, some code models can't access the whole address space. The linker may
 raise an error if it cannot adjust the instructions to access the target address
 in the current code model.
 
-=== Small code model
+=== Medium low code model
 
-The small code model, or `medlow`, allows the code to address the whole RV32
+The medium low code model, or `medlow`, allows the code to address the whole RV32
 address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
 (`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~ `0x000000007FFFF7FF`).
 By using the instructions `lui` and `ld` or `st`, when referring to an object, or
@@ -59,9 +59,9 @@ lui a0, 0x80000 # a0 = 0xffffffff80000000
 addi a0, a0, -0x800 # a0 = a0 + -2048 = 0xFFFFFFFF7FFFF800
 ----
 
-=== Medium code model
+=== Medium any code model
 
-The medium code model, or `medany`, allows the code to address the range
+The medium any code model, or `medany`, allows the code to address the range
 between -2 GiB and +2 GiB from its position.  By using the instructions `auipc`
 and `ld` or `st`, when referring to an object, or
 `addi`, when calculating an address literal, for example,
