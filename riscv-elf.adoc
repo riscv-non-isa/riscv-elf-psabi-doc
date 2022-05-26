@@ -71,7 +71,7 @@ can be produced.
 As a special edge-case, undefined weak symbols must still be supported, whose
 addresses will be 0 and may be out of range depending on the address at which
 the code is linked. Any references to possibly-undefined weak symbols should be
-made indirectly through the GOT as is used for position-independent code. Not
+made indirectly, via a mechanism that has yet to be defined. Not
 doing so is deprecated and a future version of this specification will require
 using the GOT, not just advise.
 
