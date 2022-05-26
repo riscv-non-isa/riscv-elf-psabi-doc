@@ -59,7 +59,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 .Vector register convention
 [%autowidth]
 |===
-| Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
+| Name    | ABI Mnemonic | Meaning                      | Preserved into calls?
 
 | v0-v31  |              | Temporary registers          | No
 | vl      |              | Vector length                | No

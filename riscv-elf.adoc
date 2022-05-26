@@ -134,12 +134,9 @@ Any functions that use registers in a way that is incompatible with
 the calling convention of the ABI in use must be annotated with
 `STO_RISCV_VARIANT_CC`, as defined in <<Symbol Table>>.
 
-NOTE: Vector registers have a variable size depending on the hardware
-implementation and can be quite large. Saving/restoring all these vector
-arguments in a run-time linker's lazy resolver would use a large amount of
-stack space and hurt performance. This attribute allows vector registers to
-not be part of the standard calling convention so run-time linkers are not
-required to save/restore them and can instead eagerly bind such functions.
+NOTE: The standard caling conventions all clobber the V registers on calls, so
+this allows for the direct use (ie, without an expensive save/restore) of those
+registers while resolving lazily bound functions.
 
 == C++ Name Mangling
 
