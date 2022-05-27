@@ -389,7 +389,7 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 42      .2+| GNU_VTENTRY   .2+| Static  |                   .2+| GNU {Cpp} vtable member usage
                                             <|
-.2+| 43      .2+| ALIGN         .2+| Static  |                   .2+| Alignment statement
+.2+| 43      .2+| ALIGN         .2+| Static  |                   .2+| Alignment statement. The addend indicates the number of bytes occupied by `nop` instructions at the relocation offset. The alignment boundary is specified by the addend rounded up to the next power of two.
                                             <|
 .2+| 44      .2+| RVC_BRANCH    .2+| Static  | _CB-Type_         .2+| 8-bit PC-relative branch offset
                                             <| S + A - P
