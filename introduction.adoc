@@ -9,6 +9,9 @@ This specification consists of the following three parts:
 - ELF specification
 - DWARF specification
 
+A future revision of this ABI will include a canonical set of mappings for
+memory model synchronization primitives.
+
 = Terms and Abbreviations
 
 This specification uses the following terms and abbreviations:
