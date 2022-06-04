@@ -50,9 +50,10 @@ calls if they are no larger than the width of a floating-point register in the
 targeted ABI. Therefore, these registers can always be considered temporaries
 if targeting the base integer calling convention.
 
-The Floating-Point Control and Status Register (fcsr) must have thread storage
-duration in accordance with C11 section 7.6 "Floating-point environment
-<fenv.h>".
+In contexts where accesses or modifications to the C floating-point environment 
+(`fenv`) are meaningful, the state of `fenv` is coherent with that of the RISC-V 
+floating-point control and status register (`fcsr`). In these contexts, `fcsr` can
+be thought of as having thread storage duration.
 
 === Vector Register Convention
 
