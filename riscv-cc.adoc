@@ -85,6 +85,18 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 
 == Procedure Calling Convention
 
+This chapter defines standard calling conventions, and describes how to pass
+parameters and return values.
+
+Functions must follow the register convention defined in calling convention: the
+contents of any register without specifying it as an argument register
+in the calling convention are unspecified upon entry, and the content of any
+register without specifying it as a return value register or callee-saved in
+the calling convention are unspecified upon exit, the contents of all
+callee-saved registers must be restored to what was set on entry, and the
+contents of any fixed registers like `gp` and `tp` never change,
+
+
 NOTE: Calling convention for big-endian is *NOT* included in this specification
 yet, we intend to define that in future version of this specification.
 
