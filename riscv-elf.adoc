@@ -953,9 +953,9 @@ default value is 16 for RV32I or RV64I, and 4 for RV32E.
 It will report erros if link object files with different Tag_RISCV_stack_align values.
 
 ===== Tag_RISCV_arch, 5, NTBS=subarch
-Tag_RISCV_arch contains a string for the target architecture taken from
-the option `-march`. Different architectures will be integrated into a superset
-when object files are merged.
+Tag_RISCV_arch contains a string for the target architecture, this information
+used as the minimum execution environment requirement. Different architectures
+will be integrated into a superset when object files are merged.
 
 Note that the version information for target architecture must be presented
 explicitly in the attribute and abbreviations must be expanded. The version
@@ -965,6 +965,10 @@ in the attribute as `RV32I2P0` in which `2P0` stands for the default version of
 its based ISA. On the other hand, the architecture `RV32G` has to be presented
 as `RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded
 to the IMAFD combination with default versions of the standard extensions.
+
+NOTE: Object files could use instruction extensions beyond than what
+Tag_RISCV_arch specified, but object files should make sure that they can
+safely run on the execution environment without those instruction extensions.
 
 ===== Tag_RISCV_unaligned_access, 6, uleb128=value
 Tag_RISCV_unaligned_access denotes the code generation policy for this object
