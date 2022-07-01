@@ -131,7 +131,7 @@ table (GOT) for non-local symbol addresses.
 == Dynamic Linking
 
 Any functions that use registers in a way that is incompatible with
-the register convention of the ABI in use must be annotated with
+the calling convention of the ABI in use must be annotated with
 `STO_RISCV_VARIANT_CC`, as defined in <<Symbol Table>>.
 
 NOTE: Vector registers have a variable size depending on the hardware
