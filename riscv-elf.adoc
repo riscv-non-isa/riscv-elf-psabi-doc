@@ -104,6 +104,9 @@ NOTE: Although the generated code is technically position independent, it's not
 suitable for ELF shared libraries due to differing symbol interposition rules;
 for that, please use the medium position independent code model below.
 
+NOTE: `medany` also called medium code model in certain toolchain implementation
+like LLVM.
+
 === Medium position independent code model
 
 This model is similar to the medium code model, but uses the global offset
