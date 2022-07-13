@@ -246,17 +246,24 @@ provided they hold values no more than FLEN bits wide.
 
 === ILP32E Calling Convention
 
-IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
-stability of ILP32E, in contrast with the rest of this document. This documents
-the current implementation in GCC as of the time of writing, but may be subject
-to change.
+IMPORTANT: RV32E and RV64E are not ratified base ISAs and so we cannot
+guarantee the stability of ILP32E or LP64E, in contrast with the rest of this
+document. This documents the current ILP32E implementation in GCC as of the
+time of writing, but may be subject to change.
 
 The ILP32E calling convention is designed to be usable with the RV32E ISA. This
-calling convention is the same as the integer calling convention, except for the
-following differences.  The stack pointer need only be aligned to a 32-bit
-boundary.  Registers x16-x31 do not participate in the calling convention, so
-there are only six argument registers, a0-a5, only two callee-saved registers,
-s0-s1, and only three temporaries, t0-t2.
+calling convention is the same as the integer calling convention, except for
+the following differences.  The stack pointer need only be aligned to a 32-bit
+boundary.
+
+The LP64E calling convention is designed to be usable with the RV32E ISA. This
+calling convention is the same as the integer calling convention, except for
+the following differences.  The stack pointer need only be aligned to a 64-bit
+boundary.
+
+In both ILP32E and LP64E: Registers x16-x31 do not participate in the calling
+convention, so there are only six argument registers, a0-a5, only two
+callee-saved registers, s0-s1, and only three temporaries, t0-t2.
 
 If used with an ISA that has any of the registers x16-x31 and f0-f31, then
 these registers are considered temporaries.
@@ -304,6 +311,12 @@ convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
 LP64Q:: LP64 with hardware floating-point calling
 convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
 
+[[abi-lp64e]]
+LP64E:: <<LP64E Calling Convention,LP64E calling-convention>> only,
+hardware floating-point calling convention is not used (i.e. ELFCLASS64,
+EF_RISCV_FLOAT_ABI_SOFT, and EF_RISCV_RVE).
+
+
 The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
 only compatible with RV64* ISAs. A future version of this specification may
 define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
@@ -313,8 +326,8 @@ The *F ABIs require the *F ISA extension, the *D ABIs require the *D ISA
 extension, and the LP64Q ABI requires the Q ISA extension.
 
 NOTE: This means code targeting the Zfinx extension always uses the ILP32,
-ILP32E or LP64 integer calling-convention only ABIs as there is no dedicated
-hardware floating-point register file.
+ILP32E, LP64, or LP64E integer calling-convention only ABIs as there is no
+dedicated hardware floating-point register file.
 
 === Default ABIs
 
