@@ -196,9 +196,9 @@ whether or not the integer registers have been exhausted.
 The remainder of this section applies only to named arguments.  Variadic
 arguments are passed according to the integer calling convention.
 
-For the purposes of this section, FLEN refers to the width of a floating-point
-register in the ABI.  The ABI's FLEN must be no wider than the ISA's FLEN.  The
-ISA might have wider floating-point registers than the ABI.
+ABI_FLEN refers to the width of a floating-point register in the ABI.
+The ABI_FLEN must be no wider than the ISA's FLEN.  The ISA might have wider
+floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
@@ -214,7 +214,7 @@ __attribute__((__packed__)) { int i; double d }` are treated the same, as are
 ((aligned (8))); }`.
 
 A real floating-point argument is passed in a floating-point argument
-register if it is no more than FLEN bits wide and at least one floating-point
+register if it is no more than ABI_FLEN bits wide and at least one floating-point
 argument register is available.  Otherwise, it is passed according to the
 integer calling convention.
 When a floating-point argument narrower than FLEN bits is passed in a
@@ -224,7 +224,7 @@ A struct containing just one floating-point real is passed as though it were
 a standalone floating-point real.
 
 A struct containing two floating-point reals is passed in two floating-point
-registers, if neither real is more than FLEN bits wide and at least two floating-point
+registers, if neither real is more than ABI_FLEN bits wide and at least two floating-point
 argument registers are available.  (The registers need not be an aligned pair.)
 Otherwise, it is passed according to the integer calling convention.
 
@@ -235,7 +235,7 @@ floating-point reals.
 A struct containing one floating-point real and one integer (or bitfield), in
 either order, is passed in a floating-point register and an integer register,
 without extending the integer to XLEN bits, provided the floating-point real
-is no more than FLEN bits wide and the integer is no more than XLEN bits wide,
+is no more than ABI_FLEN bits wide and the integer is no more than XLEN bits wide,
 and at least one floating-point argument register and at least one integer
 argument register is available. Otherwise, it is passed according to the
 integer calling convention.
@@ -247,7 +247,7 @@ Values are returned in the same manner as a first named argument of the same
 type would be passed.
 
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
-provided they hold values no more than FLEN bits wide.
+provided they hold values no more than ABI_FLEN bits wide.
 
 === ILP32E Calling Convention
 
@@ -281,11 +281,11 @@ EF_RISCV_FLOAT_ABI_SOFT).
 
 [[abi-ilp32f]]
 ILP32F:: ILP32 with hardware floating-point calling
-convention for FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
+convention for ABI_FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
 
 [[abi-ilp32d]]
 ILP32D:: ILP32 with hardware floating-point calling
-convention for FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+convention for ABI_FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
 [[abi-ilp32e]]
 ILP32E:: <<ILP32E Calling Convention,ILP32E calling-convention>> only,
@@ -299,15 +299,15 @@ EF_RISCV_FLOAT_ABI_SOFT).
 
 [[abi-lp64f]]
 LP64F:: LP64 with hardware floating-point calling
-convention for FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
+convention for ABI_FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
 
 [[abi-lp64d]]
 LP64D:: LP64 with hardware floating-point calling
-convention for FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+convention for ABI_FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
 
 [[abi-lp64q]]
 LP64Q:: LP64 with hardware floating-point calling
-convention for FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
+convention for ABI_FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
 
 The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
 only compatible with RV64* ISAs. A future version of this specification may
