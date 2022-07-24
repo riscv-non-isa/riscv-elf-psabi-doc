@@ -703,12 +703,12 @@ thread local storage models:
 [cols="1,2,3"]
 [width=70%]
 |===
-| Mnemonic | Model          | Compiler flags
+| Mnemonic | Model
 
-| TLS LE   | Local Exec     | `-ftls-model=local-exec`
-| TLS IE   | Initial Exec   | `-ftls-model=initial-exec`
-| TLS LD   | Local Dynamic  | `-ftls-model=local-dynamic`
-| TLS GD   | Global Dynamic | `-ftls-model=global-dynamic`
+| TLS LE   | Local Exec
+| TLS IE   | Initial Exec
+| TLS LD   | Local Dynamic
+| TLS GD   | Global Dynamic
 |===
 
 The program linker in the case of static TLS or the dynamic linker in the case
@@ -719,7 +719,6 @@ of dynamic TLS allocate TLS offsets for storage of thread local variables.
 Local exec is a form of static thread local storage. This model is used
 when static linking as the TLS offsets are resolved during program linking.
 
-Compiler flag:: `-ftls-model=local-exec`
 Variable attribute:: `+__thread int i __attribute__((tls_model("local-exec")));+`
 
 Example assembler load and store of a thread local variable `i` using the
@@ -746,7 +745,6 @@ at load time. `dlopen` calls to libraries that use thread local storage may fail
 when using the initial exec thread local storage model as TLS offsets must all
 be resolved at load time. This model uses the GOT to resolve TLS offsets.
 
-Compiler flag:: `-ftls-model=initial-exec`
 Variable attribute:: `+__thread int i __attribute__((tls_model("initial-exec")));+`
 ELF flags:: DF_STATIC_TLS
 
@@ -787,7 +785,6 @@ additionally allows libraries to be loaded and unloaded at runtime using `dlopen
 In the global dynamic model, application code calls the dynamic linker function
 `__tls_get_addr` to locate TLS offsets into the dynamic thread vector at runtime.
 
-Compiler flag:: `-ftls-model=global-dynamic`
 Variable attribute:: `+__thread int i __attribute__((tls_model("global-dynamic")));+`
 
 Example assembler load and store of a thread local variable `i` using the
