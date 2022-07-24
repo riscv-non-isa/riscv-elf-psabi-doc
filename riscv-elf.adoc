@@ -714,6 +714,8 @@ thread local storage models:
 The program linker in the case of static TLS or the dynamic linker in the case
 of dynamic TLS allocate TLS offsets for storage of thread local variables.
 
+NOTE: `Global Dynamic` model is also known as `General Dynamic` model.
+
 ==== Local Exec
 
 Local exec is a form of static thread local storage. This model is used
