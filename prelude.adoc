@@ -1,21 +1,4 @@
 :company: RISC-V.org
-// These are the definitions from docs-template:
-//
-//   development: Assume everything can change
-//   stable: Assume everything could change
-//   frozen: If you implement this version you assume the risk that something
-//           might change because of the public review cycle but we expect
-//           little to no change.
-//   ratified: You can implement this and be assured nothing will change. If
-//             something needs to change due to an errata or enhancement, it
-//             will come out in a new extension. we do not revise extensions.
-//
-// These don't really make sense for our development process, so we replace
-// development with a single dev version that we brand as Pre-release, but
-// anything featuring in the document is implicitly frozen (in fact, stronger,
-// as frozen can still change in incompatible ways) as we cannot break ABI once
-// features are implemented in toolchains. Similarly stable is still frozen
-// just by another name for policy reasons.
 :revlifecycle: frozen
 :revnumber: 1.0-rc4-draft
 ifeval::["{revlifecycle}" == "dev"]
