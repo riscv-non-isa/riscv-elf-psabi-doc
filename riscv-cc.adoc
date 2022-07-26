@@ -85,6 +85,9 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 
 == Procedure Calling Convention
 
+NOTE: Calling convention for big-endian is *NOT* included in this specification
+yet, we intend to define that in future version of this specification.
+
 === Integer Calling Convention
 
 The base integer calling convention provides eight argument registers,
