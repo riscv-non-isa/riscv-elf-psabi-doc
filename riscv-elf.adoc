@@ -506,9 +506,10 @@ of instructions which have an associated pair of relocations:
 
 The `R_RISCV_HI20` refers to an `LUI` instruction containing the high
 20-bits to be relocated to an absolute symbol address. The `LUI` instruction
-is followed by an I-Type instruction (add immediate or load) with an
-`R_RISCV_LO12_I` relocation or an S-Type instruction (store) and an
-`R_RISCV_LO12_S` relocation. The addresses for pair of relocations are
+is used in conjunction with one or more I-Type instructions (add immediate or
+load) with `R_RISCV_LO12_I` relocations or S-Type instructions (store) with
+`R_RISCV_LO12_S` relocations.
+The addresses for pair of relocations are
 calculated like this:
 
 [horizontal]
@@ -637,9 +638,9 @@ have an associated pair of relocations: `R_RISCV_PCREL_HI20` plus
 The `R_RISCV_PCREL_HI20` relocation refers to an `AUIPC` instruction
 containing the high 20-bits to be relocated to a symbol relative to the
 program counter address of the `AUIPC` instruction. The `AUIPC`
-instruction is followed by an I-Type instruction (add immediate or load)
-with an `R_RISCV_PCREL_LO12_I` relocation or an S-Type instruction (store)
-and an `R_RISCV_PCREL_LO12_S` relocation.
+instruction is used in conjunction with one or more I-Type instructions
+(add immediate or load) with `R_RISCV_PCREL_LO12_I` relocations or S-Type
+instructions (store) with `R_RISCV_PCREL_LO12_S` relocations.
 
 The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
 a label pointing to an instruction in the same section with an
