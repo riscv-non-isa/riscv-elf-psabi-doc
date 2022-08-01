@@ -231,7 +231,7 @@ below.
 
 Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
 versions of this specification, they shall not be set by standard software.
-Non-standard extensions are free to use bits 24-31 for any purpose. This many
+Non-standard extensions are free to use bits 24-31 for any purpose. This may
 conflict with other non-standard extensions.
 
 NOTE: There is no provision for compatibility between conflicting uses of the
