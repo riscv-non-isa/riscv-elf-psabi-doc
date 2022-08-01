@@ -125,11 +125,11 @@ Aggregates or scalars passed on the stack are aligned to the greater of the
 type alignment and XLEN bits, but never more than the stack alignment.
 
 Aggregates larger than 2×XLEN bits are passed by reference and are replaced in
-the argument list with the address, as are C++ aggregates with nontrivial copy
+the argument list with the address, as are {Cpp} aggregates with nontrivial copy
 constructors, destructors, or vtables.
 
 Empty structs or union arguments or return values are ignored by C compilers
-which support them as a non-standard extension.  This is not the case for C++,
+which support them as a non-standard extension.  This is not the case for {Cpp},
 which requires them to be sized types.
 
 Bitfields are packed in little-endian fashion. A bitfield that would span the
@@ -207,7 +207,7 @@ For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } g[2]; }` and `struct { float f; float g; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
-flattening, even in C++, unless they have nontrivial copy constructors or
+flattening, even in {Cpp}, unless they have nontrivial copy constructors or
 destructors.  Fields containing zero-length bit-fields are ignored while
 flattening.  Attributes such as `aligned` or `packed` do not interfere with a
 struct's eligibility for being passed in registers according to the rules
@@ -347,16 +347,16 @@ document.
 Please refer to the documentation of the RISC-V execution environment interface
 (e.g OS kernel ABI, SBI).
 
-== C/C++ type details
+== C/{Cpp} type details
 
-=== C/C++ type sizes and alignments
+=== C/{Cpp} type sizes and alignments
 
-There are two conventions for C/C++ type sizes and alignments.
+There are two conventions for C/{Cpp} type sizes and alignments.
 
 ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
 alignments (based on the ILP32 convention):
 +
-.C/C++ type sizes and alignments for RV32
+.C/{Cpp} type sizes and alignments for RV32
 [cols="4,>2,>3"]
 [width=60%]
 |===
@@ -381,7 +381,7 @@ alignments (based on the ILP32 convention):
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
 alignments (based on the LP64 convention):
 +
-.C/C++ type sizes and alignments for RV64
+.C/{Cpp} type sizes and alignments for RV64
 [cols="4,>2,>3"]
 [width=60%]
 |===
@@ -411,7 +411,7 @@ The alignment of `max_align_t` is 16.
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
 
-=== C/C++ type representations
+=== C/{Cpp} type representations
 
 `char` is unsigned.
 
