@@ -141,7 +141,7 @@ stack space and hurt performance. This attribute allows vector registers to
 not be part of the standard calling convention so run-time linkers are not
 required to save/restore them and can instead eagerly bind such functions.
 
-== C++ Name Mangling
+== {Cpp} Name Mangling
 
 {Cpp} name mangling for RISC-V follows
 the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>;
@@ -1005,7 +1005,7 @@ is at the same position as a candidate relocation.
 * [[[gabi]]] "Generic System V Application Binary Interface"
 http://www.sco.com/developers/gabi/latest/contents.html
 
-* [[[itanium-cxx-abi]]] "Itanium C++ ABI"
+* [[[itanium-cxx-abi]]] "Itanium {Cpp} ABI"
 http://itanium-cxx-abi.github.io/cxx-abi/
 
 * [[[rv-asm]]] "RISC-V Assembly Programmer's Manual"
