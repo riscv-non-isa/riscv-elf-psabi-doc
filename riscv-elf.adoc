@@ -295,10 +295,11 @@ Enum:: The number of the relocation, encoded in the r_info field
 
 ELF Reloc Type:: The name of the relocation, omitting the prefix of `R_RISCV_`.
 
-Type:: Whether the relocation is a static or runtime relocation:
+Type:: Whether the relocation is a static or dynamic relocation:
 +
-- Static relocations are always resolved by the static linker
-- Runtime relocations can be resolved by both static and dynamic linkers
+- A static relocation relocates a location in a relocatable file, processed by a static linker.
+- A dynamic relocation relocates a location in an executable or shared object, processed by a run-time linker.
+- `Both`: Some relocation types are used by both static relocations and dynamic relocations.
 
 Field:: Describes the set of bits affected by this relocation; see <<Field Symbols>> for the definitions of the individual types
 
@@ -312,31 +313,31 @@ Description:: Additional information about the relocation
 [cols=">2,6,3,6,11"]
 [width=100%]
 |===
-| Enum          | ELF Reloc Type                         | Type    | Field / Calculation  | Description
+| Enum          | ELF Reloc Type   | Type    | Field / Calculation  | Description
 
 .2+| 0       .2+| NONE          .2+| None    |                   .2+|
                                             <|
-.2+| 1       .2+| 32            .2+| Runtime | _word32_          .2+| 32-bit relocation
+.2+| 1       .2+| 32            .2+| Both    | _word32_          .2+| 32-bit relocation
                                             <| S + A
-.2+| 2       .2+| 64            .2+| Runtime | _word64_          .2+| 64-bit relocation
+.2+| 2       .2+| 64            .2+| Both    | _word64_          .2+| 64-bit relocation
                                             <| S + A
-.2+| 3       .2+| RELATIVE      .2+| Runtime | _wordclass_       .2+| Relocation against a local symbol in a shared object
+.2+| 3       .2+| RELATIVE      .2+| Dynamic | _wordclass_       .2+| Adjust a link address (A) to its load address (B + A)
                                             <| B + A
-.2+| 4       .2+| COPY          .2+| Runtime |                   .2+| Must be in executable; not allowed in shared library
+.2+| 4       .2+| COPY          .2+| Dynamic |                   .2+| Must be in executable; not allowed in shared library
                                             <|
-.2+| 5       .2+| JUMP_SLOT     .2+| Runtime | _wordclass_       .2+| Indicates the symbol associated with a PLT entry
+.2+| 5       .2+| JUMP_SLOT     .2+| Dynamic | _wordclass_       .2+| Indicates the symbol associated with a PLT entry
                                             <| S
-.2+| 6       .2+| TLS_DTPMOD32  .2+| Runtime | _word32_          .2+|
+.2+| 6       .2+| TLS_DTPMOD32  .2+| Dynamic | _word32_          .2+|
                                             <| TLSMODULE
-.2+| 7       .2+| TLS_DTPMOD64  .2+| Runtime | _word64_          .2+|
+.2+| 7       .2+| TLS_DTPMOD64  .2+| Dynamic | _word64_          .2+|
                                             <| TLSMODULE
-.2+| 8       .2+| TLS_DTPREL32  .2+| Runtime | _word32_          .2+|
+.2+| 8       .2+| TLS_DTPREL32  .2+| Dynamic | _word32_          .2+|
                                             <| S + A - TLS_DTV_OFFSET
-.2+| 9       .2+| TLS_DTPREL64  .2+| Runtime | _word64_          .2+|
+.2+| 9       .2+| TLS_DTPREL64  .2+| Dynamic | _word64_          .2+|
                                             <| S + A - TLS_DTV_OFFSET
-.2+| 10      .2+| TLS_TPREL32   .2+| Runtime | _word32_          .2+|
+.2+| 10      .2+| TLS_TPREL32   .2+| Dynamic | _word32_          .2+|
                                             <| S + A + TLSOFFSET
-.2+| 11      .2+| TLS_TPREL64   .2+| Runtime | _word64_          .2+|
+.2+| 11      .2+| TLS_TPREL64   .2+| Dynamic | _word64_          .2+|
                                             <| S + A + TLSOFFSET
 .2+| 16      .2+| BRANCH        .2+| Static  | _B-Type_          .2+| 12-bit PC-relative branch offset
                                             <| S + A - P
@@ -416,7 +417,7 @@ Description:: Additional information about the relocation
                                             <| S + A
 .2+| 57      .2+| 32_PCREL      .2+| Static  | _word32_          .2+| 32-bit PC relative
                                             <| S + A - P
-.2+| 58      .2+| IRELATIVE     .2+| Runtime | _wordclass_       .2+| Relocation against a local ifunc symbol in a shared object
+.2+| 58      .2+| IRELATIVE     .2+| Dynamic | _wordclass_       .2+| Relocation against a non-preemptible ifunc symbol
                                             <| `ifunc_resolver(B + A)`
 .2+| 59-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
@@ -532,7 +533,7 @@ global symbols (objects and functions) referred to by the dynamically
 linked shared object. The GOT in each shared library is filled in by the
 dynamic linker during program loading, or on the first call to extern functions.
 
-To avoid runtime relocations within the text segment of position independent
+To avoid dynamic relocations within the text segment of position independent
 code the GOT is used for indirection. Instead of code loading virtual addresses
 directly, as can be done in static code, addresses are loaded from the GOT.
 This allows runtime binding to external objects and functions at the expense of
