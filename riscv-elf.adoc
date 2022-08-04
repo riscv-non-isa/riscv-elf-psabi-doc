@@ -1001,6 +1001,11 @@ rather than to instruct the linker how to apply a relocation.
 The linker should only perform such relaxations when a R_RISCV_RELAX relocation
 is at the same position as a candidate relocation.
 
+As this transformation may delete bytes (and thus invalidate references that
+are commonly resolved at compile-time, such as intra-function jumps), code
+generators must in general ensure that relocations are always emitted when
+relaxation is enabled.
+
 [bibliography]
 == References
 
