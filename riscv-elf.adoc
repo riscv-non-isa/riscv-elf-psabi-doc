@@ -386,9 +386,7 @@ Description:: Additional information about the relocation
                                             <| V - S - A
 .2+| 40      .2+| SUB64         .2+| Static  | _word64_          .2+| 64-bit label subtraction
                                             <| V - S - A
-.2+| 41      .2+| GNU_VTINHERIT .2+| Static  |                   .2+| GNU {Cpp} vtable hierarchy
-                                            <|
-.2+| 42      .2+| GNU_VTENTRY   .2+| Static  |                   .2+| GNU {Cpp} vtable member usage
+.2+| 41-42   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 43      .2+| ALIGN         .2+| Static  |                   .2+| Alignment statement. The addend indicates the number of bytes occupied by `nop` instructions at the relocation offset. The alignment boundary is specified by the addend rounded up to the next power of two.
                                             <|
