@@ -236,6 +236,34 @@ tools will ignore them. Do not use them unless you control both the toolchain
 and the operating system, and the ABI differences are so significant they
 cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
 different syscall ABI.
+
+==== Policy for Merge Objects With Different File Headers
+
+This section describe the behavior when the inputs files come with different
+file headers.
+
+`e_ident` and `e_machine` should have exact same value otherwise linker should
+raise an error.
+
+`e_flags` has different different policy for different fields:
+
+  RVC::: Input file could have different values for the RVC field; the linker
+  should set this field into EF_RISCV_RVC if any of the input objects has
+  been set.
+
+  Float ABI::: Linker should report errors if object files of different value
+  for float ABI field.
+
+  RVE::: Linker should report errors if object files of different value
+  for RVE field.
+
+  TSO::: Linker should report errors if object files of different value
+  for TSO field.
+
+NOTE: The static linker may ignore the compatibility checks if all fields in the
+`e_flags` are zero and all sections in the input file are non-executable
+sections.
+
 --
 
 === Sections
