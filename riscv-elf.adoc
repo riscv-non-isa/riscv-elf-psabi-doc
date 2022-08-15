@@ -982,7 +982,7 @@ Tag_RISCV_priv_spec contains the major/minor/revision version information of
 the privileged specification. It will report errors if object files of different
 privileged specification versions are merged.
 
-== Code relaxation
+== Linker Relaxation
 
 At link time, when all the memory objects have been resolved, the code sequence
 used to refer to them may be simplified and optimized by the linker by relaxing
