@@ -1008,6 +1008,253 @@ are commonly resolved at compile-time, such as intra-function jumps), code
 generators must in general ensure that relocations are always emitted when
 relaxation is enabled.
 
+=== Linker Relaxation Types
+
+The purpose of this section is to describe all types of linker relaxation,
+the linker may implement a part of linker relaxation type, and can be skipped
+the relaxation type is unsupported.
+
+Each candidate relocation might fit more than one relaxation type, the linker
+should only apply one relaxation type.
+
+==== Function Call Relaxation
+
+  Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
+
+  Description:: This relaxation type relax can relax `AUIPC+JALR` into `JAL`.
+
+  Condition:: The offset between the location of relocation and target symbol
+  is within +-1MiB.
+
+  Relaxation::
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  can be rewrite to a single JAL instruction with the offset between the
+  location of relocation and target symbol.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    jalr  ra, ra, 0
+----
+
+Relaxation result:
+[,asm]
+----
+    jal  ra, 0            # R_RISCV_JAL (symbol)
+----
+--
+
+==== Compressed Function Call Relaxation
+
+  Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
+
+  Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.JAL`
+  instruction sequence.
+
+  Condition:: The offset between the location of relocation and target symbol
+  is within +-2MiB and rd operand of second instruction in the instruction
+  sequence is `X1`/`RA`.
+
+  Relaxation::
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  can be rewrite to a single `C.JAL` instruction with the offset between the
+  location of relocation and target symbol.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    jalr  ra, ra, 0
+----
+
+Relaxation result:
+[,asm]
+----
+    c.jal  ra, <offset-between-pc-and-symbol>
+----
+--
+
+==== Compressed Tail Call Relaxation
+
+  Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
+
+  Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.J`
+  instruction sequence.
+
+  Condition:: The offset between the location of relocation and target symbol
+  is within +-2MiB and rd operand of second instruction in the instruction
+  sequence is `X0`.
+
+  Relaxation::
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  can be rewrite to a single `C.J` instruction with the offset between the
+  location of relocation and target symbol.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    jalr  x0, ra, 0
+----
+
+Relaxation result:
+[,asm]
+----
+    c.j  ra, <offset-between-pc-and-symbol>
+----
+--
+
+==== Global-pointer Relaxation
+
+  Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S,
+  R_RISCV_PCREL_HI20, R_RISCV_PCREL_LO12_I, R_RISCV_PCREL_LO12_S
+
+  Description:: This relaxation type relax can relax a sequence of load address
+  of a symbol or load, store with a symbol reference into
+  global-pointer-relative instruction.
+
+  Condition:: Offset between global-pointer and symbol is within +-2KiB, and
+  `__global_pointer$` symbol is defined.
+
+  Relaxation::
+  - Instruction associated with `R_RISCV_HI20` or `R_RISCV_PCREL_HI20` can
+  be removed.
+
+  - Instruction associated with `R_RISCV_LO12_I`, `R_RISCV_LO12_S`,
+  `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` can be replaced with a
+  global-pointer-relative access instruction.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lui t0, 0       # R_RISCV_HI20 (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)    # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    lw t1, <gp-offset-for-symbol>(gp)
+----
+--
+
+NOTE: This relaxation require program initialized the `gp` register with the
+address of `__global_pointer$` symbol before access any symbol address,
+strongly recommended initialize `gp` at the beginning of the program entry
+function like `_start`.
+
+==== Zero-page Relaxation
+
+  Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
+
+  Description:: This relaxation type relax can relax a sequence of load address
+  of a symbol or load, store with a symbol reference into shorter instruction
+  sequence if possible.
+
+  Relaxation::
+  - Instruction associated  with `R_RISCV_HI20` can be removed if the symbol
+  address satisfies the x0-relative access.
+
+  - Instruction associated with `R_RISCV_LO12_I` or `R_RISCV_LO12_S` can be
+  relaxed into x0-relative access if the symbol address located within `0x0` ~
+  `0x7ff` or `0xfffffffffffff800` ~ `0xffffffffffffffff` for RV64 and
+  `0xfffff800` ~ `0xffffffff` for RV32.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lui t0, 0       # R_RISCV_HI20 (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)    # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    lw t1, <address-of-symbol>(x0)
+----
+--
+
+==== Compressed LUI Relaxation
+
+  Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
+
+  Description:: This relaxation type relax can relax a sequence of load address
+  of a symbol or load, store with a symbol reference into shorter instruction
+  sequence if possible.
+
+  Relaxation::
+  - Instruction associated with `R_RISCV_HI20` can be replaced with `C.LUI`.
+
+  - Instruction associated with `R_RISCV_LO12_I` or `R_RISCV_LO12_S` should keep
+  unchanged.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lui t0, 0       # R_RISCV_HI20 (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)    # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    c.lui t0, 0     # RVC_LUI (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)    # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
+----
+--
+
+==== Thread-pointer Relaxation
+
+  Target Relocation:: R_RISCV_TPREL_HI20, R_RISCV_TPREL_ADD,
+  R_RISCV_TPREL_LO12_I, R_RISCV_TPREL_LO12_S.
+
+  Description:: This relaxation type relax can relax a sequence of load address of a symbol or
+  load, store with a thread-local symbol reference into a thread-pointer-relative
+  instruction.
+
+  Condition:: Offset between thread-pointer and thread-local symbol is within
+   +-2KiB.
+
+  Relaxation::
+  - Instruction associated with `R_RISCV_TPREL_HI20` or `R_RISCV_TPREL_ADD` can
+  be removed.
+
+  - Instruction associated with `R_RISCV_TPREL_LO12_I` or `R_RISCV_TPREL_LO12_S`
+  can be replaced with a thread-pointer-relative access instruction.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lui t0, 0       # R_RISCV_TPREL_HI20 (symbol), R_RISCV_RELAX
+    add t0, t0, tp  # R_RISCV_TPREL_ADD (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)    # R_RISCV_TPREL_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    lw t1, <tp-offset-for-symbol>(tp)
+----
+--
+
 [bibliography]
 == References
 
