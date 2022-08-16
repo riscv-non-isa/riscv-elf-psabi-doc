@@ -18,18 +18,19 @@ This specification uses the following terms and abbreviations:
 
 [width=80%]
 |===
-| Term  | Meaning
+| Term              | Meaning
 
-| ABI   | Application Binary Interface
-| gABI  | Generic System V Application Binary Interface
-| ELF   | Executable and Linking Format
-| psABI | Processor-Specific ABI
-| DWARF | Debugging With Arbitrary Record Formats
-| GOT   | Global Offset Table
-| PLT   | Program Linkage Table
-| PC    | Program Counter
-| TLS   | Thread-Local Storage
-| NTBS  | Null-Terminated Byte String
-| XLEN  | The width of an integer register in bits
-| FLEN  | The width of a floating-point register in bits
+| ABI               | Application Binary Interface
+| gABI              | Generic System V Application Binary Interface
+| ELF               | Executable and Linking Format
+| psABI             | Processor-Specific ABI
+| DWARF             | Debugging With Arbitrary Record Formats
+| GOT               | Global Offset Table
+| PLT               | Program Linkage Table
+| PC                | Program Counter
+| TLS               | Thread-Local Storage
+| NTBS              | Null-Terminated Byte String
+| XLEN              | The width of an integer register in bits
+| FLEN              | The width of a floating-point register in bits
+| Linker relaxation | A mechanism for optimizing programs at link-time, see <<Linker Relaxation>> for more detail.
 |===

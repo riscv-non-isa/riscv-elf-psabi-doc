@@ -202,7 +202,7 @@ below.
   which allows instructions to be aligned to 16-bit boundaries (the base RV32
   and RV64 ISAs only allow 32-bit instruction alignment).  When linking
   objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
-  instructions such as C.JAL in the relaxation process.
+  instructions such as C.JAL in the linker relaxation process.
 
   EF_RISCV_FLOAT_ABI_SOFT (0x0000):::
   EF_RISCV_FLOAT_ABI_SINGLE (0x0002):::
@@ -583,7 +583,7 @@ pseudoinstructions.  Originally, these relocations had slightly different
 behavior, but that has turned out to be unnecessary, and they are now
 interchangeable.
 
-With relaxation enabled, the `AUIPC` instruction in the `AUIPC+JALR` pair has
+With linker relaxation enabled, the `AUIPC` instruction in the `AUIPC+JALR` pair has
 both a `R_RISCV_CALL` or `R_RISCV_CALL_PLT` relocation and an `R_RISCV_RELAX`
 relocation indicating the instruction sequence can be relaxed during linking.
 
@@ -982,7 +982,7 @@ Tag_RISCV_priv_spec contains the major/minor/revision version information of
 the privileged specification. It will report errors if object files of different
 privileged specification versions are merged.
 
-== Code relaxation
+== Linker Relaxation
 
 At link time, when all the memory objects have been resolved, the code sequence
 used to refer to them may be simplified and optimized by the linker by relaxing
