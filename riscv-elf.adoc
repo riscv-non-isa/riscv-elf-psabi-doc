@@ -1029,8 +1029,9 @@ Tag_RISCV_priv_spec contains the major/minor/revision version information of
 the privileged specification.
 
 Merge policy:::
-The linker should report errors if object files of different privileged
-specification versions are merged.
+The linker should merge the different privileged specification versions into
+the latest version and the linker should report errors if any incompatible
+versions among input object files.
 
 == Linker Relaxation
 
