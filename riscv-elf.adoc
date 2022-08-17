@@ -957,6 +957,9 @@ Tag_RISCV_arch contains a string for the target architecture taken from
 the option `-march`. Different architectures will be integrated into a superset
 when object files are merged.
 
+Tag_RISCV_arch should be recorded in lowercase, and all extensions should be
+separated by underline(`_`).
+
 Note that the version information for target architecture must be presented
 explicitly in the attribute and abbreviations must be expanded. The version
 information, if not given by `-march`, must agree with the default
