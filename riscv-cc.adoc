@@ -152,6 +152,9 @@ undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
 type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
 undefined.
 
+Bitfields wider than its integer type is not allowed. For example,
+`struct { short x : 17; }` is not allowed.
+
 Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as aggregates of the same size;
