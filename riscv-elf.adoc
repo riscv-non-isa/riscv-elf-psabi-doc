@@ -973,28 +973,28 @@ NOTE: Toolchain may set the value of `Tag_RISCV_arch` as the value from the
 option `-march` if the file isn't contain explicitly attribute directive for
 `Tag_RISCV_arch`.
 
-NOTE: `Tag_RISCV_arch` perform union opertion on different inputs is because
+NOTE: `Tag_RISCV_arch` perform union operation on different inputs because
 that its defined minimum execution environment requirement, consider an object
-file `A` require `RV64IM` and another object file `B` require `RV64IF`, and
-result an executable `C`, the minimum execution environment requirement for the
-`C` is `RV64IMF` (union) rather then `RV64I` (intersection), since `RV64IMF`
+file `A` requires `RV64IM` and another object file `B` require `RV64IF`, and
+produce an executable `C`, the minimum execution environment requirement for the
+`C` is `RV64IMF` (union) rather than `RV64I` (intersection) since `RV64IMF`
 can safely execute both codes from `A` and `B`.
 
 NOTE: Object files could use instruction extensions beyond than what
 Tag_RISCV_arch specified, but object files should make sure that they can
 safely run on the execution environment without those instruction extensions,
 user should use `IFUNC` or some other mechanism for run-time checking the
-execution environment is supported those extension, for example is the glibc
-build with `RV64GC`, and contain with two memcpy implementation, one is built
+execution environment is supported those extensions, for example, the glibc
+build with `RV64GC`, and contain with two memcpy implementations, one is built
 with `RV64GC` and another one is optimized with vector extension which is
 `RV64GCV`; The runtime will choose through the `IFUNC` mechanism, and
 vectorized memcpy is only chosen if the execution environment has vector
 extensions, so the minimum execution environment requirement is still `RV64GC`
 for glibc.
 
-NOTE: Execution environment are encouraged to use this attribute to check the
-executable is able to run on this execution environment, and may emit warnings
-or errors if execution environment can't satisfy the minimum execution
+NOTE: Execution environments are encouraged to use this attribute to check the
+the executable can run on this execution environment and may emit warnings or
+errors if the execution environment can't satisfy the minimum execution
 environment of the executable.
 
 ===== Tag_RISCV_unaligned_access, 6, uleb128=value
