@@ -953,9 +953,11 @@ default value is 16 for RV32I or RV64I, and 4 for RV32E.
 It will report erros if link object files with different Tag_RISCV_stack_align values.
 
 ===== Tag_RISCV_arch, 5, NTBS=subarch
-Tag_RISCV_arch contains a string for the target architecture, this information
-used as the minimum execution environment requirement. Different architectures
-will be integrated into a superset when object files are merged.
+Tag_RISCV_arch contains a string for the target architecture,
+this information reflects the minimum execution environment requirement. i.e.
+the set of instruction set extensions that the compiler may have used in code
+generation without any runtime feature detection or gating. Different
+architectures will be integrated into a superset when object files are merged.
 
 Note that the version information for target architecture must be presented
 explicitly in the attribute and abbreviations must be expanded. The version
