@@ -963,11 +963,12 @@ separated by underline(`_`).
 Note that the version information for target architecture must be presented
 explicitly in the attribute and abbreviations must be expanded. The version
 information, if not given by `-march`, must agree with the default
-specified by the tool. For example, the architecture `RV32I` has to be recorded
-in the attribute as `RV32I2P0` in which `2P0` stands for the default version of
-its based ISA. On the other hand, the architecture `RV32G` has to be presented
-as `RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded
-to the IMAFD combination with default versions of the standard extensions.
+specified by the tool. For example, the architecture `rv32i` has to be recorded
+in the attribute as `rv32i2p1` in which `2p1` stands for the default version of
+its based ISA. On the other hand, the architecture `rv32g` has to be presented
+as `rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0` in which the
+abbreviation `g` is expanded to the `imafd_zicsr_zifencei` combination with
+default versions of the standard extensions.
 
 The toolchain should normalized the architecture string into canonical order
 whcih defined in
