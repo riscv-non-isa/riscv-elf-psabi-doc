@@ -178,8 +178,7 @@ ELFDATA2MSB:::: Big-endian Object File
 --
 
 e_machine:: Identifies the machine this ELF file targets.  Always contains
-EM_RISCV (243) for RISC-V ELF files.  We only support RISC-V v2 family ISAs;
-this support is implicit.
+EM_RISCV (243) for RISC-V ELF files.
 
 e_flags:: Describes the format of this ELF file.  These flags are used by the
 linker to disallow linking ELF files with incompatible ABIs together,
