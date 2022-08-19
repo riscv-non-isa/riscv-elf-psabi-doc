@@ -1088,6 +1088,19 @@ Merge Policy:::
 The linker should merge the different architectures into a superset when
 object files are merged, and should report errors if the merge result contains
 conflict extensions.
++
+This specification does not mandate rules on how to merge ISA strings that
+refer to different versions of the same ISA extension.
+The suggested merge rules are as follows:
++
+* Merge versions into the latest version of all input versions that are
+ratified without warning or error.
++
+* The linker should emit a warning or error if input versions have different
+versions and any extension versions are not ratified.
++
+* The linker may report a warning or error if it detects incompatible
+versions, even if it's ratified.
 
 NOTE: Example of conflicting merge result: `RV32IF` and `RV32IZfinx` will
 be merged into `RV32IFZfinx`, which is an invalid architecture since `F` and
