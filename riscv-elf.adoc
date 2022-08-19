@@ -999,10 +999,26 @@ Merge Policy:::
 The linker should merge the different architectures into a superset when
 object files are merged, and should report errors if the merge result contains
 conflict extensions.
++
+Rule of merging the same extension with different versions:
++
+  * Merge versions into the latest version of all input versions are 1.0 or later
+    without warning or error.
++
+  * The linker should emit a warning or error if input versions have different
+    versions and any extension version before 1.0.
++
+  * The linker may report a warning or error if detect any incompatible
+    versions even if it's 1.0 or later.
+--
 
 NOTE: Example of conflicting merge result: `RV32IF` and `RV32IZfinx` will
 be merged into `RV32IFZfinx`, which is an invalid architecture since `F` and
 `Zfinx` conflict.
+
+NOTE: RISC-V extension define 1.0 as a frozen version and won't made
+incompatible changes after 1.0, but anything could be changes if version is
+before 1.0.
 
 ===== Tag_RISCV_unaligned_access, 6, uleb128=value
 Tag_RISCV_unaligned_access denotes the code generation policy for this object
