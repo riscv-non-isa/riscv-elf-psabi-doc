@@ -6,7 +6,7 @@ endif::[]
 
 == Code models
 
-The RISC-V architecture constrains the addressing of positions in the
+The RISC-V architecture constraints the addressing of positions in the
 address space.  There is no single instruction that can refer to an arbitrary
 memory position using a literal as its argument.  Rather, instructions exist
 that, when combined together, can then be used to refer to a memory position
