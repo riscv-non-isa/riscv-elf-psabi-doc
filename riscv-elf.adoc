@@ -1153,10 +1153,29 @@ Relaxation result:
 ----
 --
 
+NOTE: The global-pointer refers to the address of the `__global_pointer$`
+symbol, which is the content of `gp` register.
+
 NOTE: This relaxation requires the program to initialize the `gp` register with
 the address of `__global_pointer$` symbol before accessing any symbol address,
 strongly recommended initialize `gp` at the beginning of the program entry
-function like `_start`.
+function like `_start`, and code fragments of initialization must disable
+linker relaxation to prevent initialization instruction relaxed into a NOP-like
+instruction (e.g. `mv gp, gp`).
+[,asm]
+----
+    # Recommended way to initialize the gp register.
+    .option push
+    .option norelax
+1:  auipc gp, %pcrel_hi(__global_pointer$)
+    addi  gp, gp, %pcrel_lo(1b)
+    .option pop
+----
+
+NOTE: The global pointer is referred to as the global offset table pointer in
+many other targets, however, RISC-V uses PC-relative addressing rather than
+access GOT via the global pointer register (`gp`), so we use `gp` register to
+optimize code size and performance of the symbol accessing.
 
 ==== Zero-page Relaxation
 
