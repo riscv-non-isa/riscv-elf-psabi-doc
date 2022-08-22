@@ -165,7 +165,10 @@ e_ident::
 +
 --
 [horizontal]
+[[ELFCLASS64]]
 ELFCLASS64:::: ELF-64 Object File
+[horizontal]
+[[ELFCLASS32]]
 ELFCLASS32:::: ELF-32 Object File
 --
   EI_DATA::: Specifies the endianness; either big-endian or little-endian.
@@ -203,13 +206,14 @@ below.
   objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
   instructions such as C.JAL in the linker relaxation process.
 
-[[EF_RISCV_FLOAT_ABI_SOFT]]
-[[EF_RISCV_FLOAT_ABI_SINGLE]]
-[[EF_RISCV_FLOAT_ABI_DOUBLE]]
   EF_RISCV_FLOAT_ABI_SOFT (0x0000):::
+[[EF_RISCV_FLOAT_ABI_SOFT]]
   EF_RISCV_FLOAT_ABI_SINGLE (0x0002):::
+[[EF_RISCV_FLOAT_ABI_SINGLE]]
   EF_RISCV_FLOAT_ABI_DOUBLE (0x0004):::
-  EF_RISCV_FLOAT_ABI_QUAD (0x0006)::: These flags identify the floating point
+[[EF_RISCV_FLOAT_ABI_DOUBLE]]
+  EF_RISCV_FLOAT_ABI_QUAD (0x0006):::
+[[EF_RISCV_FLOAT_ABI_QUAD]] These flags identify the floating point
   ABI in use for this ELF file.  They store the largest floating-point type
   that ends up in registers as part of the ABI (but do not control if code
   generation is allowed to use floating-point internally).  The rule is that
