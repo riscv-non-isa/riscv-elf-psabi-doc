@@ -293,38 +293,43 @@ This specification defines the following named ABIs:
 
 [[abi-ilp32]]
 ILP32:: Integer calling-convention only, hardware
-floating-point calling convention is not used (i.e. ELFCLASS32 and
-EF_RISCV_FLOAT_ABI_SOFT).
+floating-point calling convention is not used (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
 
 [[abi-ilp32f]]
 ILP32F:: ILP32 with hardware floating-point calling
-convention for ABI_FLEN=32 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_SINGLE).
+convention for ABI_FLEN=32 (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
 
 [[abi-ilp32d]]
 ILP32D:: ILP32 with hardware floating-point calling
-convention for ABI_FLEN=64 (i.e. ELFCLASS32 and EF_RISCV_FLOAT_ABI_DOUBLE).
+convention for ABI_FLEN=64 (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
 
 [[abi-ilp32e]]
 ILP32E:: <<ILP32E Calling Convention,ILP32E calling-convention>> only,
-hardware floating-point calling convention is not used (i.e. ELFCLASS32,
-EF_RISCV_FLOAT_ABI_SOFT, and EF_RISCV_RVE).
+hardware floating-point calling convention is not used (i.e. <<ELFCLASS32,ELFCLASS32>>,
+<<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>, and <<EF_RISCV_RVE,EF_RISCV_RVE>>).
 
 [[abi-lp64]]
 LP64:: Integer calling-convention only, hardware
-floating-point calling convention is not used (i.e. ELFCLASS64 and
-EF_RISCV_FLOAT_ABI_SOFT).
+floating-point calling convention is not used (i.e. <<ELFCLASS64,ELFCLASS64>> and
+<<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
 
 [[abi-lp64f]]
 LP64F:: LP64 with hardware floating-point calling
-convention for ABI_FLEN=32 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_SINGLE).
+convention for ABI_FLEN=32 (i.e. <<ELFCLASS64,ELFCLASS64>> and
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
 
 [[abi-lp64d]]
 LP64D:: LP64 with hardware floating-point calling
-convention for ABI_FLEN=64 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_DOUBLE).
+convention for ABI_FLEN=64 (i.e. <<ELFCLASS64,ELFCLASS64>> and
+<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
 
 [[abi-lp64q]]
 LP64Q:: LP64 with hardware floating-point calling
-convention for ABI_FLEN=128 (i.e. ELFCLASS64 and EF_RISCV_FLOAT_ABI_QUAD).
+convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
+<<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
 The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
 only compatible with RV64* ISAs. A future version of this specification may

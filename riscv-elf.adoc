@@ -203,6 +203,9 @@ below.
   objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
   instructions such as C.JAL in the linker relaxation process.
 
+[[EF_RISCV_FLOAT_ABI_SOFT]]
+[[EF_RISCV_FLOAT_ABI_SINGLE]]
+[[EF_RISCV_FLOAT_ABI_DOUBLE]]
   EF_RISCV_FLOAT_ABI_SOFT (0x0000):::
   EF_RISCV_FLOAT_ABI_SINGLE (0x0002):::
   EF_RISCV_FLOAT_ABI_DOUBLE (0x0004):::
@@ -220,6 +223,7 @@ below.
   of the above floating-point ABIs, e.g.,
   `(e_flags & EF_RISCV_FLOAT_ABI) == EF_RISCV_FLOAT_ABI_DOUBLE`.
 
+[[EF_RISCV_RVE]]
   EF_RISCV_RVE (0x0008)::: This bit is set when the binary targets the E ABI.
 
   EF_RISCV_TSO (0x0010)::: This bit is set when the binary requires the RVTSO
