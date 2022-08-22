@@ -1023,8 +1023,8 @@ should only apply one relaxation type.
 
   Description:: This relaxation type relax can relax `AUIPC+JALR` into `JAL`.
 
-  Condition:: The offset between the location of relocation and target symbol
-  is within +-1MiB.
+  Condition:: The offset between the location of relocation and target symbol or
+  the PLT stub of the target symbol is within +-1MiB.
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
@@ -1047,6 +1047,10 @@ Relaxation result:
     jal  ra, 0            # R_RISCV_JAL (symbol)
 ----
 --
+
+NOTE: Using address of PLT stubs of the target symbol or address target symbol
+directly will resolve by linker according to the visibility of the target
+symbol.
 
 ==== Compressed Function Call Relaxation
 
