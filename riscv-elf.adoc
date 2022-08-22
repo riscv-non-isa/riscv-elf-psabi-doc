@@ -1059,9 +1059,9 @@ symbol.
   Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.JAL`
   instruction sequence.
 
-  Condition:: The offset between the location of relocation and target symbol
-  is within +-2MiB and rd operand of second instruction in the instruction
-  sequence is `X1`/`RA`.
+  Condition:: The offset between the location of relocation and target symbol or
+  the PLT stub of the target symbol is within +-2KiB and rd operand of second
+  instruction in the instruction sequence is `X1`/`RA`.
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
@@ -1092,9 +1092,9 @@ Relaxation result:
   Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.J`
   instruction sequence.
 
-  Condition:: The offset between the location of relocation and target symbol
-  is within +-2MiB and rd operand of second instruction in the instruction
-  sequence is `X0`.
+  Condition:: The offset between the location of relocation and target symbol or
+  the PLT stub of the target symbol is within +-2KiB and rd operand of second
+  instruction in the instruction sequence is `X0`.
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
@@ -1123,12 +1123,11 @@ Relaxation result:
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S,
   R_RISCV_PCREL_HI20, R_RISCV_PCREL_LO12_I, R_RISCV_PCREL_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of load address
-  of a symbol or load, store with a symbol reference into
+  Description:: This relaxation type relax can relax a sequence of the
+  load address of a symbol or load/store with a symbol reference into
   global-pointer-relative instruction.
 
-  Condition:: Offset between global-pointer and symbol is within +-2KiB, and
-  `__global_pointer$` symbol is defined.
+  Condition:: Offset between global-pointer and symbol is within +-2KiB.
 
   Relaxation::
   - Instruction associated with `R_RISCV_HI20` or `R_RISCV_PCREL_HI20` can
@@ -1154,8 +1153,8 @@ Relaxation result:
 ----
 --
 
-NOTE: This relaxation require program initialized the `gp` register with the
-address of `__global_pointer$` symbol before access any symbol address,
+NOTE: This relaxation requires the program to initialize the `gp` register with
+the address of `__global_pointer$` symbol before accessing any symbol address,
 strongly recommended initialize `gp` at the beginning of the program entry
 function like `_start`.
 
@@ -1163,9 +1162,9 @@ function like `_start`.
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of load address
-  of a symbol or load, store with a symbol reference into shorter instruction
-  sequence if possible.
+  Description:: This relaxation type relax can relax a sequence of the load
+  address of a symbol or load/store with a symbol reference into shorter
+  instruction sequence if possible.
 
   Relaxation::
   - Instruction associated  with `R_RISCV_HI20` can be removed if the symbol
@@ -1196,9 +1195,9 @@ Relaxation result:
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of load address
-  of a symbol or load, store with a symbol reference into shorter instruction
-  sequence if possible.
+  Description:: This relaxation type relax can relax a sequence of the load
+  address of a symbol or load/store with a symbol reference into shorter
+  instruction sequence if possible.
 
   Relaxation::
   - Instruction associated with `R_RISCV_HI20` can be replaced with `C.LUI`.
@@ -1228,9 +1227,9 @@ Relaxation result:
   Target Relocation:: R_RISCV_TPREL_HI20, R_RISCV_TPREL_ADD,
   R_RISCV_TPREL_LO12_I, R_RISCV_TPREL_LO12_S.
 
-  Description:: This relaxation type relax can relax a sequence of load address of a symbol or
-  load, store with a thread-local symbol reference into a thread-pointer-relative
-  instruction.
+  Description:: This relaxation type relax can relax a sequence of the load
+  address of a symbol or load/store with a thread-local symbol reference into a
+  thread-pointer-relative instruction.
 
   Condition:: Offset between thread-pointer and thread-local symbol is within
    +-2KiB.
