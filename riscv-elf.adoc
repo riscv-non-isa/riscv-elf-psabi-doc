@@ -961,18 +961,49 @@ default value is 16 for RV32I or RV64I, and 4 for RV32E.
 It will report erros if link object files with different Tag_RISCV_stack_align values.
 
 ===== Tag_RISCV_arch, 5, NTBS=subarch
-Tag_RISCV_arch contains a string for the target architecture taken from
-the option `-march`. Different architectures will be integrated into a superset
-when object files are merged.
+Tag_RISCV_arch contains a string for the target architecture,
+this information reflects the minimum execution environment requirement. i.e.
+the set of instruction set extensions that the compiler may have used in code
+generation without any runtime feature detection or gating. Different
+architectures will be integrated into a superset when object files are merged.
 
 Note that the version information for target architecture must be presented
 explicitly in the attribute and abbreviations must be expanded. The version
-information, if not given by `-march`, must agree with the default
-specified by the tool. For example, the architecture `RV32I` has to be recorded
-in the attribute as `RV32I2P0` in which `2P0` stands for the default version of
-its based ISA. On the other hand, the architecture `RV32G` has to be presented
-as `RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded
-to the IMAFD combination with default versions of the standard extensions.
+information, if not given by `-march` or attribute directive for
+`Tag_RISCV_arch`, must agree with the default specified by the tool. For
+example, the architecture `RV32I` has to be recorded in the attribute as
+`RV32I2P0` in which `2P0` stands for the default version of its based ISA.
+On the other hand, the architecture `RV32G` has to be presented as
+`RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded to the
+IMAFD combination with default versions of the standard extensions.
+
+NOTE: Toolchain may set the value of `Tag_RISCV_arch` as the value from the
+option `-march` if the file isn't contain explicitly attribute directive for
+`Tag_RISCV_arch`.
+
+NOTE: `Tag_RISCV_arch` perform union operation on different inputs because
+that its defined minimum execution environment requirement, consider an object
+file `A` requires `RV64IM` and another object file `B` require `RV64IF`, and
+produce an executable `C`, the minimum execution environment requirement for the
+`C` is `RV64IMF` (union) rather than `RV64I` (intersection) since `RV64IMF`
+can safely execute both codes from `A` and `B`.
+
+NOTE: Object files could use instruction extensions beyond than what
+Tag_RISCV_arch specified, but object files should make sure that they can
+safely run on the execution environment without those instruction extensions,
+user should use `IFUNC` or some other mechanism for run-time checking the
+execution environment is supported those extensions, for example, the glibc
+build with `RV64GC`, and contain with two memcpy implementations, one is built
+with `RV64GC` and another one is optimized with vector extension which is
+`RV64GCV`; The runtime will choose through the `IFUNC` mechanism, and
+vectorized memcpy is only chosen if the execution environment has vector
+extensions, so the minimum execution environment requirement is still `RV64GC`
+for glibc.
+
+NOTE: Execution environments are encouraged to use this attribute to check the
+the executable can run on this execution environment and may emit warnings or
+errors if the execution environment can't satisfy the minimum execution
+environment of the executable.
 
 ===== Tag_RISCV_unaligned_access, 6, uleb128=value
 Tag_RISCV_unaligned_access denotes the code generation policy for this object
