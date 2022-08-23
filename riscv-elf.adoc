@@ -1017,6 +1017,24 @@ the relaxation type is unsupported.
 Each candidate relocation might fit more than one relaxation type, the linker
 should only apply one relaxation type.
 
+In the linker relaxation optimization, we introduce a concept called relocation
+group; a relocation group consists of 1) relocations associated with the same
+target symbol and can be applied with the same relaxation, or 2) relocations
+with the linkage relationship (e.g. `R_RISCV_PCREL_LO12_S` linked with
+a `R_RISCV_PCREL_HI20`); all relocations in a single group must be present in
+the same section, otherwise will split into another relocation group.
+
+
+Every relocation group must apply the same relaxation type, and the linker
+should not apply linker relaxation to only part of the relocation group.
+
+NOTE: Apply relaxation on the part of the relocation group might result in a
+wrong execution result; for example, a relocation group consists of
+`lui t0, 0 # R_RISCV_HI20(foo)`, `lw t1, 0(t0) # R_RISCV_LO12_I (foo)`, and we
+only apply <<gp-relax,global pointer relaxation>> on first instruction, then
+remove that instruction, and didn't apply relaxation on the second instruction,
+which made the load instruction reference to an unspecified address.
+
 ==== Function Call Relaxation
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
@@ -1118,6 +1136,7 @@ Relaxation result:
 ----
 --
 
+[[gp-relax]]
 ==== Global-pointer Relaxation
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S,
