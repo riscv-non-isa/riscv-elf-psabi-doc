@@ -103,8 +103,8 @@ for that, please use the medium position independent code model below.
 
 === Medium position independent code model
 
-This model is similar to the medium code model, but uses the global offset
-table (GOT) for non-local symbol addresses.
+This model is similar to the medium code model, but uses the
+<<Global Offset Table,global offset table>> (GOT) for non-local symbol addresses.
 
 [,asm]
 ----
