@@ -34,3 +34,21 @@ This specification uses the following terms and abbreviations:
 | FLEN              | The width of a floating-point register in bits
 | Linker relaxation | A mechanism for optimizing programs at link-time, see <<Linker Relaxation>> for more detail.
 |===
+
+= Status of ABI
+
+[width=80%]
+|===
+| ABI Name          | Status
+
+| ILP32             | Ratified
+| ILP32F            | Ratified
+| ILP32D            | Ratified
+| ILP32E            | Draft
+| LP64              | Ratified
+| LP64F             | Ratified
+| LP64D             | Ratified
+|===
+
+NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
+define that in future version of this specification.
