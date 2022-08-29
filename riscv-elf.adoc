@@ -1028,7 +1028,7 @@ the same section, otherwise will split into another relocation group.
 Every relocation group must apply the same relaxation type, and the linker
 should not apply linker relaxation to only part of the relocation group.
 
-NOTE: Apply relaxation on the part of the relocation group might result in a
+NOTE: Applying relaxation on the part of the relocation group might result in a
 wrong execution result; for example, a relocation group consists of
 `lui t0, 0 # R_RISCV_HI20(foo)`, `lw t1, 0(t0) # R_RISCV_LO12_I (foo)`, and we
 only apply <<gp-relax,global pointer relaxation>> on first instruction, then
@@ -1046,7 +1046,7 @@ which made the load instruction reference to an unspecified address.
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
-  can be rewrite to a single JAL instruction with the offset between the
+  can be rewritten to a single JAL instruction with the offset between the
   location of relocation and target symbol.
 
   Example::
@@ -1079,11 +1079,11 @@ symbol.
 
   Condition:: The offset between the location of relocation and target symbol or
   the PLT stub of the target symbol is within +-2KiB and rd operand of second
-  instruction in the instruction sequence is `X1`/`RA`.
+  instruction in the instruction sequence is `X1`/`RA` and if it is RV32.
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
-  can be rewrite to a single `C.JAL` instruction with the offset between the
+  can be rewritten to a single `C.JAL` instruction with the offset between the
   location of relocation and target symbol.
 
   Example::
@@ -1116,7 +1116,7 @@ Relaxation result:
 
   Relaxation::
   - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
-  can be rewrite to a single `C.J` instruction with the offset between the
+  can be rewritten to a single `C.J` instruction with the offset between the
   location of relocation and target symbol.
 
   Example::
