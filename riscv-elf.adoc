@@ -1039,7 +1039,7 @@ which made the load instruction reference to an unspecified address.
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
 
-  Description:: This relaxation type relax can relax `AUIPC+JALR` into `JAL`.
+  Description:: This relaxation type can relax `AUIPC+JALR` into `JAL`.
 
   Condition:: The offset between the location of relocation and target symbol or
   the PLT stub of the target symbol is within +-1MiB.
@@ -1074,7 +1074,7 @@ symbol.
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
 
-  Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.JAL`
+  Description:: This relaxation type can relax `AUIPC+JALR` into `C.JAL`
   instruction sequence.
 
   Condition:: The offset between the location of relocation and target symbol or
@@ -1107,7 +1107,7 @@ Relaxation result:
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
 
-  Description:: This relaxation type relax can relax `AUIPC+JALR` into `C.J`
+  Description:: This relaxation type can relax `AUIPC+JALR` into `C.J`
   instruction sequence.
 
   Condition:: The offset between the location of relocation and target symbol or
@@ -1142,7 +1142,7 @@ Relaxation result:
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S,
   R_RISCV_PCREL_HI20, R_RISCV_PCREL_LO12_I, R_RISCV_PCREL_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of the
+  Description:: This relaxation type can relax a sequence of the
   load address of a symbol or load/store with a symbol reference into
   global-pointer-relative instruction.
 
@@ -1204,7 +1204,7 @@ optimize code size and performance of the symbol accessing.
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of the load
+  Description:: This relaxation type can relax a sequence of the load
   address of a symbol or load/store with a symbol reference into shorter
   instruction sequence if possible.
 
@@ -1237,7 +1237,7 @@ Relaxation result:
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
 
-  Description:: This relaxation type relax can relax a sequence of the load
+  Description:: This relaxation type can relax a sequence of the load
   address of a symbol or load/store with a symbol reference into shorter
   instruction sequence if possible.
 
@@ -1269,7 +1269,7 @@ Relaxation result:
   Target Relocation:: R_RISCV_TPREL_HI20, R_RISCV_TPREL_ADD,
   R_RISCV_TPREL_LO12_I, R_RISCV_TPREL_LO12_S.
 
-  Description:: This relaxation type relax can relax a sequence of the load
+  Description:: This relaxation type can relax a sequence of the load
   address of a symbol or load/store with a thread-local symbol reference into a
   thread-pointer-relative instruction.
 
