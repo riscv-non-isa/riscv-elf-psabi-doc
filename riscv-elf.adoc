@@ -1148,8 +1148,8 @@ Relaxation result:
 
   Condition:: Offset between global-pointer and symbol is within +-2KiB,
   `R_RISCV_PCREL_LO12_I` and `R_RISCV_PCREL_LO12_S` resolved as indirect
-  relocation pointer, and it will always point to another `R_RISCV_PCREL_HI20`
-  relocation, it will the symbol which pointed by `R_RISCV_PCREL_HI20` in
+  relocation pointer. It will always point to another `R_RISCV_PCREL_HI20`
+  relocation, the symbol pointed by `R_RISCV_PCREL_HI20` will be used in
   the offset calculation.
 
   Relaxation::
