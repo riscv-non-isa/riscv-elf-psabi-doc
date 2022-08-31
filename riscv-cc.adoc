@@ -152,6 +152,13 @@ undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
 type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
 undefined.
 
+Bitfields may larger than its integer type, bits excess than its integer
+type will treat as padding bits, then padding to begin at the next alignment
+boundary. For example `struct { char x : 9; char y; }` is a 24 byte type with
+`x` in bits 7-0, `y` in bit 23-16, and bits 15-8 undefined,
+`struct { char x : 9; char y : 2 }` is a 16-bit type with `x` in bits 7-0, `y`
+in bit 10-9, and bit 8, bits 15-11 is undefined.
+
 Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as aggregates of the same size;
