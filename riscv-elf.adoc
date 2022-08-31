@@ -244,6 +244,34 @@ tools will ignore them. Do not use them unless you control both the toolchain
 and the operating system, and the ABI differences are so significant they
 cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
 different syscall ABI.
+
+==== Policy for Merge Objects With Different File Headers
+
+This section describe the behavior when the inputs files come with different
+file headers.
+
+`e_ident` and `e_machine` should have exact same value otherwise linker should
+raise an error.
+
+`e_flags` has different different policy for different fields:
+
+  RVC::: Input file could have different values for the RVC field; the linker
+  should set this field into EF_RISCV_RVC if any of the input objects has
+  been set.
+
+  Float ABI::: Linker should report errors if object files of different value
+  for float ABI field.
+
+  RVE::: Linker should report errors if object files of different value
+  for RVE field.
+
+  TSO::: Linker should report errors if object files of different value
+  for TSO field.
+
+NOTE: The static linker may ignore the compatibility checks if all fields in the
+`e_flags` are zero and all sections in the input file are non-executable
+sections.
+
 --
 
 === Sections
@@ -1020,7 +1048,8 @@ Each attribute is described in the following structure:
 Tag_RISCV_stack_align records the N-byte stack alignment for this object. The
 default value is 16 for RV32I or RV64I, and 4 for RV32E.
 
-It will report erros if link object files with different Tag_RISCV_stack_align values.
+Merge Policy:::
+The linker should report erros if link object files with different `Tag_RISCV_stack_align` values.
 
 ===== Tag_RISCV_arch, 5, NTBS=subarch
 Tag_RISCV_arch contains a string for the target architecture taken from
@@ -1036,6 +1065,15 @@ its based ISA. On the other hand, the architecture `RV32G` has to be presented
 as `RV32I2P0_M2P0_A2P0_F2P0_D2P0` in which the abbreviation `G` is expanded
 to the IMAFD combination with default versions of the standard extensions.
 
+Merge Policy:::
+The linker should merge the different architectures into a superset when
+object files are merged, and should report errors if the merge result contains
+conflict extensions.
+
+NOTE: Example of conflicting merge result: `RV32IF` and `RV32IZfinx` will
+be merged into `RV32IFZfinx`, which is an invalid architecture since `F` and
+`Zfinx` conflict.
+
 ===== Tag_RISCV_unaligned_access, 6, uleb128=value
 Tag_RISCV_unaligned_access denotes the code generation policy for this object
 file. Its values are defined as follows:
@@ -1043,6 +1081,15 @@ file. Its values are defined as follows:
 [horizontal]
 0:: This object does not perform any unaligned memory accesses.
 1:: This object may perform unaligned memory accesses.
+
+--
+
+Merge policy:::
+Input file could have different values for the Tag_RISCV_unaligned_access;
+the linker should set this field into 1 if any of the input objects has
+been set.
+
+--
 
 ===== Tag_RISCV_priv_spec, 8, uleb128=version
 ===== Tag_RISCV_priv_spec_minor, 10, uleb128=version
@@ -1053,8 +1100,11 @@ with version rather than a single privileged specification version scheme for
 privileged ISA.
 
 Tag_RISCV_priv_spec contains the major/minor/revision version information of
-the privileged specification. It will report errors if object files of different
-privileged specification versions are merged.
+the privileged specification.
+
+Merge policy:::
+The linker should report errors if object files of different privileged
+specification versions are merged.
 
 == Linker Relaxation
 
