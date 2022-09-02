@@ -23,7 +23,7 @@ in the current code model.
 The medium low code model, or `medlow`, allows the code to address the whole RV32
 address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
 (`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~ `0x000000007FFFF7FF`).
-By using the instructions `lui` and `ld` or `st`, when referring to an object, or
+By using the `lui` and load / store instructions, when referring to an object, or
 `addi`, when calculating an address literal, for example,
 a 32-bit address literal can be produced.
 
@@ -62,8 +62,8 @@ addi a0, a0, -0x800 # a0 = a0 + -2048 = 0xFFFFFFFF7FFFF800
 === Medium any code model
 
 The medium any code model, or `medany`, allows the code to address the range
-between -2 GiB and +2 GiB from its position.  By using the instructions `auipc`
-and `ld` or `st`, when referring to an object, or
+between -2 GiB and +2 GiB from its position.  By using `auipc`
+and load / store instructions, when referring to an object, or
 `addi`, when calculating an address literal, for example,
 a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
@@ -1179,7 +1179,7 @@ should not apply linker relaxation to only part of the relocation group.
 
 NOTE: Applying relaxation on the part of the relocation group might result in a
 wrong execution result; for example, a relocation group consists of
-`lui t0, 0 # R_RISCV_HI20(foo)`, `lw t1, 0(t0) # R_RISCV_LO12_I (foo)`, and we
+`lui t0, 0 # R_RISCV_HI20 (foo)`, `lw t1, 0(t0) # R_RISCV_LO12_I (foo)`, and we
 only apply <<gp-relax,global pointer relaxation>> on first instruction, then
 remove that instruction, and didn't apply relaxation on the second instruction,
 which made the load instruction reference to an unspecified address.
@@ -1393,7 +1393,7 @@ Relaxation result:
   instruction sequence if possible.
 
   Condition:: The symbol address can be presented by a `C.LUI` plus an `ADDI`
-  instructions.
+   or load / store instruction.
 
   Relaxation::
   - Instruction associated with `R_RISCV_HI20` can be replaced with `C.LUI`.
@@ -1414,7 +1414,7 @@ Relaxation result:
 [,asm]
 ----
     c.lui t0, <non-zero>  # RVC_LUI (symbol), R_RISCV_RELAX
-    lw t1, 0(t0)    # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
+    lw t1, 0(t0)          # R_RISCV_LO12_I (symbol), R_RISCV_RELAX
 ----
 --
 
