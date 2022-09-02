@@ -48,6 +48,7 @@ This specification uses the following terms and abbreviations:
 | LP64              | Ratified
 | LP64F             | Ratified
 | LP64D             | Ratified
+| LP64Q             | Ratified
 |===
 
 NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
