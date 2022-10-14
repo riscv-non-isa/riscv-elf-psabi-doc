@@ -1,0 +1,268 @@
+= The RISC-V ABI and its deviations
+== Background
+
+A question about an embedded ABI was raised in the RISC-V community.
+The main reason why a separate embedded ABI was requested, was the
+fear that a rather high number of temporary (caller save) registers
+would have an intolerable impact on interrupt functions.
+An EABI task group was formed to sort it out, but it turned out that
+the problem was more complex than anticipated. Later on the work in
+the EABI TG was transferred to the psABI TG, and the EWRISCV team at
+IAR Systems AB was appointed to investigate how an ABI for embedded
+applications should be designed.
+
+== The IAR investigation
+We have concluded that an embedded ABI in a traditional sense should
+not be needed. A separate EABI (with fewer temporary registers) would
+result in both slower and larger regular code, and the problem with
+many temporary registers for interrupt functions can be handled.
+By offering a set of deviations from a main ABI, all of the needs for
+embedded applications can be fulfilled.
+
+The main objectives in our work have been:
+
+- The deviations must be defined by what can be done in the future.
+  We cannot let current limitations in today’s tools being the
+  guideline in our work. The RISC-V architecture will probably be
+  used for at least 50+ years to come, so the future must be our
+  guideline.
+
+- The deviations must be defined in a way so we tool vendors can
+  implement and improve support for each deviation in a reasonable
+  pace. It must be ok to not support one or more of the proposed
+  deviations.
+
+- Keeping the number of main/top ABIs as low as possible in order
+  to minimize the complexity of the tool ecosystem. This means that
+  the calling conventions for regular non-embedded applications and
+  embedded applications will be the same.
+
+- Handel the deviations as well-defined sidesteps from an ABI. The
+  deviations should be seen as a number of features one can use for
+  fine tuning primarily embedded applications.
+
+- Deviations from an ABI should always be safe and result in
+  smaller and/or faster code when applicable. No sloppy solutions
+  or dirty fixes are allowed!
+
+- The proposed solutions should also be useful for non-embedded
+  applications when applicable.
+
+== The two main/top ABIs
+
+There are only two ABIs needed for RISC-V. One for cores with 32 CPU
+registers and one for cores with only 16 CPU registers. The proposed
+ABI for RV32E is based on the proposed PUSH and POP instructions and a
+well-grounded (but remains to be proved) guess that such a balance
+between temporary and preserved registers will be an optimal choice.
+The new alternative name tb of register x15, is based on the IAR
+proposal for the helper functions.
+
+== Deviations
+=== Reservation of registers
+Some applications may need one or more registers for special purposes.
+The engine for handling overlay is one example (needs four registers).
+For natural reasons this feature does not apply to RV32E devices!
+
+=== Rules for reservations
+- Up to 8 registers can be reserved simultaneously: t3-t6 (x28-x31)
+  and s8-s11 (x24-x27). A tool chain may however choose to only
+  support up to 4 reserved registers (t5-t6 & s10-s11), as the need
+  for reserving more than four registers is considered being very
+  rare.
+
+- The temporary and save registers are handled as two separate
+  register pools.
+
+- The reservations starts from the highest register number in each
+  register pool and then counts down. A reservation of one s-
+  register and three t-registers would therefore reserve register
+  s11, t4, t5 and t6.
+
+=== Needed information in ELF
+
+6 bits
+
+Encoding: #t | (#s << 3)
+0x00 Code with no reservations
+0x01 t6 reserved
+0x11 t6 and s11 reserved
+0x44 All 8 registers reserved (max value).
+
+=== Linking
+The tag for register reservations is a guarantee that none of the
+reserved registers is used in an object file. When linking code which
+do need reserved registers, the linker will generate an error if a
+module with fewer than needed reserved registers is found. This gives
+the opportunity to build generic libraries (with reserved registers),
+which can be used for applications which need reserved registers and
+applications that do not need reserved registers. Most helper
+functions (usually written in assembler) do not use any of the
+registers that may be reserved, so in such cases one should always
+generate the maximum number for reserved registers [telling that none
+of those registers are used]. If a toolchain choose to only allow four
+registers to be locked/reserved (s10-s11 and t5-t6), most library
+functions will probably generate the same code as if those registers
+were not locked. By building all libraries with these registers
+locked, one do not need to provide other combinations of libraries
+with locked registers.
+
+=== Considerations
+The source code for the setjmp and longjmp functions in standard C
+must be provided to the users. These functions must be customized by
+the users in order to handle the registers correctly (depending on how
+the locked registers are used by them). This is also a risk as the
+users may not understand how to do such implementations, so this is
+something we tool vendors cannot take responsibility for! We can guide
+our users, but their modified versions of setjmp and longjmp will be
+their own responsibility.
+
+Is there a need of an additional directive to the call frame
+information for functions calling other functions with fewer locked
+registers?
+
+== Usage of the tp register
+There are two possible ways to use the tp register:
+1. As a thread pointer or as an extra global pointer (or similar).
+2. As an extra temporary register (RV32E only!).
+
+=== Needed information in ELF
+1 bit
+
+0 = tp is reserved as thread pointer (or other similar usage as
+a reserved/locked register).
+
+1 = Extra temporary register
+
+Different values cannot be linked together.
+
+=== Data type restrictions
+Most embedded applications do not need support for datatypes larger
+than 64 bits. In such cases the generated code may not be compatible
+with code generated with full support of the affected data types.
+
+=== Needed information in ELF
+
+2 bits
+bit 0: Set if no support of 128 bit integral datatypes.
+bit 1: Set if no support of 128 bit floating point values.
+
+== Stack alignment
+
+Embedded applications usually need to be more memory conservative than
+normal applications. In such cases it might be ok to use a smaller
+stack alignment than required by the hardware for avoiding penalty for
+misaligned memory accesses. This tag specifies which stack alignment
+the object code is using.
+
+=== Needed information in ELF
+2 or 3 bits?
+0 = 32 bit alignment
+1 = 64 bit
+2 = 128 bit
+3 = 256 bit
+x = Do we need more?
+
+=== Linking
+The linker will need a new option for specifying the stack alignment.
+If a module with a lesser stack alignment is found, the linker
+generates an error. The compiler libraries can therefore be built with
+the higher default stack alignment. Most library functions are leaf or
+near leaf functions, so an extra word or so on the stack would not be
+such a big deal.
+
+== Interrupts
+
+Interrupt functions are essentially small confined applications with
+usually pretty well known properties. Tracking the register usage
+should therefore be doable even in dynamically linked applications, as
+the interrupt functions most likely have all the information needed
+when they are built. Register tracking is however not mandatory as it
+is merely a type of optimization that may be implemented in some
+future toolchains.
+
+
+There are two types of interrupt functions available today. The so
+called inline interrupt functions and trampoline interrupt functions.
+
+
+New keywords needed
+`__interrupt` A normal "inline" interrupt service function.
+`__trampoline` Trampoline interrupt service function called by the
+trampoline engine.
+
+`__xreg` Functions with unknown register usage called by an
+interrupt service function, are guaranteed to not
+affect any other properties than the regular CPU
+registers.
+
+`__freg` Functions with unknown register usage called by an
+interrupt service function, may affect FPU properties
+(status flags, registers etc.).
+
+Will we need more keywords?
+
+
+[Inline interrupts](https://github.com/riscv/riscv-fast-interrupt/blob/master/clic.adoc#inline-section)
+Called directly by hardware via an interrupt vector. All
+registers/resources used by the function must be preserve by the
+function itself.
+
+[Trampoline interrupts](https://github.com/riscv/riscv-fast-interrupt/blob/master/clic.adoc#calling-c-abi-functions-as-interrupt-handlers)
+Trampoline interrupt functions are called via a trampoline engine
+which preserves some or all of the temporary registers that may be
+used by the trampoline functions. By doing so, nested interrupts will
+be handled more effectively as the registers preserved by the engine
+just need to be preserved once. The drawback is when very simple
+interrupts are executed and there are no other interrupts in queue. In
+such cases the trampoline engine may have preserved registers that are
+not affected by the called trampoline function.
+
+
+
+By allowing an arbitrary number of caller save registers to be
+preserved by the trampoline interrupt handler engine, every single
+trampoline interrupt function just need to preserve caller save
+registers that are not preserved by the engine. By doing this, the
+users can fine tune the number of registers preserved by the engine to
+get the maximum performance out of the trampoline interrupt functions.
+This feature will also mimic the behavior of an ABI with fever caller
+saved registers without having the negative impact such an ABI
+otherwise would have on the general code.
+
+
+=== Needed information in ELF for function argument registers
+
+The argument registers are handled as separate entities as they may be
+used in a non-consecutive manner. The registers a0 and a1 are however
+handled as one unit as they always are used by the trampoline engine
+itself.
+7 bits
+bit 0: a0 and a1 are preserved
+bit 1: a2 preserved
+bit 2: a3 preserved
+bit 3: a4 preserved
+bit 4: a5 preserved
+bit 5: a6 preserved
+bit 6: a7 preserved
+
+=== Needed information in ELF for temporary registers
+Any code MUST use the temporary registers in a consecutive way.
+Starting with t0 and then t1, t2 etc. up to t6.
+3 + 1 bits
+0: No temporary registers preserved
+1: t0 preserved
+2: t0-t1 preserved
+7: t0-t6 preserved
+Bit 3: Set if register tp is used as a temporary register and is
+preserved by the engine.
+When all fields are zero, the code is neutral as it does not contain
+anything related to trampoline interrupt functions. Neutral object
+code can be linked together with any non-neutral object code.
+Non neutral object code can only be linked with neutral object code
+and non-neutral object code with the same properties.
+
+== Endianess
+1 bit
+
+Should this be part of the deviations?
