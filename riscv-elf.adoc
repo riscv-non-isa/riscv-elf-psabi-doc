@@ -274,10 +274,6 @@ sections.
 
 --
 
-=== Sections
-
-There are no RISC-V specific definitions relating to ELF sections.
-
 === String Tables
 
 There are no RISC-V specific definitions relating to ELF string tables.
@@ -1194,7 +1190,7 @@ which made the load instruction reference to an unspecified address.
   the PLT stub of the target symbol is within +-1MiB.
 
   Relaxation::
-  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT`
   can be rewritten to a single JAL instruction with the offset between the
   location of relocation and target symbol.
 
@@ -1231,7 +1227,7 @@ symbol.
   instruction in the instruction sequence is `X1`/`RA` and if it is RV32.
 
   Relaxation::
-  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT`
   can be rewritten to a single `C.JAL` instruction with the offset between the
   location of relocation and target symbol.
 
@@ -1264,7 +1260,7 @@ Relaxation result:
   instruction in the instruction sequence is `X0`.
 
   Relaxation::
-  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT.`
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT`
   can be rewritten to a single `C.J` instruction with the offset between the
   location of relocation and target symbol.
 
