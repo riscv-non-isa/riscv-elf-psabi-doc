@@ -1,6 +1,6 @@
 :company: RISC-V.org
-:revlifecycle: ratified
-:revnumber: 1.0
+:revlifecycle: dev
+:revnumber: 1.1
 ifeval::["{revlifecycle}" == "dev"]
 :revdate: {date}
 :revremark: Pre-release
