@@ -949,15 +949,19 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 
 [[rv-section]]
 .RISC-V-specific sections
-[cols="3,3,1"]
+[cols="3,3,3"]
 [width=80%]
 |===
 | Name                       | Type                 | Attributes
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
+| .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
+
++++.riscv.jvt+++ is a linker-created section to store table jump
+target addresses. The minimum alignment of this section is 64 bytes.
 
 === Program Header Table
 
@@ -1215,6 +1219,7 @@ NOTE: Using address of PLT stubs of the target symbol or address target symbol
 directly will resolve by linker according to the visibility of the target
 symbol.
 
+[[compress-func-call-relax]]
 ==== Compressed Function Call Relaxation
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
@@ -1248,6 +1253,7 @@ Relaxation result:
 ----
 --
 
+[[compress-tailcall-relax]]
 ==== Compressed Tail Call Relaxation
 
   Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
@@ -1330,6 +1336,7 @@ strongly recommended initialize `gp` at the beginning of the program entry
 function like `_start`, and code fragments of initialization must disable
 linker relaxation to prevent initialization instruction relaxed into a NOP-like
 instruction (e.g. `mv gp, gp`).
+[[gp-relax-asm]]
 [,asm]
 ----
     # Recommended way to initialize the gp register.
@@ -1450,6 +1457,81 @@ Relaxation result:
 ----
 --
 
+==== Table Jump Relaxation
+
+  Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT, R_RISCV_JAL.
+
+  Description:: This relaxation type can relax a function call or jump
+  instruction into a single table jump instruction with the index of the target
+  address in table jump section (<<rv-section>>).
+  Before relaxation, the linker scans all relocations and calculates whether
+  additional gains can be obtained by using table jump instructions, where
+  expected size saving from function-call-related relaxations and the size of jump
+  table will be taken into account. If there is no additional gain, then table
+  jump relaxation is ignored. Otherwise, this relaxation is switched on.
+  <<compress-tailcall-relax, Compressed Tail Call Relaxation>> and
+  <<compress-func-call-relax, Compressed Function Call Relaxation>> are
+  always prefered during relaxation, since table jump relaxation has no
+  extra size saving over these two relaxations and might bring a performance
+  overhead.
+
+  Condition:: The `zcmt` extension is required, the linker output is not
+  position-independent and the rd operand of a function call or jump instruction
+  is `X0` or `RA`.
+
+  Relaxation::
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT`
+  can be rewritten to a table jump instruction.
+  - Instruction associated with `R_RISCV_JAL` can be rewritten to a table
+  jump instruction.
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, ra, 0
+
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
+    jalr  x0, ra, 0
+
+    jal ra, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX (symbol)
+
+    jal x0, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX (symbol)
+----
+
+Relaxation result:
+[,asm]
+----
+    cm.jalt  <index-for-symbol>
+
+    cm.jt    <index-for-symbol>
+
+    cm.jalt  <index-for-symbol>
+----
+--
+
+NOTE: The `zcmt` extension cannot be used in position-independent binaries.
+
+NOTE: Jump or call instructions with the rd operand `RA` will be relaxed into
+`cm.jalt` and instructions with the rd operand `X0` will be relaxed into
+`cm.jt`. The table jump section holds target addresses for these two
+instructions separately. More details are available in the _ZC* extension
+specification_ <<riscv-zc-extension-group>>.
+
+NOTE: This relaxation requires programs to initialize the `jvt` CSR with the
+address of the `__jvt_base$` symbol before executing table jump
+instructions. It is recommended to initialize `jvt` CSR immediately after
+<<gp-relax-asm,global pointer initialization>>.
+[,asm]
+----
+    # Recommended way to initialize the jvt CSR.
+1:  auipc a0, %pcrel_hi(__jvt_base$)
+    addi  a0, a0, %pcrel_lo(1b)
+    csrw  jvt, a0
+----
+
 [bibliography]
 == References
 
@@ -1468,3 +1550,6 @@ https://www.akkadia.org/drepper/tls.pdf, Ulrich Drepper
 * [[[riscv-unpriv]]] "The RISC-V Instruction Set Manual, Volume I: User-Level
 ISA, Document", Editors Andrew Waterman and Krste Asanovi´c,
 RISC-V International.
+
+* [[[riscv-zc-extension-group]]] "ZC* extension specification"
+https://github.com/riscv/riscv-code-size-reduction
