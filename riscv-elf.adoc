@@ -1016,9 +1016,25 @@ linker or runtime loader needs to check compatibility.
 Attributes are encoded in a vendor-specific section of type SHT_RISCV_ATTRIBUTES
 and name .riscv.attributes. The value of an attribute can hold an integer
 encoded in the uleb128 format or a null-terminated byte string (NTBS).
+The tag number is also encoded as uleb128.
 
 RISC-V attributes have a string value if the tag number is odd and an integer
 value if the tag number is even.
+
+==== Layout of .riscv.attributes section
+
+The attributes section start with a format-version (uint8 = 'A') followed by
+vendor specific sub-section(s). A sub-section starts with sub-section length
+(uint32), vendor name (NTBS) and one or more sub-sub-section(s).
+
+A sub-sub-section consists of a tag (uleb128), sub-sub-section length (uint32)
+followed by actual attribute tag,value pair(s) as specified above.
+Sub-sub-section Tag Tag_file (value 1) specifies that contained attibutes
+relate to whole file.
+
+A sub-section with name "riscv\0" is mandatory. Vendor specific sub-sections
+are allowed in future. Vendor names starting with "[Aa]non" are reserved for
+non-standard ABI extensions.
 
 ==== List of attributes
 
