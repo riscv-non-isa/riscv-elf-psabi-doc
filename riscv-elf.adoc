@@ -1070,7 +1070,7 @@ abbreviation `g` is expanded to the `imafd_zicsr_zifencei` combination with
 default versions of the standard extensions.
 
 The toolchain should normalized the architecture string into canonical order
-whcih defined in
+which defined in
 _The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document_ <<riscv-unpriv>>
 , expanded with all required extension and should add shorthand extension into
 architecture string if all expanded extensions are included in architecture
