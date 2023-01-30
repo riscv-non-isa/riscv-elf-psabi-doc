@@ -447,7 +447,11 @@ Description:: Additional information about the relocation
                                             <| `ifunc_resolver(B + A)`
 .2+| 59      .2+| PLT32         .2+| Static  | _word32_          .2+| 32-bit relative offset to a function or its PLT entry
                                             <| S + A - P
-.2+| 60-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 60      .2+| SET_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label assignment <<uleb128-note,*note>>
+                                            <| S + A
+.2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label subtraction <<uleb128-note,*note>>
+                                            <| V - S + A
+.2+| 62-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
@@ -459,6 +463,12 @@ purpose.  These relocations may conflict with other nonstandard extensions.
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 _RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
+
+[[uleb128-note]]
+NOTE: The assembler must allocate enough space to accommodate ULEB128 data for
+`R_RISCV_SET_ULEB128` and `R_RISCV_SUB_ULEB128` relocations. This can be
+achieved either by padding with zeroes to fill up to the XLEN-bits boundary
+or by filling the precomputed result into the relocation location.
 
 ==== Calculation Symbols
 
@@ -501,6 +511,7 @@ of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 | _word16_    | Specifies a 16-bit word
 | _word32_    | Specifies a 32-bit word
 | _word64_    | Specifies a 64-bit word
+| _ULEB128_   | Specifies a variable-length data encoded in ULEB128 format.
 | _wordclass_ | Specifies a _word32_ field for ILP32 or a _word64_ field for LP64
 | _B-Type_    | Specifies a field as the immediate field in a B-type instruction
 | _CB-Type_   | Specifies a field as the immediate field in a CB-type instruction
@@ -1220,6 +1231,14 @@ As this transformation may delete bytes (and thus invalidate references that
 are commonly resolved at compile-time, such as intra-function jumps), code
 generators must in general ensure that relocations are always emitted when
 relaxation is enabled.
+
+Linkers should adjust relocations that refer to symbols whose addresses have
+been updated.
+
+ULEB128 value with relocation must be padding to the same length even if the
+data can be encoded with a shorter byte sequence after linker relaxation, The
+linker should report errors if the length of ULEB128 byte sequence is more
+extended than the current byte sequence.
 
 === Linker Relaxation Types
 
