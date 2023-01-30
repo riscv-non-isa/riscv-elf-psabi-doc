@@ -1020,8 +1020,16 @@ and name .riscv.attributes. The value of an attribute can hold an integer
 encoded in the uleb128 format or a null-terminated byte string (NTBS).
 The tag number is also encoded as uleb128.
 
-RISC-V attributes have a string value if the tag number is odd and an integer
-value if the tag number is even.
+In order to improve the compatibility of the tool, the attribute follows below rules:
+
+- RISC-V attributes have a string value if the tag number is odd and an integer
+  value if the tag number is even.
+
+- The tag is mandatory;  If the tool does not recognize this attribute and the tag number
+  modulo 128 is less than 64 (`(N % 128) < 64`), errors should be reported.
+
+- The tag is optional; If the tool does not recognize this attribute and the tag number
+  modulo 128 is greater than or equal to 64 (`(N % 128) >= 64`), the tag can be ignored.
 
 ==== Layout of .riscv.attributes section
 
