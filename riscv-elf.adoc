@@ -449,14 +449,23 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
+.2+| 256-2047 (0x100-0x7ff) .2+| *Reserved*           .2+| -       |                   .2+| Reserved for standard ABI extensions (RV64 only)
+                                            <|
+.2+| 2048-4095  (0x800-0xfff) .2+| *Reserved*         .2+| -       |                   .2+| Reserved for nonstandard ABI extensions (RV64 only)
+                                            <|
 |===
 
-Nonstandard extensions are free to use relocation numbers 192-255 for any
-purpose.  These relocations may conflict with other nonstandard extensions.
+Nonstandard extensions are free to use relocation numbers 192-255 and 2048-4095
+for any purpose.  These relocations may conflict with other nonstandard
+extensions.
 
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 _RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
+
+Relocation type numbers more than 4096 on RV64 are reserved for future
+extension; the higher 20-bit of relocation type (ELF64_R_TYPE) might
+define for other use than identifying the relocation type.
 
 ==== Calculation Symbols
 
