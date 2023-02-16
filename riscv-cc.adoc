@@ -224,7 +224,7 @@ floating-point registers than the ABI.
 
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
-{ float f[1]; } g[2]; }` and `struct { float f; float g; }` are
+{ float f[1]; } g[2]; }` and `struct { float f; float g0; float g1; }` are
 treated the same.  Fields containing empty structs or unions are ignored while
 flattening, even in {Cpp}, unless they have nontrivial copy constructors or
 destructors.  Fields containing zero-length bit-fields are ignored while
