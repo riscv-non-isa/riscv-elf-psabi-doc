@@ -445,7 +445,9 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 58      .2+| IRELATIVE     .2+| Dynamic | _wordclass_       .2+| Relocation against a non-preemptible ifunc symbol
                                             <| `ifunc_resolver(B + A)`
-.2+| 59-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 59      .2+| PLT32         .2+| Static  | _word32_          .2+| 32-bit relative offset to a function or its PLT entry
+                                            <| S + A - P
+.2+| 60-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
