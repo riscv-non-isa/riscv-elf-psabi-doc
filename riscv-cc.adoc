@@ -449,6 +449,7 @@ alignments (based on the ILP32 convention):
 | long                 |  4            |  4
 | long long            |  8            |  8
 | void *               |  4            |  4
+| +++__bf16+++         |  2            |  2
 | _Float16             |  2            |  2
 | float                |  4            |  4
 | double               |  8            |  8
@@ -475,6 +476,7 @@ alignments (based on the LP64 convention):
 | long long            |  8            |  8
 | +++__int128+++       | 16            | 16
 | void *               |  8            |  8
+| +++__bf16+++         |  2            |  2
 | _Float16             |  2            |  2
 | float                |  4            |  4
 | double               |  8            |  8
@@ -501,6 +503,8 @@ arguments are either `0` (`false`) or `1` (`true`).
 A null pointer (for all types) has the value zero.
 
 `_Float16` is as defined in the C ISO/IEC TS 18661-3 extension.
+
+`__bf16` has the same parameter passing and return rules as for `_Float16`.
 
 `_Complex` types have the same layout as a struct containing two fields of the
 corresponding real type (`float`, `double`, or `long double`), with the first
