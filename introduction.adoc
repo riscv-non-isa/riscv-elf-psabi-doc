@@ -26,7 +26,7 @@ This specification uses the following terms and abbreviations:
 | psABI             | Processor-Specific ABI
 | DWARF             | Debugging With Arbitrary Record Formats
 | GOT               | Global Offset Table
-| PLT               | Program Linkage Table
+| PLT               | Procedure Linkage Table
 | PC                | Program Counter
 | TLS               | Thread-Local Storage
 | NTBS              | Null-Terminated Byte String
