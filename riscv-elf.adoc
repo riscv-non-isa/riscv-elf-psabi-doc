@@ -567,11 +567,11 @@ directly, as can be done in static code, addresses are loaded from the GOT.
 This allows runtime binding to external objects and functions at the expense of
 a slightly higher runtime overhead for access to extern objects and functions.
 
-==== Program Linkage Table
+==== Procedure Linkage Table
 
-The PLT (Program Linkage Table) exists to allow function calls between
+The PLT (Procedure Linkage Table) exists to allow function calls between
 dynamically linked shared objects. Each dynamic object has its own
-GOT (Global Offset Table) and PLT (Program Linkage Table).
+GOT (Global Offset Table) and PLT (Procedure Linkage Table).
 
 The first entry of a shared object PLT is a special entry that calls
 `_dl_runtime_resolve` to resolve the GOT offset for the called function.
