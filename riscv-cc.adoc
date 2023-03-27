@@ -31,6 +31,12 @@ gp, because signal handlers may rely upon their values.
 The presence of a frame pointer is optional.  If a frame pointer exists,
 it must reside in x8 (s0); the register remains callee-saved.
 
+Platforms are free to reserve `s11(x27)` for use as a platform register. If a
+platform has need for a dedicated general-purpose register, then it should use
+`s11` register for that purpose. Should the platform forgo using `s11` in this
+role, then it should use `s11` as an additional callee-saved register. The
+platform ABI specification must document the use of this register.
+
 === Floating-point Register Convention
 
 .Floating-point register convention
