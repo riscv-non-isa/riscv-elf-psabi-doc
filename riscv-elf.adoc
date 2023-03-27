@@ -805,7 +805,7 @@ thread local storage models:
 
 [[tls-model]]
 .TLS models
-[cols="1,2,3"]
+[cols="1,2"]
 [width=70%]
 |===
 | Mnemonic | Model
