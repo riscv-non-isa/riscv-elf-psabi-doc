@@ -450,7 +450,7 @@ Description:: Additional information about the relocation
 .2+| 60      .2+| SET_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label assignment <<uleb128-note,*note>>
                                             <| S + A
 .2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label subtraction <<uleb128-note,*note>>
-                                            <| V - S + A
+                                            <| V - S - A
 .2+| 62-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
