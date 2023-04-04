@@ -1072,6 +1072,7 @@ non-standard ABI extensions.
 | Tag_RISCV_priv_spec                 |        8 | uleb128        | *Deprecated*, indicates the major version of the privileged specification.
 | Tag_RISCV_priv_spec_minor           |       10 | uleb128        | *Deprecated*, indicates the minor version of the privileged specification.
 | Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
+| Tag_RISCV_x3_reg_usage              |       16 | uleb128        | Indicates the usage definition of the X3 register.
 | Reserved for non-standard attribute | >= 32768 | -              | -
 |===
 
@@ -1176,6 +1177,27 @@ Merge policy:::
 The linker should report errors if object files of different privileged
 specification versions are merged.
 
+===== Tag_RISCV_x3_reg_usage, 14, uleb128=value
+
+Tag_RISCV_x3_reg_usage indicates the usage of `x3`/`gp` register. `x3`/`gp` could be used for
+global pointer relaxation, as a reserved platform register, or as a temporary register.
+
+[horizontal]
+0:: This object uses `x3` as a fixed register with unknown purpose.
+1:: This object uses `x3` as the global pointer, for relaxation purposes.
+2:: This object uses `x3` as the shadow stack pointer.
+3:: This object uses `X3` as a temporary register.
+4~1023:: Reserved for future standard defined platform register.
+1024~2047:: Reserved for nonstandard defined platform register.
+
+--
+
+Merge policy:::
+The linker should issue errors when object files with differing `gp` usage are
+combined. However, an exception exists: the value `0` can merge with `1` or `2`
+value. After the merge, the resulting value will be the non-zero one.
+
+--
 
 === Mapping Symbol
 
@@ -1387,7 +1409,8 @@ Relaxation result:
   load address of a symbol or load/store with a symbol reference into
   global-pointer-relative instruction.
 
-  Condition:: Offset between global-pointer and symbol is within +-2KiB,
+  Condition:: Global-pointer relaxation requires that Tag_RISCV_x3_reg_usage
+  must be 0 or 1, and offset between global-pointer and symbol is within +-2KiB,
   `R_RISCV_PCREL_LO12_I` and `R_RISCV_PCREL_LO12_S` resolved as indirect
   relocation pointer. It will always point to another `R_RISCV_PCREL_HI20`
   relocation, the symbol pointed by `R_RISCV_PCREL_HI20` will be used in
@@ -1441,6 +1464,8 @@ NOTE: The global pointer is referred to as the global offset table pointer in
 many other targets, however, RISC-V uses PC-relative addressing rather than
 access GOT via the global pointer register (`gp`), so we use `gp` register to
 optimize code size and performance of the symbol accessing.
+
+NOTE: Tag_RISCV_x3_reg_usage is treated as 0 if it is not present.
 
 ==== Zero-page Relaxation
 
