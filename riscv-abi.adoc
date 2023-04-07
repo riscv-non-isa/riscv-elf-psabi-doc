@@ -10,3 +10,5 @@ include::riscv-cc.adoc[]
 include::riscv-elf.adoc[]
 
 include::riscv-dwarf.adoc[]
+
+include::riscv-rtabi.adoc[]
