@@ -28,6 +28,16 @@ endif::[]
 In the standard ABI, procedures should not modify the integer registers tp and
 gp, because signal handlers may rely upon their values.
 
+The presence of a frame pointer is optional.  If a frame pointer exists,
+it must reside in x8 (s0); the register remains callee-saved.
+
+If a platform requires use of a dedicated general-purpose register for a
+platform-specific purpose, it is recommended to use gp (x3). The platform ABI
+specification must document the use of this register. For such platforms, care
+must be taken to ensure all code (compiler generated or otherwise) avoids using
+gp in a way incompatible with the platform specific purpose, and that global
+pointer relaxation is disabled in the toolchain.
+
 === Frame Pointer Convention
 
 The presence of a frame pointer is optional.  If a frame pointer exists,
