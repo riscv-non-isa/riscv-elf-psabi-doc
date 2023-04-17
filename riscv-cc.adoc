@@ -493,6 +493,10 @@ A null pointer (for all types) has the value zero.
 corresponding real type (`float`, `double`, or `long double`), with the first
 member holding the real part and the second member holding the imaginary part.
 
+The type `size_t` is defined as `unsigned int` for RV32 and `unsigned long` for RV64.
+
+The type `ptrdiff_t` is defined as `int` for RV32 and `long` for RV64.
+
 === va_list, va_start, and va_arg
 
 The `va_list` type is `void*`. A callee with variadic arguments is responsible
