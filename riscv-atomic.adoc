@@ -1,0 +1,183 @@
+[[riscv-atomics]]
+= RISC-V Atomics ABI Specification
+ifeval::["{docname}" == "riscv-atomics"]
+include::prelude.adoc[]
+endif::[]
+
+== RISC-V atomics mappings
+
+This specifies mappings of C and C\++ atomic operations to RISC-V
+machine instructions. Other languages, for example Java, provide similar
+facilities that should be implemented in a consistent manner, usually
+by applying the mapping for the corresponding C++ primitive.
+
+NOTE: Because different programming languages may be used within the same
+process, these mappings must be compatible across programming languages. For
+example, Java programmers expect memory ordering guarantees to be enforced even
+if some of the actual memory accesses are performed by a library written in
+C.
+
+NOTE: Though many mappings are possible, not all of them will interoperate
+correctly. In particular, many mapping combinations will not
+correctly enforce ordering  between a C++ `memory_order_seq_cst`
+store and a subsequent `memory_order_seq_cst` load.
+
+NOTE: These mappings are very similar to those that originally appeared in the
+appendix of the RISC-V "unprivileged" architecture specification as
+"Mappings from C/C++ primitives to RISC-V Primitives", which we will
+refer to by their 2019 historical label of "Table A.6". That mapping may
+be used, _except_ that `atomic_store(memory_order_seq_cst)` must have an
+an extra trailing fence for compatibility with the "Hypothetical mappings ..."
+table in the same section, which we similarly refer to as "Table A.7".
+As a result, we allow the "Table A.7" mappings as well.
+
+NOTE: Our primary design goal is to maximize performance of the "Table A.7"
+mappings. These require additional load-acquire and store-release instructions,
+and are this not immediately usable. By requiring the extra store fence.
+or equivalent, we avoid an ABI break when moving to the "Table A.7"
+mappings in the future, in return for a small performance penalty in the
+short term.
+
+For each construct, we provide a mapping that assumes only the A extension.
+In some cases, we provide additional mappings that assume a future load-acquire
+and store-release extension, as denoted by note 1 in the table.
+
+All mappings interoperate correctly, and with the original "Table A.6"
+mappings, _except_ that mappings marked with note 3 do not interoperate
+with the original "Table A.6" mappings.
+
+We present the mappings as a table in 3 sections. The first
+deals with translations for loads, stores, and fences. The next two sections
+address mappings for read-modify-write operations like `fetch_add`, and
+`exchange`. The second section deals with operations that have direct
+`amo` instruction equivalents in the RISC-V A extension. The final
+section deals with other read-modify-write operations that require
+the `lr` and `sc` instructions.
+
+[[tab:c11mappings]]
+.Mappings from C/C++ primitives to RISC-V primitives
+[cols="<22,<18,<4",options="header",]
+|===
+|C/C++ Construct |RVWMO Mapping |Notes
+
+|Non-atomic load |`l{b\|h\|w\|d}` |
+
+|`atomic_load(memory_order_relaxed)` |`l{b\|h\|w\|d}` |
+
+|`atomic_load(memory_order_acquire)` |`l{b\|h\|w\|d}; fence r,rw` |
+
+|`atomic_load(memory_order_acquire)` |<RCsc atomic load-acquire> |1, 2
+
+|`atomic_load(memory_order_seq_cst)` |`fence rw,rw; l{b\|h\|w\|d}; fence r,rw` |
+
+|`atomic_load(memory_order_seq_cst)` |<RCsc atomic load-acquire> |1, 3
+
+|Non-atomic store |`s{b\|h\|w\|d}` |
+
+|`atomic_store(memory_order_relaxed)` |`s{b\|h\|w\|d}` |
+
+|`atomic_store(memory_order_release)` |`fence rw,w; s{b\|h\|w\|d}` |
+
+|`atomic_store(memory_order_release)` |<RCsc atomic store-release> |1, 2
+
+|`atomic_store(memory_order_seq_cst)` |`fence rw,w; s{b\|h\|w\|d}; fence rw,rw;` |
+
+|`atomic_store(memory_order_seq_cst)` |`amoswap.rl{w\|d};` |4
+
+|`atomic_store(memory_order_seq_cst)` |<RCsc atomic store-release> |1
+
+|`atomic_thread_fence(memory_order_acquire)` |`fence r,rw` |
+
+|`atomic_thread_fence(memory_order_release)` |`fence rw,w` |
+
+|`atomic_thread_fence(memory_order_acq_rel)` |`fence.tso` |
+
+|`atomic_thread_fence(memory_order_seq_cst)` |`fence rw,rw` |
+|===
+
+[cols="<20,<20,<4",options="header",]
+|===
+|C/C++ Construct |RVWMO AMO Mapping |Notes
+
+|`atomic_<op>(memory_order_relaxed)` |`amo<op>.{w\|d}` |4
+
+|`atomic_<op>(memory_order_acquire)` |`amo<op>.{w\|d}.aq` |4
+
+|`atomic_<op>(memory_order_release)` |`amo<op>.{w\|d}.rl` |4
+
+|`atomic_<op>(memory_order_acq_rel)` |`amo<op>.{w\|d}.aqrl` |4
+
+|`atomic_<op>(memory_order_seq_cst)` |`amo<op>.{w\|d}.aqrl` |4
+
+|===
+
+[cols="<16,<24,<4",options="header",]
+|===
+|C/C++ Construct |RVWMO LR/SC Mapping |Notes
+
+|`atomic_<op>(memory_order_relaxed)` |`loop:lr.{w\|d}; <op>; sc.{w\|d}; bnez loop` |4
+
+|`atomic_<op>(memory_order_acquire)`
+|`loop:lr.{w\|d}.aq; <op>; sc.{w\|d}; bnez loop` |4
+
+|`atomic_<op>(memory_order_release)`
+|`loop:lr.{w\|d}; <op>; sc.{w\|d}.rl; bnez loop` |4
+
+|`atomic_<op>(memory_order_acq_rel)`
+|`loop:lr.{w\|d}.aq; <op>; sc.{w\|d}.rl; bnez loop` |4
+
+|`atomic_<op>(memory_order_seq_cst)`
+|`loop:lr.{w\|d}.aqrl; <op>; sc.{w\|d}.rl; bnez loop` |4
+
+|`atomic_<op>(memory_order_seq_cst)`
+|`loop:lr.{w\|d}.aq; <op>; sc.{w\|d}.rl; bnez loop` |3, 4
+|===
+
+=== Meaning of notes in table
+
+1) Depends on a load instruction with an RCsc aquire annotation,
+or a store instruction with an RCsc release annotation. These are curently
+under discussion, but the specification has not yet been approved.
+
+2) An RCpc load or store would also suffice, if it were to be introduced
+in the future.
+
+3) Incompatible with the original "Table A.6" mapping. Do not combine these
+mappings with code generated by a compiler using those older mappings.
+(This was mostly used by the initial LLVM implementations for RISC-V.)
+
+4) Currently only directly possible for 32- and 64-bit operands.
+
+=== Other conventions
+
+It is expected that the RVWMO AMO Mappings will be used for atomic read-modify-write
+operations that are directly supported by corresponding AMO instructions,
+and that LR/SC mappings will be used for the remainder, currently
+including compare-exchange operations. Compare-exchange LR/SC sequences
+on the containing 32-bit word should be used for shorter operands. Thus,
+a `fetch_add` operation on a 16-bit quantity would use a 32-bit LR/SC sequence.
+
+It is acceptable, but usually undesirable for performance reasons, to use LR/SC
+mappings where an AMO mapping would suffice.
+
+Atomics do not imply any ordering for IO operations. IO operations
+should include sufficient fences to prevent them from being visibly
+reordered with atomic operations.
+
+Float and double atomic loads and stores should be implemented using
+the integer sequences.
+
+Float and double read-modify-write instructions should consist of a loop performing
+an initial plain load of the value, followed by the floating point
+computation, followed by an integer compare-and-swap sequence to try to
+store back the updated value. This avoids floating point
+instructions between LR and SC instructions. Depending on language requirements,
+it may be necessary to save and restore floating-point exception flags in the
+case of an operation that is later redone due to a failed SC operation.
+
+NOTE: The "Eventual Success of Store-Conditional Instructions" section
+in the ISA specification provides that essential progress guarantee only
+if there are no floating point instructions between the LR and matching SC
+instruction. By compiling such sequences with an "extra" ordinary load,
+and performing the floating point computation before the LR, we preserve
+the guarantee.

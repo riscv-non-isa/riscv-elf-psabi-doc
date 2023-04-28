@@ -33,6 +33,7 @@ This specification uses the following terms and abbreviations:
 | XLEN              | The width of an integer register in bits
 | FLEN              | The width of a floating-point register in bits
 | Linker relaxation | A mechanism for optimizing programs at link-time, see <<Linker Relaxation>> for more detail.
+| RVWMO             | RISC-V Weak Memory Order, as defined in the RISC-V specification.
 |===
 
 = Status of ABI
