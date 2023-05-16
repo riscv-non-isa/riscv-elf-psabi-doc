@@ -1,0 +1,9 @@
+[appendix]
+== Android-specific ABI
+
+NOTE: This section of the RISC-V calling convention specification only applies
+to Android-based systems.
+
+The Android ABIs do not have a global pointer register, along with the
+GP-related relocations and relaxations.  `x3` is instead used for the software
+shadow call stack, with an ABI name of `sscs`.

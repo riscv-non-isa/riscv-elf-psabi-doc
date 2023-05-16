@@ -11,18 +11,18 @@ endif::[]
 .Integer register convention
 [cols="1,1,2,2"]
 |===
-| Name      | ABI Mnemonic | Meaning                | Preserved across calls?
+| Name      | ABI Mnemonic | Meaning                | Preserved across calls? | Notes
 
-| x0        | zero         | Zero                   | -- (Immutable)
-| x1        | ra           | Return address         | No
-| x2        | sp           | Stack pointer          | Yes
-| x3        | gp           | Global pointer         | -- (Unallocatable)
-| x4        | tp           | Thread pointer         | -- (Unallocatable)
-| x5 - x7   | t0 - t2      | Temporary registers    | No
-| x8 - x9   | s0 - s1      | Callee-saved registers | Yes
-| x10 - x17 | a0 - a7      | Argument registers     | No
-| x18 - x27 | s2 - s11     | Callee-saved registers | Yes
-| x28 - x31 | t3 - t6      | Temporary registers    | No
+| x0        | zero         | Zero                   | -- (Immutable)          |
+| x1        | ra           | Return address         | No                      |
+| x2        | sp           | Stack pointer          | Yes                     |
+| x3        | gp           | Global pointer         | -- (Unallocatable)      | See Android appendix
+| x4        | tp           | Thread pointer         | -- (Unallocatable)      |
+| x5 - x7   | t0 - t2      | Temporary registers    | No                      |
+| x8 - x9   | s0 - s1      | Callee-saved registers | Yes                     |
+| x10 - x17 | a0 - a7      | Argument registers     | No                      |
+| x18 - x27 | s2 - s11     | Callee-saved registers | Yes                     |
+| x28 - x31 | t3 - t6      | Temporary registers    | No                      |
 |===
 
 In the standard ABI, procedures should not modify the integer registers tp and
