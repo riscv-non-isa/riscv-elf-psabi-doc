@@ -1,0 +1,479 @@
+.Type sizes and alignments for vector data types
+[cols="4,3,>3,>2"]
+[width=80%]
+|===
+| Internal Name | Type | Description
+
+| __rvv_vint8mf8_t       | vint8mf8_t           | (VLEN / 8) / 8     | 1
+| __rvv_vuint8mf8_t      | vuint8mf8_t          | (VLEN / 8) / 8     | 1
+| __rvv_vfloat8mf8_t     | vfloat8mf8_t         | (VLEN / 8) / 8     | 1
+| __rvv_vint8mf4_t       | vint8mf4_t           | (VLEN / 8) / 4     | 1
+| __rvv_vuint8mf4_t      | vuint8mf4_t          | (VLEN / 8) / 4     | 1
+| __rvv_vfloat8mf4_t     | vfloat8mf4_t         | (VLEN / 8) / 4     | 1
+| __rvv_vint8mf2_t       | vint8mf2_t           | (VLEN / 8) / 2     | 1
+| __rvv_vuint8mf2_t      | vuint8mf2_t          | (VLEN / 8) / 2     | 1
+| __rvv_vfloat8mf2_t     | vfloat8mf2_t         | (VLEN / 8) / 2     | 1
+| __rvv_vint8m1_t        | vint8m1_t            | (VLEN / 8)         | 1
+| __rvv_vuint8m1_t       | vuint8m1_t           | (VLEN / 8)         | 1
+| __rvv_vfloat8m1_t      | vfloat8m1_t          | (VLEN / 8)         | 1
+| __rvv_vint8m2_t        | vint8m2_t            | (VLEN / 8) * 2     | 1
+| __rvv_vuint8m2_t       | vuint8m2_t           | (VLEN / 8) * 2     | 1
+| __rvv_vfloat8m2_t      | vfloat8m2_t          | (VLEN / 8) * 2     | 1
+| __rvv_vint8m4_t        | vint8m4_t            | (VLEN / 8) * 4     | 1
+| __rvv_vuint8m4_t       | vuint8m4_t           | (VLEN / 8) * 4     | 1
+| __rvv_vfloat8m4_t      | vfloat8m4_t          | (VLEN / 8) * 4     | 1
+| __rvv_vint8m8_t        | vint8m8_t            | (VLEN / 8) * 8     | 1
+| __rvv_vuint8m8_t       | vuint8m8_t           | (VLEN / 8) * 8     | 1
+| __rvv_vfloat8m8_t      | vfloat8m8_t          | (VLEN / 8) * 8     | 1
+| __rvv_vint16mf8_t      | vint16mf8_t          | (VLEN / 8) / 8     | 2
+| __rvv_vuint16mf8_t     | vuint16mf8_t         | (VLEN / 8) / 8     | 2
+| __rvv_vbfloat16mf8_t   | vbfloat16mf8_t       | (VLEN / 8) / 8     | 2
+| __rvv_vint16mf4_t      | vint16mf4_t          | (VLEN / 8) / 4     | 2
+| __rvv_vuint16mf4_t     | vuint16mf4_t         | (VLEN / 8) / 4     | 2
+| __rvv_vbfloat16mf4_t   | vbfloat16mf4_t       | (VLEN / 8) / 4     | 2
+| __rvv_vint16mf2_t      | vint16mf2_t          | (VLEN / 8) / 2     | 2
+| __rvv_vuint16mf2_t     | vuint16mf2_t         | (VLEN / 8) / 2     | 2
+| __rvv_vbfloat16mf2_t   | vbfloat16mf2_t       | (VLEN / 8) / 2     | 2
+| __rvv_vint16m1_t       | vint16m1_t           | (VLEN / 8)         | 2
+| __rvv_vuint16m1_t      | vuint16m1_t          | (VLEN / 8)         | 2
+| __rvv_vbfloat16m1_t    | vbfloat16m1_t        | (VLEN / 8)         | 2
+| __rvv_vint16m2_t       | vint16m2_t           | (VLEN / 8) * 2     | 2
+| __rvv_vuint16m2_t      | vuint16m2_t          | (VLEN / 8) * 2     | 2
+| __rvv_vbfloat16m2_t    | vbfloat16m2_t        | (VLEN / 8) * 2     | 2
+| __rvv_vint16m4_t       | vint16m4_t           | (VLEN / 8) * 4     | 2
+| __rvv_vuint16m4_t      | vuint16m4_t          | (VLEN / 8) * 4     | 2
+| __rvv_vbfloat16m4_t    | vbfloat16m4_t        | (VLEN / 8) * 4     | 2
+| __rvv_vint16m8_t       | vint16m8_t           | (VLEN / 8) * 8     | 2
+| __rvv_vuint16m8_t      | vuint16m8_t          | (VLEN / 8) * 8     | 2
+| __rvv_vbfloat16m8_t    | vbfloat16m8_t        | (VLEN / 8) * 8     | 2
+| __rvv_vint32mf8_t      | vint32mf8_t          | (VLEN / 8) / 8     | 4
+| __rvv_vuint32mf8_t     | vuint32mf8_t         | (VLEN / 8) / 8     | 4
+| __rvv_vfloat32mf8_t    | vfloat32mf8_t        | (VLEN / 8) / 8     | 4
+| __rvv_vint32mf4_t      | vint32mf4_t          | (VLEN / 8) / 4     | 4
+| __rvv_vuint32mf4_t     | vuint32mf4_t         | (VLEN / 8) / 4     | 4
+| __rvv_vfloat32mf4_t    | vfloat32mf4_t        | (VLEN / 8) / 4     | 4
+| __rvv_vint32mf2_t      | vint32mf2_t          | (VLEN / 8) / 2     | 4
+| __rvv_vuint32mf2_t     | vuint32mf2_t         | (VLEN / 8) / 2     | 4
+| __rvv_vfloat32mf2_t    | vfloat32mf2_t        | (VLEN / 8) / 2     | 4
+| __rvv_vint32m1_t       | vint32m1_t           | (VLEN / 8)         | 4
+| __rvv_vuint32m1_t      | vuint32m1_t          | (VLEN / 8)         | 4
+| __rvv_vfloat32m1_t     | vfloat32m1_t         | (VLEN / 8)         | 4
+| __rvv_vint32m2_t       | vint32m2_t           | (VLEN / 8) * 2     | 4
+| __rvv_vuint32m2_t      | vuint32m2_t          | (VLEN / 8) * 2     | 4
+| __rvv_vfloat32m2_t     | vfloat32m2_t         | (VLEN / 8) * 2     | 4
+| __rvv_vint32m4_t       | vint32m4_t           | (VLEN / 8) * 4     | 4
+| __rvv_vuint32m4_t      | vuint32m4_t          | (VLEN / 8) * 4     | 4
+| __rvv_vfloat32m4_t     | vfloat32m4_t         | (VLEN / 8) * 4     | 4
+| __rvv_vint32m8_t       | vint32m8_t           | (VLEN / 8) * 8     | 4
+| __rvv_vuint32m8_t      | vuint32m8_t          | (VLEN / 8) * 8     | 4
+| __rvv_vfloat32m8_t     | vfloat32m8_t         | (VLEN / 8) * 8     | 4
+| __rvv_vint64mf8_t      | vint64mf8_t          | (VLEN / 8) / 8     | 8
+| __rvv_vuint64mf8_t     | vuint64mf8_t         | (VLEN / 8) / 8     | 8
+| __rvv_vfloat64mf8_t    | vfloat64mf8_t        | (VLEN / 8) / 8     | 8
+| __rvv_vint64mf4_t      | vint64mf4_t          | (VLEN / 8) / 4     | 8
+| __rvv_vuint64mf4_t     | vuint64mf4_t         | (VLEN / 8) / 4     | 8
+| __rvv_vfloat64mf4_t    | vfloat64mf4_t        | (VLEN / 8) / 4     | 8
+| __rvv_vint64mf2_t      | vint64mf2_t          | (VLEN / 8) / 2     | 8
+| __rvv_vuint64mf2_t     | vuint64mf2_t         | (VLEN / 8) / 2     | 8
+| __rvv_vfloat64mf2_t    | vfloat64mf2_t        | (VLEN / 8) / 2     | 8
+| __rvv_vint64m1_t       | vint64m1_t           | (VLEN / 8)         | 8
+| __rvv_vuint64m1_t      | vuint64m1_t          | (VLEN / 8)         | 8
+| __rvv_vfloat64m1_t     | vfloat64m1_t         | (VLEN / 8)         | 8
+| __rvv_vint64m2_t       | vint64m2_t           | (VLEN / 8) * 2     | 8
+| __rvv_vuint64m2_t      | vuint64m2_t          | (VLEN / 8) * 2     | 8
+| __rvv_vfloat64m2_t     | vfloat64m2_t         | (VLEN / 8) * 2     | 8
+| __rvv_vint64m4_t       | vint64m4_t           | (VLEN / 8) * 4     | 8
+| __rvv_vuint64m4_t      | vuint64m4_t          | (VLEN / 8) * 4     | 8
+| __rvv_vfloat64m4_t     | vfloat64m4_t         | (VLEN / 8) * 4     | 8
+| __rvv_vint64m8_t       | vint64m8_t           | (VLEN / 8) * 8     | 8
+| __rvv_vuint64m8_t      | vuint64m8_t          | (VLEN / 8) * 8     | 8
+| __rvv_vfloat64m8_t     | vfloat64m8_t         | (VLEN / 8) * 8     | 8
+.Type sizes and alignments for vector tuple types
+[cols="4,3,>3,>2"]
+[width=80%]
+|===
+| Internal Name          | Type                 | Size (Bytes)  | Alignment (Bytes)
+| __rvv_vint8mf8x2_t     | vint8mf8x2_t         | (VLEN / 8) / 4     | 1
+| __rvv_vuint8mf8x2_t    | vuint8mf8x2_t        | (VLEN / 8) / 4     | 1
+| __rvv_vfloat8mf8x2_t   | vfloat8mf8x2_t       | (VLEN / 8) / 4     | 1
+| __rvv_vint8mf8x3_t     | vint8mf8x3_t         | (VLEN / 8) * 0.375 | 1
+| __rvv_vuint8mf8x3_t    | vuint8mf8x3_t        | (VLEN / 8) * 0.375 | 1
+| __rvv_vfloat8mf8x3_t   | vfloat8mf8x3_t       | (VLEN / 8) * 0.375 | 1
+| __rvv_vint8mf8x4_t     | vint8mf8x4_t         | (VLEN / 8) / 2     | 1
+| __rvv_vuint8mf8x4_t    | vuint8mf8x4_t        | (VLEN / 8) / 2     | 1
+| __rvv_vfloat8mf8x4_t   | vfloat8mf8x4_t       | (VLEN / 8) / 2     | 1
+| __rvv_vint8mf8x5_t     | vint8mf8x5_t         | (VLEN / 8) * 0.625 | 1
+| __rvv_vuint8mf8x5_t    | vuint8mf8x5_t        | (VLEN / 8) * 0.625 | 1
+| __rvv_vfloat8mf8x5_t   | vfloat8mf8x5_t       | (VLEN / 8) * 0.625 | 1
+| __rvv_vint8mf8x6_t     | vint8mf8x6_t         | (VLEN / 8) * 0.75  | 1
+| __rvv_vuint8mf8x6_t    | vuint8mf8x6_t        | (VLEN / 8) * 0.75  | 1
+| __rvv_vfloat8mf8x6_t   | vfloat8mf8x6_t       | (VLEN / 8) * 0.75  | 1
+| __rvv_vint8mf8x7_t     | vint8mf8x7_t         | (VLEN / 8) * 0.875 | 1
+| __rvv_vuint8mf8x7_t    | vuint8mf8x7_t        | (VLEN / 8) * 0.875 | 1
+| __rvv_vfloat8mf8x7_t   | vfloat8mf8x7_t       | (VLEN / 8) * 0.875 | 1
+| __rvv_vint8mf8x8_t     | vint8mf8x8_t         | (VLEN / 8)         | 1
+| __rvv_vuint8mf8x8_t    | vuint8mf8x8_t        | (VLEN / 8)         | 1
+| __rvv_vfloat8mf8x8_t   | vfloat8mf8x8_t       | (VLEN / 8)         | 1
+| __rvv_vint8mf4x2_t     | vint8mf4x2_t         | (VLEN / 8) / 2     | 1
+| __rvv_vuint8mf4x2_t    | vuint8mf4x2_t        | (VLEN / 8) / 2     | 1
+| __rvv_vfloat8mf4x2_t   | vfloat8mf4x2_t       | (VLEN / 8) / 2     | 1
+| __rvv_vint8mf4x3_t     | vint8mf4x3_t         | (VLEN / 8) * 0.75  | 1
+| __rvv_vuint8mf4x3_t    | vuint8mf4x3_t        | (VLEN / 8) * 0.75  | 1
+| __rvv_vfloat8mf4x3_t   | vfloat8mf4x3_t       | (VLEN / 8) * 0.75  | 1
+| __rvv_vint8mf4x4_t     | vint8mf4x4_t         | (VLEN / 8)         | 1
+| __rvv_vuint8mf4x4_t    | vuint8mf4x4_t        | (VLEN / 8)         | 1
+| __rvv_vfloat8mf4x4_t   | vfloat8mf4x4_t       | (VLEN / 8)         | 1
+| __rvv_vint8mf4x5_t     | vint8mf4x5_t         | (VLEN / 8) * 1.25  | 1
+| __rvv_vuint8mf4x5_t    | vuint8mf4x5_t        | (VLEN / 8) * 1.25  | 1
+| __rvv_vfloat8mf4x5_t   | vfloat8mf4x5_t       | (VLEN / 8) * 1.25  | 1
+| __rvv_vint8mf4x6_t     | vint8mf4x6_t         | (VLEN / 8) * 1.5   | 1
+| __rvv_vuint8mf4x6_t    | vuint8mf4x6_t        | (VLEN / 8) * 1.5   | 1
+| __rvv_vfloat8mf4x6_t   | vfloat8mf4x6_t       | (VLEN / 8) * 1.5   | 1
+| __rvv_vint8mf4x7_t     | vint8mf4x7_t         | (VLEN / 8) * 1.75  | 1
+| __rvv_vuint8mf4x7_t    | vuint8mf4x7_t        | (VLEN / 8) * 1.75  | 1
+| __rvv_vfloat8mf4x7_t   | vfloat8mf4x7_t       | (VLEN / 8) * 1.75  | 1
+| __rvv_vint8mf4x8_t     | vint8mf4x8_t         | (VLEN / 8) * 2     | 1
+| __rvv_vuint8mf4x8_t    | vuint8mf4x8_t        | (VLEN / 8) * 2     | 1
+| __rvv_vfloat8mf4x8_t   | vfloat8mf4x8_t       | (VLEN / 8) * 2     | 1
+| __rvv_vint8mf2x2_t     | vint8mf2x2_t         | (VLEN / 8)         | 1
+| __rvv_vuint8mf2x2_t    | vuint8mf2x2_t        | (VLEN / 8)         | 1
+| __rvv_vfloat8mf2x2_t   | vfloat8mf2x2_t       | (VLEN / 8)         | 1
+| __rvv_vint8mf2x3_t     | vint8mf2x3_t         | (VLEN / 8) * 1.5   | 1
+| __rvv_vuint8mf2x3_t    | vuint8mf2x3_t        | (VLEN / 8) * 1.5   | 1
+| __rvv_vfloat8mf2x3_t   | vfloat8mf2x3_t       | (VLEN / 8) * 1.5   | 1
+| __rvv_vint8mf2x4_t     | vint8mf2x4_t         | (VLEN / 8) * 2     | 1
+| __rvv_vuint8mf2x4_t    | vuint8mf2x4_t        | (VLEN / 8) * 2     | 1
+| __rvv_vfloat8mf2x4_t   | vfloat8mf2x4_t       | (VLEN / 8) * 2     | 1
+| __rvv_vint8mf2x5_t     | vint8mf2x5_t         | (VLEN / 8) * 2.5   | 1
+| __rvv_vuint8mf2x5_t    | vuint8mf2x5_t        | (VLEN / 8) * 2.5   | 1
+| __rvv_vfloat8mf2x5_t   | vfloat8mf2x5_t       | (VLEN / 8) * 2.5   | 1
+| __rvv_vint8mf2x6_t     | vint8mf2x6_t         | (VLEN / 8) * 3     | 1
+| __rvv_vuint8mf2x6_t    | vuint8mf2x6_t        | (VLEN / 8) * 3     | 1
+| __rvv_vfloat8mf2x6_t   | vfloat8mf2x6_t       | (VLEN / 8) * 3     | 1
+| __rvv_vint8mf2x7_t     | vint8mf2x7_t         | (VLEN / 8) * 3.5   | 1
+| __rvv_vuint8mf2x7_t    | vuint8mf2x7_t        | (VLEN / 8) * 3.5   | 1
+| __rvv_vfloat8mf2x7_t   | vfloat8mf2x7_t       | (VLEN / 8) * 3.5   | 1
+| __rvv_vint8mf2x8_t     | vint8mf2x8_t         | (VLEN / 8) * 4     | 1
+| __rvv_vuint8mf2x8_t    | vuint8mf2x8_t        | (VLEN / 8) * 4     | 1
+| __rvv_vfloat8mf2x8_t   | vfloat8mf2x8_t       | (VLEN / 8) * 4     | 1
+| __rvv_vint8m1x2_t      | vint8m1x2_t          | (VLEN / 8) * 2     | 1
+| __rvv_vuint8m1x2_t     | vuint8m1x2_t         | (VLEN / 8) * 2     | 1
+| __rvv_vfloat8m1x2_t    | vfloat8m1x2_t        | (VLEN / 8) * 2     | 1
+| __rvv_vint8m1x3_t      | vint8m1x3_t          | (VLEN / 8) * 3     | 1
+| __rvv_vuint8m1x3_t     | vuint8m1x3_t         | (VLEN / 8) * 3     | 1
+| __rvv_vfloat8m1x3_t    | vfloat8m1x3_t        | (VLEN / 8) * 3     | 1
+| __rvv_vint8m1x4_t      | vint8m1x4_t          | (VLEN / 8) * 4     | 1
+| __rvv_vuint8m1x4_t     | vuint8m1x4_t         | (VLEN / 8) * 4     | 1
+| __rvv_vfloat8m1x4_t    | vfloat8m1x4_t        | (VLEN / 8) * 4     | 1
+| __rvv_vint8m1x5_t      | vint8m1x5_t          | (VLEN / 8) * 5     | 1
+| __rvv_vuint8m1x5_t     | vuint8m1x5_t         | (VLEN / 8) * 5     | 1
+| __rvv_vfloat8m1x5_t    | vfloat8m1x5_t        | (VLEN / 8) * 5     | 1
+| __rvv_vint8m1x6_t      | vint8m1x6_t          | (VLEN / 8) * 6     | 1
+| __rvv_vuint8m1x6_t     | vuint8m1x6_t         | (VLEN / 8) * 6     | 1
+| __rvv_vfloat8m1x6_t    | vfloat8m1x6_t        | (VLEN / 8) * 6     | 1
+| __rvv_vint8m1x7_t      | vint8m1x7_t          | (VLEN / 8) * 7     | 1
+| __rvv_vuint8m1x7_t     | vuint8m1x7_t         | (VLEN / 8) * 7     | 1
+| __rvv_vfloat8m1x7_t    | vfloat8m1x7_t        | (VLEN / 8) * 7     | 1
+| __rvv_vint8m1x8_t      | vint8m1x8_t          | (VLEN / 8) * 8     | 1
+| __rvv_vuint8m1x8_t     | vuint8m1x8_t         | (VLEN / 8) * 8     | 1
+| __rvv_vfloat8m1x8_t    | vfloat8m1x8_t        | (VLEN / 8) * 8     | 1
+| __rvv_vint8m2x2_t      | vint8m2x2_t          | (VLEN / 8) * 4     | 1
+| __rvv_vuint8m2x2_t     | vuint8m2x2_t         | (VLEN / 8) * 4     | 1
+| __rvv_vfloat8m2x2_t    | vfloat8m2x2_t        | (VLEN / 8) * 4     | 1
+| __rvv_vint8m2x3_t      | vint8m2x3_t          | (VLEN / 8) * 6     | 1
+| __rvv_vuint8m2x3_t     | vuint8m2x3_t         | (VLEN / 8) * 6     | 1
+| __rvv_vfloat8m2x3_t    | vfloat8m2x3_t        | (VLEN / 8) * 6     | 1
+| __rvv_vint8m2x4_t      | vint8m2x4_t          | (VLEN / 8) * 8     | 1
+| __rvv_vuint8m2x4_t     | vuint8m2x4_t         | (VLEN / 8) * 8     | 1
+| __rvv_vfloat8m2x4_t    | vfloat8m2x4_t        | (VLEN / 8) * 8     | 1
+| __rvv_vint8m4x2_t      | vint8m4x2_t          | (VLEN / 8) * 8     | 1
+| __rvv_vuint8m4x2_t     | vuint8m4x2_t         | (VLEN / 8) * 8     | 1
+| __rvv_vfloat8m4x2_t    | vfloat8m4x2_t        | (VLEN / 8) * 8     | 1
+| __rvv_vint16mf8x2_t    | vint16mf8x2_t        | (VLEN / 8) / 4     | 2
+| __rvv_vuint16mf8x2_t   | vuint16mf8x2_t       | (VLEN / 8) / 4     | 2
+| __rvv_vbfloat16mf8x2_t | vbfloat16mf8x2_t     | (VLEN / 8) / 4     | 2
+| __rvv_vint16mf8x3_t    | vint16mf8x3_t        | (VLEN / 8) * 0.375 | 2
+| __rvv_vuint16mf8x3_t   | vuint16mf8x3_t       | (VLEN / 8) * 0.375 | 2
+| __rvv_vbfloat16mf8x3_t | vbfloat16mf8x3_t     | (VLEN / 8) * 0.375 | 2
+| __rvv_vint16mf8x4_t    | vint16mf8x4_t        | (VLEN / 8) / 2     | 2
+| __rvv_vuint16mf8x4_t   | vuint16mf8x4_t       | (VLEN / 8) / 2     | 2
+| __rvv_vbfloat16mf8x4_t | vbfloat16mf8x4_t     | (VLEN / 8) / 2     | 2
+| __rvv_vint16mf8x5_t    | vint16mf8x5_t        | (VLEN / 8) * 0.625 | 2
+| __rvv_vuint16mf8x5_t   | vuint16mf8x5_t       | (VLEN / 8) * 0.625 | 2
+| __rvv_vbfloat16mf8x5_t | vbfloat16mf8x5_t     | (VLEN / 8) * 0.625 | 2
+| __rvv_vint16mf8x6_t    | vint16mf8x6_t        | (VLEN / 8) * 0.75  | 2
+| __rvv_vuint16mf8x6_t   | vuint16mf8x6_t       | (VLEN / 8) * 0.75  | 2
+| __rvv_vbfloat16mf8x6_t | vbfloat16mf8x6_t     | (VLEN / 8) * 0.75  | 2
+| __rvv_vint16mf8x7_t    | vint16mf8x7_t        | (VLEN / 8) * 0.875 | 2
+| __rvv_vuint16mf8x7_t   | vuint16mf8x7_t       | (VLEN / 8) * 0.875 | 2
+| __rvv_vbfloat16mf8x7_t | vbfloat16mf8x7_t     | (VLEN / 8) * 0.875 | 2
+| __rvv_vint16mf8x8_t    | vint16mf8x8_t        | (VLEN / 8)         | 2
+| __rvv_vuint16mf8x8_t   | vuint16mf8x8_t       | (VLEN / 8)         | 2
+| __rvv_vbfloat16mf8x8_t | vbfloat16mf8x8_t     | (VLEN / 8)         | 2
+| __rvv_vint16mf4x2_t    | vint16mf4x2_t        | (VLEN / 8) / 2     | 2
+| __rvv_vuint16mf4x2_t   | vuint16mf4x2_t       | (VLEN / 8) / 2     | 2
+| __rvv_vbfloat16mf4x2_t | vbfloat16mf4x2_t     | (VLEN / 8) / 2     | 2
+| __rvv_vint16mf4x3_t    | vint16mf4x3_t        | (VLEN / 8) * 0.75  | 2
+| __rvv_vuint16mf4x3_t   | vuint16mf4x3_t       | (VLEN / 8) * 0.75  | 2
+| __rvv_vbfloat16mf4x3_t | vbfloat16mf4x3_t     | (VLEN / 8) * 0.75  | 2
+| __rvv_vint16mf4x4_t    | vint16mf4x4_t        | (VLEN / 8)         | 2
+| __rvv_vuint16mf4x4_t   | vuint16mf4x4_t       | (VLEN / 8)         | 2
+| __rvv_vbfloat16mf4x4_t | vbfloat16mf4x4_t     | (VLEN / 8)         | 2
+| __rvv_vint16mf4x5_t    | vint16mf4x5_t        | (VLEN / 8) * 1.25  | 2
+| __rvv_vuint16mf4x5_t   | vuint16mf4x5_t       | (VLEN / 8) * 1.25  | 2
+| __rvv_vbfloat16mf4x5_t | vbfloat16mf4x5_t     | (VLEN / 8) * 1.25  | 2
+| __rvv_vint16mf4x6_t    | vint16mf4x6_t        | (VLEN / 8) * 1.5   | 2
+| __rvv_vuint16mf4x6_t   | vuint16mf4x6_t       | (VLEN / 8) * 1.5   | 2
+| __rvv_vbfloat16mf4x6_t | vbfloat16mf4x6_t     | (VLEN / 8) * 1.5   | 2
+| __rvv_vint16mf4x7_t    | vint16mf4x7_t        | (VLEN / 8) * 1.75  | 2
+| __rvv_vuint16mf4x7_t   | vuint16mf4x7_t       | (VLEN / 8) * 1.75  | 2
+| __rvv_vbfloat16mf4x7_t | vbfloat16mf4x7_t     | (VLEN / 8) * 1.75  | 2
+| __rvv_vint16mf4x8_t    | vint16mf4x8_t        | (VLEN / 8) * 2     | 2
+| __rvv_vuint16mf4x8_t   | vuint16mf4x8_t       | (VLEN / 8) * 2     | 2
+| __rvv_vbfloat16mf4x8_t | vbfloat16mf4x8_t     | (VLEN / 8) * 2     | 2
+| __rvv_vint16mf2x2_t    | vint16mf2x2_t        | (VLEN / 8)         | 2
+| __rvv_vuint16mf2x2_t   | vuint16mf2x2_t       | (VLEN / 8)         | 2
+| __rvv_vbfloat16mf2x2_t | vbfloat16mf2x2_t     | (VLEN / 8)         | 2
+| __rvv_vint16mf2x3_t    | vint16mf2x3_t        | (VLEN / 8) * 1.5   | 2
+| __rvv_vuint16mf2x3_t   | vuint16mf2x3_t       | (VLEN / 8) * 1.5   | 2
+| __rvv_vbfloat16mf2x3_t | vbfloat16mf2x3_t     | (VLEN / 8) * 1.5   | 2
+| __rvv_vint16mf2x4_t    | vint16mf2x4_t        | (VLEN / 8) * 2     | 2
+| __rvv_vuint16mf2x4_t   | vuint16mf2x4_t       | (VLEN / 8) * 2     | 2
+| __rvv_vbfloat16mf2x4_t | vbfloat16mf2x4_t     | (VLEN / 8) * 2     | 2
+| __rvv_vint16mf2x5_t    | vint16mf2x5_t        | (VLEN / 8) * 2.5   | 2
+| __rvv_vuint16mf2x5_t   | vuint16mf2x5_t       | (VLEN / 8) * 2.5   | 2
+| __rvv_vbfloat16mf2x5_t | vbfloat16mf2x5_t     | (VLEN / 8) * 2.5   | 2
+| __rvv_vint16mf2x6_t    | vint16mf2x6_t        | (VLEN / 8) * 3     | 2
+| __rvv_vuint16mf2x6_t   | vuint16mf2x6_t       | (VLEN / 8) * 3     | 2
+| __rvv_vbfloat16mf2x6_t | vbfloat16mf2x6_t     | (VLEN / 8) * 3     | 2
+| __rvv_vint16mf2x7_t    | vint16mf2x7_t        | (VLEN / 8) * 3.5   | 2
+| __rvv_vuint16mf2x7_t   | vuint16mf2x7_t       | (VLEN / 8) * 3.5   | 2
+| __rvv_vbfloat16mf2x7_t | vbfloat16mf2x7_t     | (VLEN / 8) * 3.5   | 2
+| __rvv_vint16mf2x8_t    | vint16mf2x8_t        | (VLEN / 8) * 4     | 2
+| __rvv_vuint16mf2x8_t   | vuint16mf2x8_t       | (VLEN / 8) * 4     | 2
+| __rvv_vbfloat16mf2x8_t | vbfloat16mf2x8_t     | (VLEN / 8) * 4     | 2
+| __rvv_vint16m1x2_t     | vint16m1x2_t         | (VLEN / 8) * 2     | 2
+| __rvv_vuint16m1x2_t    | vuint16m1x2_t        | (VLEN / 8) * 2     | 2
+| __rvv_vbfloat16m1x2_t  | vbfloat16m1x2_t      | (VLEN / 8) * 2     | 2
+| __rvv_vint16m1x3_t     | vint16m1x3_t         | (VLEN / 8) * 3     | 2
+| __rvv_vuint16m1x3_t    | vuint16m1x3_t        | (VLEN / 8) * 3     | 2
+| __rvv_vbfloat16m1x3_t  | vbfloat16m1x3_t      | (VLEN / 8) * 3     | 2
+| __rvv_vint16m1x4_t     | vint16m1x4_t         | (VLEN / 8) * 4     | 2
+| __rvv_vuint16m1x4_t    | vuint16m1x4_t        | (VLEN / 8) * 4     | 2
+| __rvv_vbfloat16m1x4_t  | vbfloat16m1x4_t      | (VLEN / 8) * 4     | 2
+| __rvv_vint16m1x5_t     | vint16m1x5_t         | (VLEN / 8) * 5     | 2
+| __rvv_vuint16m1x5_t    | vuint16m1x5_t        | (VLEN / 8) * 5     | 2
+| __rvv_vbfloat16m1x5_t  | vbfloat16m1x5_t      | (VLEN / 8) * 5     | 2
+| __rvv_vint16m1x6_t     | vint16m1x6_t         | (VLEN / 8) * 6     | 2
+| __rvv_vuint16m1x6_t    | vuint16m1x6_t        | (VLEN / 8) * 6     | 2
+| __rvv_vbfloat16m1x6_t  | vbfloat16m1x6_t      | (VLEN / 8) * 6     | 2
+| __rvv_vint16m1x7_t     | vint16m1x7_t         | (VLEN / 8) * 7     | 2
+| __rvv_vuint16m1x7_t    | vuint16m1x7_t        | (VLEN / 8) * 7     | 2
+| __rvv_vbfloat16m1x7_t  | vbfloat16m1x7_t      | (VLEN / 8) * 7     | 2
+| __rvv_vint16m1x8_t     | vint16m1x8_t         | (VLEN / 8) * 8     | 2
+| __rvv_vuint16m1x8_t    | vuint16m1x8_t        | (VLEN / 8) * 8     | 2
+| __rvv_vbfloat16m1x8_t  | vbfloat16m1x8_t      | (VLEN / 8) * 8     | 2
+| __rvv_vint16m2x2_t     | vint16m2x2_t         | (VLEN / 8) * 4     | 2
+| __rvv_vuint16m2x2_t    | vuint16m2x2_t        | (VLEN / 8) * 4     | 2
+| __rvv_vbfloat16m2x2_t  | vbfloat16m2x2_t      | (VLEN / 8) * 4     | 2
+| __rvv_vint16m2x3_t     | vint16m2x3_t         | (VLEN / 8) * 6     | 2
+| __rvv_vuint16m2x3_t    | vuint16m2x3_t        | (VLEN / 8) * 6     | 2
+| __rvv_vbfloat16m2x3_t  | vbfloat16m2x3_t      | (VLEN / 8) * 6     | 2
+| __rvv_vint16m2x4_t     | vint16m2x4_t         | (VLEN / 8) * 8     | 2
+| __rvv_vuint16m2x4_t    | vuint16m2x4_t        | (VLEN / 8) * 8     | 2
+| __rvv_vbfloat16m2x4_t  | vbfloat16m2x4_t      | (VLEN / 8) * 8     | 2
+| __rvv_vint16m4x2_t     | vint16m4x2_t         | (VLEN / 8) * 8     | 2
+| __rvv_vuint16m4x2_t    | vuint16m4x2_t        | (VLEN / 8) * 8     | 2
+| __rvv_vbfloat16m4x2_t  | vbfloat16m4x2_t      | (VLEN / 8) * 8     | 2
+| __rvv_vint32mf8x2_t    | vint32mf8x2_t        | (VLEN / 8) / 4     | 4
+| __rvv_vuint32mf8x2_t   | vuint32mf8x2_t       | (VLEN / 8) / 4     | 4
+| __rvv_vfloat32mf8x2_t  | vfloat32mf8x2_t      | (VLEN / 8) / 4     | 4
+| __rvv_vint32mf8x3_t    | vint32mf8x3_t        | (VLEN / 8) * 0.375 | 4
+| __rvv_vuint32mf8x3_t   | vuint32mf8x3_t       | (VLEN / 8) * 0.375 | 4
+| __rvv_vfloat32mf8x3_t  | vfloat32mf8x3_t      | (VLEN / 8) * 0.375 | 4
+| __rvv_vint32mf8x4_t    | vint32mf8x4_t        | (VLEN / 8) / 2     | 4
+| __rvv_vuint32mf8x4_t   | vuint32mf8x4_t       | (VLEN / 8) / 2     | 4
+| __rvv_vfloat32mf8x4_t  | vfloat32mf8x4_t      | (VLEN / 8) / 2     | 4
+| __rvv_vint32mf8x5_t    | vint32mf8x5_t        | (VLEN / 8) * 0.625 | 4
+| __rvv_vuint32mf8x5_t   | vuint32mf8x5_t       | (VLEN / 8) * 0.625 | 4
+| __rvv_vfloat32mf8x5_t  | vfloat32mf8x5_t      | (VLEN / 8) * 0.625 | 4
+| __rvv_vint32mf8x6_t    | vint32mf8x6_t        | (VLEN / 8) * 0.75  | 4
+| __rvv_vuint32mf8x6_t   | vuint32mf8x6_t       | (VLEN / 8) * 0.75  | 4
+| __rvv_vfloat32mf8x6_t  | vfloat32mf8x6_t      | (VLEN / 8) * 0.75  | 4
+| __rvv_vint32mf8x7_t    | vint32mf8x7_t        | (VLEN / 8) * 0.875 | 4
+| __rvv_vuint32mf8x7_t   | vuint32mf8x7_t       | (VLEN / 8) * 0.875 | 4
+| __rvv_vfloat32mf8x7_t  | vfloat32mf8x7_t      | (VLEN / 8) * 0.875 | 4
+| __rvv_vint32mf8x8_t    | vint32mf8x8_t        | (VLEN / 8)         | 4
+| __rvv_vuint32mf8x8_t   | vuint32mf8x8_t       | (VLEN / 8)         | 4
+| __rvv_vfloat32mf8x8_t  | vfloat32mf8x8_t      | (VLEN / 8)         | 4
+| __rvv_vint32mf4x2_t    | vint32mf4x2_t        | (VLEN / 8) / 2     | 4
+| __rvv_vuint32mf4x2_t   | vuint32mf4x2_t       | (VLEN / 8) / 2     | 4
+| __rvv_vfloat32mf4x2_t  | vfloat32mf4x2_t      | (VLEN / 8) / 2     | 4
+| __rvv_vint32mf4x3_t    | vint32mf4x3_t        | (VLEN / 8) * 0.75  | 4
+| __rvv_vuint32mf4x3_t   | vuint32mf4x3_t       | (VLEN / 8) * 0.75  | 4
+| __rvv_vfloat32mf4x3_t  | vfloat32mf4x3_t      | (VLEN / 8) * 0.75  | 4
+| __rvv_vint32mf4x4_t    | vint32mf4x4_t        | (VLEN / 8)         | 4
+| __rvv_vuint32mf4x4_t   | vuint32mf4x4_t       | (VLEN / 8)         | 4
+| __rvv_vfloat32mf4x4_t  | vfloat32mf4x4_t      | (VLEN / 8)         | 4
+| __rvv_vint32mf4x5_t    | vint32mf4x5_t        | (VLEN / 8) * 1.25  | 4
+| __rvv_vuint32mf4x5_t   | vuint32mf4x5_t       | (VLEN / 8) * 1.25  | 4
+| __rvv_vfloat32mf4x5_t  | vfloat32mf4x5_t      | (VLEN / 8) * 1.25  | 4
+| __rvv_vint32mf4x6_t    | vint32mf4x6_t        | (VLEN / 8) * 1.5   | 4
+| __rvv_vuint32mf4x6_t   | vuint32mf4x6_t       | (VLEN / 8) * 1.5   | 4
+| __rvv_vfloat32mf4x6_t  | vfloat32mf4x6_t      | (VLEN / 8) * 1.5   | 4
+| __rvv_vint32mf4x7_t    | vint32mf4x7_t        | (VLEN / 8) * 1.75  | 4
+| __rvv_vuint32mf4x7_t   | vuint32mf4x7_t       | (VLEN / 8) * 1.75  | 4
+| __rvv_vfloat32mf4x7_t  | vfloat32mf4x7_t      | (VLEN / 8) * 1.75  | 4
+| __rvv_vint32mf4x8_t    | vint32mf4x8_t        | (VLEN / 8) * 2     | 4
+| __rvv_vuint32mf4x8_t   | vuint32mf4x8_t       | (VLEN / 8) * 2     | 4
+| __rvv_vfloat32mf4x8_t  | vfloat32mf4x8_t      | (VLEN / 8) * 2     | 4
+| __rvv_vint32mf2x2_t    | vint32mf2x2_t        | (VLEN / 8)         | 4
+| __rvv_vuint32mf2x2_t   | vuint32mf2x2_t       | (VLEN / 8)         | 4
+| __rvv_vfloat32mf2x2_t  | vfloat32mf2x2_t      | (VLEN / 8)         | 4
+| __rvv_vint32mf2x3_t    | vint32mf2x3_t        | (VLEN / 8) * 1.5   | 4
+| __rvv_vuint32mf2x3_t   | vuint32mf2x3_t       | (VLEN / 8) * 1.5   | 4
+| __rvv_vfloat32mf2x3_t  | vfloat32mf2x3_t      | (VLEN / 8) * 1.5   | 4
+| __rvv_vint32mf2x4_t    | vint32mf2x4_t        | (VLEN / 8) * 2     | 4
+| __rvv_vuint32mf2x4_t   | vuint32mf2x4_t       | (VLEN / 8) * 2     | 4
+| __rvv_vfloat32mf2x4_t  | vfloat32mf2x4_t      | (VLEN / 8) * 2     | 4
+| __rvv_vint32mf2x5_t    | vint32mf2x5_t        | (VLEN / 8) * 2.5   | 4
+| __rvv_vuint32mf2x5_t   | vuint32mf2x5_t       | (VLEN / 8) * 2.5   | 4
+| __rvv_vfloat32mf2x5_t  | vfloat32mf2x5_t      | (VLEN / 8) * 2.5   | 4
+| __rvv_vint32mf2x6_t    | vint32mf2x6_t        | (VLEN / 8) * 3     | 4
+| __rvv_vuint32mf2x6_t   | vuint32mf2x6_t       | (VLEN / 8) * 3     | 4
+| __rvv_vfloat32mf2x6_t  | vfloat32mf2x6_t      | (VLEN / 8) * 3     | 4
+| __rvv_vint32mf2x7_t    | vint32mf2x7_t        | (VLEN / 8) * 3.5   | 4
+| __rvv_vuint32mf2x7_t   | vuint32mf2x7_t       | (VLEN / 8) * 3.5   | 4
+| __rvv_vfloat32mf2x7_t  | vfloat32mf2x7_t      | (VLEN / 8) * 3.5   | 4
+| __rvv_vint32mf2x8_t    | vint32mf2x8_t        | (VLEN / 8) * 4     | 4
+| __rvv_vuint32mf2x8_t   | vuint32mf2x8_t       | (VLEN / 8) * 4     | 4
+| __rvv_vfloat32mf2x8_t  | vfloat32mf2x8_t      | (VLEN / 8) * 4     | 4
+| __rvv_vint32m1x2_t     | vint32m1x2_t         | (VLEN / 8) * 2     | 4
+| __rvv_vuint32m1x2_t    | vuint32m1x2_t        | (VLEN / 8) * 2     | 4
+| __rvv_vfloat32m1x2_t   | vfloat32m1x2_t       | (VLEN / 8) * 2     | 4
+| __rvv_vint32m1x3_t     | vint32m1x3_t         | (VLEN / 8) * 3     | 4
+| __rvv_vuint32m1x3_t    | vuint32m1x3_t        | (VLEN / 8) * 3     | 4
+| __rvv_vfloat32m1x3_t   | vfloat32m1x3_t       | (VLEN / 8) * 3     | 4
+| __rvv_vint32m1x4_t     | vint32m1x4_t         | (VLEN / 8) * 4     | 4
+| __rvv_vuint32m1x4_t    | vuint32m1x4_t        | (VLEN / 8) * 4     | 4
+| __rvv_vfloat32m1x4_t   | vfloat32m1x4_t       | (VLEN / 8) * 4     | 4
+| __rvv_vint32m1x5_t     | vint32m1x5_t         | (VLEN / 8) * 5     | 4
+| __rvv_vuint32m1x5_t    | vuint32m1x5_t        | (VLEN / 8) * 5     | 4
+| __rvv_vfloat32m1x5_t   | vfloat32m1x5_t       | (VLEN / 8) * 5     | 4
+| __rvv_vint32m1x6_t     | vint32m1x6_t         | (VLEN / 8) * 6     | 4
+| __rvv_vuint32m1x6_t    | vuint32m1x6_t        | (VLEN / 8) * 6     | 4
+| __rvv_vfloat32m1x6_t   | vfloat32m1x6_t       | (VLEN / 8) * 6     | 4
+| __rvv_vint32m1x7_t     | vint32m1x7_t         | (VLEN / 8) * 7     | 4
+| __rvv_vuint32m1x7_t    | vuint32m1x7_t        | (VLEN / 8) * 7     | 4
+| __rvv_vfloat32m1x7_t   | vfloat32m1x7_t       | (VLEN / 8) * 7     | 4
+| __rvv_vint32m1x8_t     | vint32m1x8_t         | (VLEN / 8) * 8     | 4
+| __rvv_vuint32m1x8_t    | vuint32m1x8_t        | (VLEN / 8) * 8     | 4
+| __rvv_vfloat32m1x8_t   | vfloat32m1x8_t       | (VLEN / 8) * 8     | 4
+| __rvv_vint32m2x2_t     | vint32m2x2_t         | (VLEN / 8) * 4     | 4
+| __rvv_vuint32m2x2_t    | vuint32m2x2_t        | (VLEN / 8) * 4     | 4
+| __rvv_vfloat32m2x2_t   | vfloat32m2x2_t       | (VLEN / 8) * 4     | 4
+| __rvv_vint32m2x3_t     | vint32m2x3_t         | (VLEN / 8) * 6     | 4
+| __rvv_vuint32m2x3_t    | vuint32m2x3_t        | (VLEN / 8) * 6     | 4
+| __rvv_vfloat32m2x3_t   | vfloat32m2x3_t       | (VLEN / 8) * 6     | 4
+| __rvv_vint32m2x4_t     | vint32m2x4_t         | (VLEN / 8) * 8     | 4
+| __rvv_vuint32m2x4_t    | vuint32m2x4_t        | (VLEN / 8) * 8     | 4
+| __rvv_vfloat32m2x4_t   | vfloat32m2x4_t       | (VLEN / 8) * 8     | 4
+| __rvv_vint32m4x2_t     | vint32m4x2_t         | (VLEN / 8) * 8     | 4
+| __rvv_vuint32m4x2_t    | vuint32m4x2_t        | (VLEN / 8) * 8     | 4
+| __rvv_vfloat32m4x2_t   | vfloat32m4x2_t       | (VLEN / 8) * 8     | 4
+| __rvv_vint64mf8x2_t    | vint64mf8x2_t        | (VLEN / 8) / 4     | 8
+| __rvv_vuint64mf8x2_t   | vuint64mf8x2_t       | (VLEN / 8) / 4     | 8
+| __rvv_vfloat64mf8x2_t  | vfloat64mf8x2_t      | (VLEN / 8) / 4     | 8
+| __rvv_vint64mf8x3_t    | vint64mf8x3_t        | (VLEN / 8) * 0.375 | 8
+| __rvv_vuint64mf8x3_t   | vuint64mf8x3_t       | (VLEN / 8) * 0.375 | 8
+| __rvv_vfloat64mf8x3_t  | vfloat64mf8x3_t      | (VLEN / 8) * 0.375 | 8
+| __rvv_vint64mf8x4_t    | vint64mf8x4_t        | (VLEN / 8) / 2     | 8
+| __rvv_vuint64mf8x4_t   | vuint64mf8x4_t       | (VLEN / 8) / 2     | 8
+| __rvv_vfloat64mf8x4_t  | vfloat64mf8x4_t      | (VLEN / 8) / 2     | 8
+| __rvv_vint64mf8x5_t    | vint64mf8x5_t        | (VLEN / 8) * 0.625 | 8
+| __rvv_vuint64mf8x5_t   | vuint64mf8x5_t       | (VLEN / 8) * 0.625 | 8
+| __rvv_vfloat64mf8x5_t  | vfloat64mf8x5_t      | (VLEN / 8) * 0.625 | 8
+| __rvv_vint64mf8x6_t    | vint64mf8x6_t        | (VLEN / 8) * 0.75  | 8
+| __rvv_vuint64mf8x6_t   | vuint64mf8x6_t       | (VLEN / 8) * 0.75  | 8
+| __rvv_vfloat64mf8x6_t  | vfloat64mf8x6_t      | (VLEN / 8) * 0.75  | 8
+| __rvv_vint64mf8x7_t    | vint64mf8x7_t        | (VLEN / 8) * 0.875 | 8
+| __rvv_vuint64mf8x7_t   | vuint64mf8x7_t       | (VLEN / 8) * 0.875 | 8
+| __rvv_vfloat64mf8x7_t  | vfloat64mf8x7_t      | (VLEN / 8) * 0.875 | 8
+| __rvv_vint64mf8x8_t    | vint64mf8x8_t        | (VLEN / 8)         | 8
+| __rvv_vuint64mf8x8_t   | vuint64mf8x8_t       | (VLEN / 8)         | 8
+| __rvv_vfloat64mf8x8_t  | vfloat64mf8x8_t      | (VLEN / 8)         | 8
+| __rvv_vint64mf4x2_t    | vint64mf4x2_t        | (VLEN / 8) / 2     | 8
+| __rvv_vuint64mf4x2_t   | vuint64mf4x2_t       | (VLEN / 8) / 2     | 8
+| __rvv_vfloat64mf4x2_t  | vfloat64mf4x2_t      | (VLEN / 8) / 2     | 8
+| __rvv_vint64mf4x3_t    | vint64mf4x3_t        | (VLEN / 8) * 0.75  | 8
+| __rvv_vuint64mf4x3_t   | vuint64mf4x3_t       | (VLEN / 8) * 0.75  | 8
+| __rvv_vfloat64mf4x3_t  | vfloat64mf4x3_t      | (VLEN / 8) * 0.75  | 8
+| __rvv_vint64mf4x4_t    | vint64mf4x4_t        | (VLEN / 8)         | 8
+| __rvv_vuint64mf4x4_t   | vuint64mf4x4_t       | (VLEN / 8)         | 8
+| __rvv_vfloat64mf4x4_t  | vfloat64mf4x4_t      | (VLEN / 8)         | 8
+| __rvv_vint64mf4x5_t    | vint64mf4x5_t        | (VLEN / 8) * 1.25  | 8
+| __rvv_vuint64mf4x5_t   | vuint64mf4x5_t       | (VLEN / 8) * 1.25  | 8
+| __rvv_vfloat64mf4x5_t  | vfloat64mf4x5_t      | (VLEN / 8) * 1.25  | 8
+| __rvv_vint64mf4x6_t    | vint64mf4x6_t        | (VLEN / 8) * 1.5   | 8
+| __rvv_vuint64mf4x6_t   | vuint64mf4x6_t       | (VLEN / 8) * 1.5   | 8
+| __rvv_vfloat64mf4x6_t  | vfloat64mf4x6_t      | (VLEN / 8) * 1.5   | 8
+| __rvv_vint64mf4x7_t    | vint64mf4x7_t        | (VLEN / 8) * 1.75  | 8
+| __rvv_vuint64mf4x7_t   | vuint64mf4x7_t       | (VLEN / 8) * 1.75  | 8
+| __rvv_vfloat64mf4x7_t  | vfloat64mf4x7_t      | (VLEN / 8) * 1.75  | 8
+| __rvv_vint64mf4x8_t    | vint64mf4x8_t        | (VLEN / 8) * 2     | 8
+| __rvv_vuint64mf4x8_t   | vuint64mf4x8_t       | (VLEN / 8) * 2     | 8
+| __rvv_vfloat64mf4x8_t  | vfloat64mf4x8_t      | (VLEN / 8) * 2     | 8
+| __rvv_vint64mf2x2_t    | vint64mf2x2_t        | (VLEN / 8)         | 8
+| __rvv_vuint64mf2x2_t   | vuint64mf2x2_t       | (VLEN / 8)         | 8
+| __rvv_vfloat64mf2x2_t  | vfloat64mf2x2_t      | (VLEN / 8)         | 8
+| __rvv_vint64mf2x3_t    | vint64mf2x3_t        | (VLEN / 8) * 1.5   | 8
+| __rvv_vuint64mf2x3_t   | vuint64mf2x3_t       | (VLEN / 8) * 1.5   | 8
+| __rvv_vfloat64mf2x3_t  | vfloat64mf2x3_t      | (VLEN / 8) * 1.5   | 8
+| __rvv_vint64mf2x4_t    | vint64mf2x4_t        | (VLEN / 8) * 2     | 8
+| __rvv_vuint64mf2x4_t   | vuint64mf2x4_t       | (VLEN / 8) * 2     | 8
+| __rvv_vfloat64mf2x4_t  | vfloat64mf2x4_t      | (VLEN / 8) * 2     | 8
+| __rvv_vint64mf2x5_t    | vint64mf2x5_t        | (VLEN / 8) * 2.5   | 8
+| __rvv_vuint64mf2x5_t   | vuint64mf2x5_t       | (VLEN / 8) * 2.5   | 8
+| __rvv_vfloat64mf2x5_t  | vfloat64mf2x5_t      | (VLEN / 8) * 2.5   | 8
+| __rvv_vint64mf2x6_t    | vint64mf2x6_t        | (VLEN / 8) * 3     | 8
+| __rvv_vuint64mf2x6_t   | vuint64mf2x6_t       | (VLEN / 8) * 3     | 8
+| __rvv_vfloat64mf2x6_t  | vfloat64mf2x6_t      | (VLEN / 8) * 3     | 8
+| __rvv_vint64mf2x7_t    | vint64mf2x7_t        | (VLEN / 8) * 3.5   | 8
+| __rvv_vuint64mf2x7_t   | vuint64mf2x7_t       | (VLEN / 8) * 3.5   | 8
+| __rvv_vfloat64mf2x7_t  | vfloat64mf2x7_t      | (VLEN / 8) * 3.5   | 8
+| __rvv_vint64mf2x8_t    | vint64mf2x8_t        | (VLEN / 8) * 4     | 8
+| __rvv_vuint64mf2x8_t   | vuint64mf2x8_t       | (VLEN / 8) * 4     | 8
+| __rvv_vfloat64mf2x8_t  | vfloat64mf2x8_t      | (VLEN / 8) * 4     | 8
+| __rvv_vint64m1x2_t     | vint64m1x2_t         | (VLEN / 8) * 2     | 8
+| __rvv_vuint64m1x2_t    | vuint64m1x2_t        | (VLEN / 8) * 2     | 8
+| __rvv_vfloat64m1x2_t   | vfloat64m1x2_t       | (VLEN / 8) * 2     | 8
+| __rvv_vint64m1x3_t     | vint64m1x3_t         | (VLEN / 8) * 3     | 8
+| __rvv_vuint64m1x3_t    | vuint64m1x3_t        | (VLEN / 8) * 3     | 8
+| __rvv_vfloat64m1x3_t   | vfloat64m1x3_t       | (VLEN / 8) * 3     | 8
+| __rvv_vint64m1x4_t     | vint64m1x4_t         | (VLEN / 8) * 4     | 8
+| __rvv_vuint64m1x4_t    | vuint64m1x4_t        | (VLEN / 8) * 4     | 8
+| __rvv_vfloat64m1x4_t   | vfloat64m1x4_t       | (VLEN / 8) * 4     | 8
+| __rvv_vint64m1x5_t     | vint64m1x5_t         | (VLEN / 8) * 5     | 8
+| __rvv_vuint64m1x5_t    | vuint64m1x5_t        | (VLEN / 8) * 5     | 8
+| __rvv_vfloat64m1x5_t   | vfloat64m1x5_t       | (VLEN / 8) * 5     | 8
+| __rvv_vint64m1x6_t     | vint64m1x6_t         | (VLEN / 8) * 6     | 8
+| __rvv_vuint64m1x6_t    | vuint64m1x6_t        | (VLEN / 8) * 6     | 8
+| __rvv_vfloat64m1x6_t   | vfloat64m1x6_t       | (VLEN / 8) * 6     | 8
+| __rvv_vint64m1x7_t     | vint64m1x7_t         | (VLEN / 8) * 7     | 8
+| __rvv_vuint64m1x7_t    | vuint64m1x7_t        | (VLEN / 8) * 7     | 8
+| __rvv_vfloat64m1x7_t   | vfloat64m1x7_t       | (VLEN / 8) * 7     | 8
+| __rvv_vint64m1x8_t     | vint64m1x8_t         | (VLEN / 8) * 8     | 8
+| __rvv_vuint64m1x8_t    | vuint64m1x8_t        | (VLEN / 8) * 8     | 8
+| __rvv_vfloat64m1x8_t   | vfloat64m1x8_t       | (VLEN / 8) * 8     | 8
+| __rvv_vint64m2x2_t     | vint64m2x2_t         | (VLEN / 8) * 4     | 8
+| __rvv_vuint64m2x2_t    | vuint64m2x2_t        | (VLEN / 8) * 4     | 8
+| __rvv_vfloat64m2x2_t   | vfloat64m2x2_t       | (VLEN / 8) * 4     | 8
+| __rvv_vint64m2x3_t     | vint64m2x3_t         | (VLEN / 8) * 6     | 8
+| __rvv_vuint64m2x3_t    | vuint64m2x3_t        | (VLEN / 8) * 6     | 8
+| __rvv_vfloat64m2x3_t   | vfloat64m2x3_t       | (VLEN / 8) * 6     | 8
+| __rvv_vint64m2x4_t     | vint64m2x4_t         | (VLEN / 8) * 8     | 8
+| __rvv_vuint64m2x4_t    | vuint64m2x4_t        | (VLEN / 8) * 8     | 8
+| __rvv_vfloat64m2x4_t   | vfloat64m2x4_t       | (VLEN / 8) * 8     | 8
+| __rvv_vint64m4x2_t     | vint64m4x2_t         | (VLEN / 8) * 8     | 8
+| __rvv_vuint64m4x2_t    | vuint64m4x2_t        | (VLEN / 8) * 8     | 8
+| __rvv_vfloat64m4x2_t   | vfloat64m4x2_t       | (VLEN / 8) * 8     | 8

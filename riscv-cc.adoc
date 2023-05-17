@@ -626,6 +626,38 @@ of the vararg save area.  The `va_arg` macro will increment its `va_list`
 argument according to the size of the given type, taking into account the
 rules about 2×XLEN aligned arguments being passed in "aligned" register pairs.
 
+=== Vector type sizes and alignments
+
+This section defines the sizes and alignments for the vector types defined in
+the _RISC-V Vector Extension Intrinsic Document_<<rvv-intrinsic-doc>>.
+The actual size of each type is determined by the hardware configuration, which
+is based on the content of the `vlenb` register.
+
+There are three classes of vector types: the vector mask types, the vector
+data types and the vector tuple types.
+
+.Type sizes and alignments for vector mask types
+[cols="4,3,>3,>2"]
+[width=80%]
+|===
+| Internal Name              | Type                 | Size (Bytes)       | Alignment (Bytes)
+
+| __rvv_vbool1_t             | vbool1_t             |  VLENB             |  1
+| __rvv_vbool2_t             | vbool2_t             |  VLENB / 2         |  1
+| __rvv_vbool4_t             | vbool4_t             |  VLENB / 4         |  1
+| __rvv_vbool8_t             | vbool8_t             |  ceil(VLENB / 8)   |  1
+| __rvv_vbool16_t            | vbool16_t            |  ceil(VLENB / 16)  |  1
+| __rvv_vbool32_t            | vbool32_t            |  ceil(VLENB / 32)  |  1
+| __rvv_vbool64_t            | vbool64_t            |  ceil(VLENB / 64)  |  1
+|===
+
+include::vector_type_infos.adoc[]
+
+NOTE: The vector mask types utilize a portion of the space, while the remaining
+content may be undefined, both in the register and in memory.
+
+NOTE: Size must be a positive integer.
+
 [appendix]
 == Linux-specific ABI
 
