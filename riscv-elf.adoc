@@ -193,9 +193,9 @@ below.
 [cols="1,2,1,1,3,5"]
 [width=80%]
 |===
-| Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 23 | Bits 24 - 31
+| Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 6 | Bits 7 - 23 | Bits 24 - 31
 
-| RVC   | Float ABI  | RVE   | TSO   | *Reserved*  | *Non-standard extensions*
+| RVC   | Float ABI  | RVE   | TSO   | Atomic ABI | *Reserved*  | *Non-standard extensions*
 |===
 
 +
@@ -233,7 +233,13 @@ below.
   EF_RISCV_TSO (0x0010)::: This bit is set when the binary requires the RVTSO
   memory consistency model.
 
-Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
+  EF_RISCV_ATOMIC_A6 (0x0020)::: This bit is set when the binary is compatible
+  with the A.6 atomic mappings.
+
+  EF_RISCV_ATOMIC_A7 (0x0040)::: This bit is set when the binary is compatible
+  with the A.6 atomic mappings.
+
+Until such a time that the *Reserved* bits (0x00ffff70) are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This may
 conflict with other non-standard extensions.
@@ -267,6 +273,9 @@ raise an error.
 
   TSO::: Linker should report errors if object files of different value
   for TSO field.
+
+  Atomic ABI:::Linker should report errors if incompatible object files are
+  linked.
 
 NOTE: The static linker may ignore the compatibility checks if all fields in the
 `e_flags` are zero and all sections in the input file are non-executable
