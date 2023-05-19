@@ -247,8 +247,8 @@ header fields; any fields not listed in this section have no RISC-V-specific
 values.
 
 e_ident::
-  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.
-  Linking RV32 and RV64 code together is not supported.
+  EI_CLASS::: Specifies the ABIs, either ILP32*, LP64* or RV64ILP32*.
+  Linking different ABIs' code together is not supported.
 +
 --
 [horizontal]
@@ -277,12 +277,12 @@ below.
 +
 [[e-flags-layout]]
 .Layout of e_flags
-[cols="1,2,1,1,3,5"]
+[cols="1,2,1,1,1,3,5"]
 [width=80%]
 |===
-| Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 23 | Bits 24 - 31
+| Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bit 5     | Bits 6 - 23 | Bits 24 - 31
 
-| RVC   | Float ABI  | RVE   | TSO   | *Reserved*  | *Non-standard extensions*
+| RVC   | Float ABI  | RVE   | TSO   | RV64ILP32 | *Reserved*  | *Non-standard extensions*
 |===
 
 +
@@ -320,6 +320,11 @@ below.
   EF_RISCV_TSO (0x0010)::: This bit is set when the binary requires the RVTSO
   memory consistency model.
 
+  EF_RISCV_RV64ILP32 (0x0020)::: This bit is set when the binary requires the
+  RV64ILP32* ABIs on RV64* ISAs.
+
+NOTE: RV64ILP32* ABIs are experimental.
+
 Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This may
@@ -354,6 +359,9 @@ raise an error.
 
   TSO::: Input files can have different values for the TSO field; the linker
   should set this field if any of the input objects have the TSO field set.
+
+  RV64ILP32::: Linker should report errors if object files of different value
+  for RV64ILP32 field.
 
 NOTE: The static linker may ignore the compatibility checks if all fields in the
 `e_flags` are zero and all sections in the input file are non-executable

@@ -493,10 +493,10 @@ LP64Q:: LP64 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
-The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
-only compatible with RV64* ISAs. A future version of this specification may
-define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
-operating mode.
+The LP64* ABIs are only compatible with RV64* ISAs. The ILP32* are compatible
+with RV32* and RV64* ISAs.
+
+NOTE: RV64ILP32* ABIs are experimental.
 
 The *F ABIs require the *F ISA extension, the *D ABIs require the *D ISA
 extension, and the LP64Q ABI requires the Q ISA extension.
@@ -535,7 +535,7 @@ There are two conventions for C/{Cpp} type sizes and alignments.
 ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
 alignments (based on the ILP32 convention):
 +
-.C/{Cpp} type sizes and alignments for RV32
+.C/{Cpp} type sizes and alignments for ILP32
 [cols="4,>2,>3,4"]
 [width=60%]
 |===
@@ -561,7 +561,7 @@ alignments (based on the ILP32 convention):
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
 alignments (based on the LP64 convention):
 +
-.C/{Cpp} type sizes and alignments for RV64
+.C/{Cpp} type sizes and alignments for LP64
 [cols="4,>2,>3,4"]
 [width=60%]
 |===
