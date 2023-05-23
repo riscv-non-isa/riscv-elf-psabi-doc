@@ -145,7 +145,8 @@ the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>;
 there are no RISC-V specific mangling rules.
 
 See the "Type encodings" section in _Itanium {Cpp} ABI_
-for more detail on how to mangle types.
+for more detail on how to mangle types. Note that `__bf16` is mangled in the
+same way as `std::bfloat16_t`.
 
 == ELF Object Files
 
