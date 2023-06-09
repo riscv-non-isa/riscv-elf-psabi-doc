@@ -1185,9 +1185,12 @@ A number of symbols, named mapping symbols, describe the boundaries.
 [%autowidth]
 |===
 | Symbol Name | Meaning
-| $d          | Start of a sequence of data.
-| $x          | Start of a sequence of instructions.
-| $x<ISA>     | Start of a sequence of instructions with <ISA> extension.
+| $d       .2+| Start of a sequence of data.
+| $d.<any>
+| $x       .2+| Start of a sequence of instructions.
+| $x.<any>
+| $x<ISA>  .2+| Start of a sequence of instructions with <ISA> extension.
+| $x<ISA>.<any>
 |===
 
 The mapping symbol should set the type to `STT_NOTYPE`, binding to `STB_LOCAL`,
@@ -1205,6 +1208,9 @@ from ELF attribute.
 
 Format and rule of the optional ISA string are same as `Tag_RISCV_arch`, must
 having explicit version, more detailed rule please refer to <<Attributes>>.
+
+The mapping symbol can be followed by an optional uniquifier, which is prefixed
+with a dot (`.`).
 
 NOTE: The use case for mapping symbol for instruction(`$x`) with ISA information
 is used with ifunc, e.g. libraries are built with `rv64gc`, but few functions
