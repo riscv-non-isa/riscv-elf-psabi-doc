@@ -104,17 +104,29 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
 
-| v0-v31  |              | Temporary registers          | No
+| v0      |              | First vector mask argument or mask return value | No
+| v1-v31  |              | Other vector mask and data Argument registers   | No
 | vl      |              | Vector length                | No
 | vtype   |              | Vector data type register    | No
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
+The first vector mask type scalar argument and mask return value use v0 to pass.
+Other vectors mask type scalar arguments pass like vector data scalar arguments,
+See the fellowing description about vector data type scalar arguments.
 
-Vector registers are not used for passing arguments or return values; we
-intend to define a new calling convention variant to allow that as a future
-software optimization.
+vector data type scalar arguments has property LMUL. If it's LMUL greater then 1,
+the allocated first register number must multipe of LMUL. If it is possible to
+find unused registers segment starting from v1 and the first register in segment
+is LMUL-aligned, use these registers to pass the argument. Otherwise, pass 
+through the function stack.
+
+Aggregates cannot pass with vector registers.
+
+Variadic vector arguments are passed by reference.
+
+NOTE: vector mask type and data type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]. Data type include tuple type.
 
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
