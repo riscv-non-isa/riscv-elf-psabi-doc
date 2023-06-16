@@ -114,7 +114,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 The first vector mask type scalar argument and mask return value use v0 to pass.
 Other vectors mask type scalar arguments pass like vector data scalar arguments,
-See the fellowing description about vector data type scalar arguments.
+See the following description about vector data type scalar arguments.
 
 vector data type scalar arguments has property LMUL. If it's LMUL greater then 1,
 the allocated first register number must multipe of LMUL. If it is possible to
