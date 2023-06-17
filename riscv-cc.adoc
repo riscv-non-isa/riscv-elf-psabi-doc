@@ -112,22 +112,6 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
-The first vector mask type scalar argument and mask return value use v0 to pass.
-Other vectors mask type scalar arguments pass like vector data scalar arguments,
-See the following description about vector data type scalar arguments.
-
-vector data type scalar arguments has property LMUL. If it's LMUL greater then 1,
-the allocated first register number must multipe of LMUL. If it is possible to
-find unused registers segment starting from v1 and the first register in segment
-is LMUL-aligned, use these registers to pass the argument. Otherwise, pass 
-through the function stack.
-
-Aggregates cannot pass with vector registers.
-
-Variadic vector arguments are passed by reference.
-
-NOTE: vector mask type and data type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]. Data type include tuple type.
-
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
 
@@ -341,6 +325,30 @@ type would be passed.
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than ABI_FLEN bits wide.
 
+=== Hardware Vector Calling Convention
+
+The first named scalar argument of vector mask type use v0 to pass. Other named
+scalar arguments of the same type pass like the named scalar arguments of
+vector data type. See the following description about named scalar arguments
+of vector data type.
+
+Named scalar arguments of vector data type has property LMUL. If LMUL is less
+than 1, treat it as 1. If it is possible to find unused registers segment
+starting from v1 and the first register in segment is LMUL-aligned, use these
+registers to pass the argument. Otherwise, pass through the function stack.
+
+Aggregates cannot pass with vector registers.
+
+Variadic vector arguments are passed by reference.
+
+Vector mask value is rturned in the same manner as a first named argument of the
+same type would be passed.
+
+Vector data value is returnd in the same manner as a first named argument of the
+same type would be passed.
+
+NOTE: vector mask type and data type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]. Data type include tuple type.
+
 === ILP32E Calling Convention
 
 IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
@@ -386,6 +394,22 @@ ILP32E:: <<ILP32E Calling Convention,ILP32E calling-convention>> only,
 hardware floating-point calling convention is not used (i.e. <<ELFCLASS32,ELFCLASS32>>,
 <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>, and <<EF_RISCV_RVE,EF_RISCV_RVE>>).
 
+[[abi-ilp32v]]
+ILP32V: ILP32 with hardware vector calling convention (i.e.
+<<ELFCLASS32,ELFCLASS32>> and <<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
+
+[[abi-ilp32fv]]
+ILP32FV: ILP32 with hardware floating-point for ABI_FLEN=32 and hardware vector
+calling convention (i.e. <<ELFCLASS32,ELFCLASS32>>,
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>> and
+<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
+
+[[abi-ilp32dv]]
+ILP32DV: ILP32 with hardware floating-point for ABI_FLEN=64 and hardware vector
+calling convention (i.e. <<ELFCLASS32,ELFCLASS32>>,
+<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>> and
+<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
+
 [[abi-lp64]]
 LP64:: Integer calling-convention only, hardware
 floating-point calling convention is not used (i.e. <<ELFCLASS64,ELFCLASS64>> and
@@ -405,6 +429,22 @@ convention for ABI_FLEN=64 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 LP64Q:: LP64 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
+
+[[abi-lp64v]]
+LP64V: LP64 with hardware vector calling convention (i.e.
+<<ELFCLASS64,ELFCLASS64>> and <<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
+
+[[abi-lp64fv]]
+LP64FV: LP64 with hardware floating-point for ABI_FLEN=32 and hardware vector
+calling convention (i.e. <<ELFCLASS64,ELFCLASS64>>,
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>> and
+<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
+
+[[abi-lp64dv]]
+LP64DV: LP64 with hardware floating-point for ABI_FLEN=64 and hardware vector
+calling convention (i.e. <<ELFCLASS64,ELFCLASS64>>,
+<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>> and
+<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
 
 The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
 only compatible with RV64* ISAs. A future version of this specification may
@@ -445,8 +485,8 @@ Please refer to the documentation of the RISC-V execution environment interface
 
 There are two conventions for C/{Cpp} type sizes and alignments.
 
-ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
-alignments (based on the ILP32 convention):
+ILP32, ILP32F, ILP32D, ILP32E, ILP32V, ILP32FV, ILP32DV:: Use the following type
+sizes and alignments (based on the ILP32 convention):
 +
 .C/{Cpp} type sizes and alignments for RV32
 [cols="4,>2,>3"]
@@ -471,8 +511,8 @@ alignments (based on the ILP32 convention):
 | long double _Complex | 32            | 16
 |===
 
-LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
-alignments (based on the LP64 convention):
+LP64, LP64F, LP64D, LP64Q, LP64V, LP64FV, LP64DV:: Use the following type sizes
+and alignments (based on the LP64 convention):
 +
 .C/{Cpp} type sizes and alignments for RV64
 [cols="4,>2,>3"]
