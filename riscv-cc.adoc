@@ -353,6 +353,8 @@ Unions are never flattened and are always passed according to the integer callin
 
 Values are returned in the same manner as the first named argument of the same type would be passed.
 
+If a function uses vector registers to pass arguments or return value, the function needs to be annotated with `STO_RISCV_VARIANT_CC`. See <<Dynamic Linking>> for more details.
+
 === ILP32E Calling Convention
 
 IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
@@ -398,22 +400,6 @@ ILP32E:: <<ILP32E Calling Convention,ILP32E calling-convention>> only,
 hardware floating-point calling convention is not used (i.e. <<ELFCLASS32,ELFCLASS32>>,
 <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>, and <<EF_RISCV_RVE,EF_RISCV_RVE>>).
 
-[[abi-ilp32v]]
-ILP32V: ILP32 with hardware vector calling convention (i.e.
-<<ELFCLASS32,ELFCLASS32>> and <<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
-
-[[abi-ilp32fv]]
-ILP32FV: ILP32 with hardware floating-point for ABI_FLEN=32 and hardware vector
-calling convention (i.e. <<ELFCLASS32,ELFCLASS32>>,
-<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>> and
-<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
-
-[[abi-ilp32dv]]
-ILP32DV: ILP32 with hardware floating-point for ABI_FLEN=64 and hardware vector
-calling convention (i.e. <<ELFCLASS32,ELFCLASS32>>,
-<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>> and
-<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
-
 [[abi-lp64]]
 LP64:: Integer calling-convention only, hardware
 floating-point calling convention is not used (i.e. <<ELFCLASS64,ELFCLASS64>> and
@@ -433,22 +419,6 @@ convention for ABI_FLEN=64 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 LP64Q:: LP64 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
-
-[[abi-lp64v]]
-LP64V: LP64 with hardware vector calling convention (i.e.
-<<ELFCLASS64,ELFCLASS64>> and <<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
-
-[[abi-lp64fv]]
-LP64FV: LP64 with hardware floating-point for ABI_FLEN=32 and hardware vector
-calling convention (i.e. <<ELFCLASS64,ELFCLASS64>>,
-<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>> and
-<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
-
-[[abi-lp64dv]]
-LP64DV: LP64 with hardware floating-point for ABI_FLEN=64 and hardware vector
-calling convention (i.e. <<ELFCLASS64,ELFCLASS64>>,
-<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>> and
-<<EF_RISCV_VECTOR_ABI,EF_RISCV_VECTOR_ABI>>).
 
 The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
 only compatible with RV64* ISAs. A future version of this specification may
