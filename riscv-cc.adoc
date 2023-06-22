@@ -162,6 +162,10 @@ the high-order XLEN bits are passed on the stack.
 Scalars wider than 2×XLEN bits are passed by reference and are replaced in the
 argument list with the address.
 
+The size of the vector type is considered to be unknown. So vector type scalar always is passed by reference.
+
+NOTE: The vector type mentioned here refers to the type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]
+
 Aggregates whose total size is no more than XLEN bits are passed in
 a register, with the fields laid out as though they were passed in memory. If
 no register is available, the aggregate is passed on the stack.
@@ -170,11 +174,7 @@ of registers; if only one register is available, the first XLEN bits are passed
 in a register and the remaining bits are passed on the stack. If no registers are
 available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
-divisible by XLEN, are undefined.
-
-The size of the vector type is considered to be unknown. So if structs contain a field of vector type, they always are passed by reference.
-
-NOTE: The vector type mentioned here refers to the type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]
+divisible by XLEN, are undefined. If the aggregate contains a field of vector type, it always is passed by reference.
 
 Aggregates or scalars passed on the stack are aligned to the greater of the
 type alignment and XLEN bits, but never more than the stack alignment.
