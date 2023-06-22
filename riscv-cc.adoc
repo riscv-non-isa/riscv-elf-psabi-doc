@@ -105,7 +105,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
 
 | v0      |              | First vector mask argument or mask return value | No
-| v1-v31  |              | Other vector mask and data Argument registers   | No
+| v1-v31  |              | Other vector mask and data argument registers   | No
 | vl      |              | Vector length                | No
 | vtype   |              | Vector data type register    | No
 | vxrm    |              | Vector fixed-point rounding mode register    | No
@@ -171,6 +171,10 @@ in a register and the remaining bits are passed on the stack. If no registers ar
 available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
 divisible by XLEN, are undefined.
+
+The size of the vector type is considered to be unknown. So if structs contain a field of vector type, they always are passed by reference.
+
+NOTE: The vector type mentioned here refers to the type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]
 
 Aggregates or scalars passed on the stack are aligned to the greater of the
 type alignment and XLEN bits, but never more than the stack alignment.
@@ -459,7 +463,7 @@ Please refer to the documentation of the RISC-V execution environment interface
 
 There are two conventions for C/{Cpp} type sizes and alignments.
 
-ILP32, ILP32F, ILP32D, ILP32E, ILP32V, ILP32FV, ILP32DV:: Use the following type
+ILP32, ILP32F, ILP32D, ILP32E:: Use the following type
 sizes and alignments (based on the ILP32 convention):
 +
 .C/{Cpp} type sizes and alignments for RV32
@@ -485,7 +489,7 @@ sizes and alignments (based on the ILP32 convention):
 | long double _Complex | 32            | 16
 |===
 
-LP64, LP64F, LP64D, LP64Q, LP64V, LP64FV, LP64DV:: Use the following type sizes
+LP64, LP64F, LP64D, LP64Q:: Use the following type sizes
 and alignments (based on the LP64 convention):
 +
 .C/{Cpp} type sizes and alignments for RV64
