@@ -463,8 +463,8 @@ Please refer to the documentation of the RISC-V execution environment interface
 
 There are two conventions for C/{Cpp} type sizes and alignments.
 
-ILP32, ILP32F, ILP32D, ILP32E:: Use the following type
-sizes and alignments (based on the ILP32 convention):
+ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
+alignments (based on the ILP32 convention):
 +
 .C/{Cpp} type sizes and alignments for RV32
 [cols="4,>2,>3"]
@@ -489,8 +489,8 @@ sizes and alignments (based on the ILP32 convention):
 | long double _Complex | 32            | 16
 |===
 
-LP64, LP64F, LP64D, LP64Q:: Use the following type sizes
-and alignments (based on the LP64 convention):
+LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
+alignments (based on the LP64 convention):
 +
 .C/{Cpp} type sizes and alignments for RV64
 [cols="4,>2,>3"]
