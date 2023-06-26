@@ -266,8 +266,8 @@ raise an error.
   RVE::: Linker should report errors if object files of different value
   for RVE field.
 
-  TSO::: Linker should report errors if object files of different value
-  for TSO field.
+  TSO::: Input files can have different values for the TSO field; the linker
+  should set this field if any of the input objects have the TSO field set.
 
 NOTE: The static linker may ignore the compatibility checks if all fields in the
 `e_flags` are zero and all sections in the input file are non-executable
