@@ -104,13 +104,14 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
 
-| v0      |              | First vector mask argument or mask return value | No
-| v1-v31  |              | Other vector mask and data argument registers   | No
+| v0-v31  |              | Temporary registers          | No
 | vl      |              | Vector length                | No
 | vtype   |              | Vector data type register    | No
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
+
+Vector registers are not used for passing arguments or return values; use <<Standard Vector Calling Convention Variant>> if want to passing arguments or return values in vector register.
 
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
@@ -162,7 +163,7 @@ the high-order XLEN bits are passed on the stack.
 Scalars wider than 2×XLEN bits are passed by reference and are replaced in the
 argument list with the address.
 
-The size of the vector type is considered to be unknown. So vector type scalar always is passed by reference.
+The size of scalars with vector type is considered to be unknown, so these scalars always is passed by reference.
 
 NOTE: The vector type mentioned here refers to the type defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here]
 
@@ -329,7 +330,7 @@ type would be passed.
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than ABI_FLEN bits wide.
 
-=== Hardware Vector Calling Convention
+=== Standard Vector Calling Convention Variant
 
 This section applies only to named arguments. Variadic arguments of vector type are passed by reference.
 
@@ -341,23 +342,9 @@ vector tuple type arguments have the same LMUL and NREGS properties as the vecto
 
 NOTE: The vector mask type, data type and tuple type are defined https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[here].
 
-A struct containing just one vector type value is passed as though it were a standalone vector type value.
-
-A struct containing two vector type values is passed in vector registers, if there are suitable unused continuous vector register sets for them.
-
-A struct containing one vector type value and one integer (or bitfield), in either order, is passed in vector registers and an integer register, provided the integer is no more than XLEN bits wide, and at least one unused continuous vector register set and at least one integer argument register are available.
-
-A struct containing one vector type value and one floating-point real, in either order, is passed in vector registers and an floating-point register, provided the floating-point real is no more than ABI_FLEN bits wide, and at least one unused continuous vector register set and at least one floating-point argument register are available.
-
-A struct is not passed in the above manner, then it is passed according to the integer calling convention.
-
-NOTE: See the Hardware Floating-point Calling Convention section for the definition of struct.
-
-Unions are never flattened and are always passed according to the integer calling convention.
-
 Values are returned in the same manner as the first named argument of the same type would be passed.
 
-If a function uses vector registers to pass arguments or return value, the function needs to be annotated with `STO_RISCV_VARIANT_CC`. See <<Dynamic Linking>> for more details.
+If a function uses standard vector calling convention variant, the function needs to be annotated with `STO_RISCV_VARIANT_CC`. See xref:riscv-elf.adoc#Dynamic Linking[Dynamic Linking] for more details.
 
 === ILP32E Calling Convention
 
