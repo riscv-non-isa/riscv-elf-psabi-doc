@@ -344,7 +344,7 @@ NOTE: The vector mask type, data type and tuple type are defined https://github.
 
 Values are returned in the same manner as the first named argument of the same type would be passed.
 
-If a function uses standard vector calling convention variant, the function needs to be annotated with `STO_RISCV_VARIANT_CC`. See xref:riscv-elf.adoc#Dynamic Linking[Dynamic Linking] for more details.
+If a function uses standard vector calling convention variant, the function needs to be annotated with `STO_RISCV_VARIANT_CC`. See xref:riscv-elf.adoc#dynamic-linking[Dynamic Linking] for more details.
 
 === ILP32E Calling Convention
 
