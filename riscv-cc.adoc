@@ -335,6 +335,8 @@ provided they hold values no more than ABI_FLEN bits wide.
 
 This section applies only to named arguments. Variadic scalable vector arguments are passed by reference.
 
+For now, vector types are not allowed in struct or union.
+
 RISC-V V extension defines an set of thirty-two scalable vector registers, v0-v31. v0 is used to pass the first scalable mask argument to a function, and to return scalable mask result from a function. v8-v23 are used to pass scalable data arguments, scalable tuple arguments and the rest scalable mask arguments to a function, and to return scalable data and scalable tuple results from a function.
 
 If a function takes at least one argument in scalable vector registers, or if it returns results in such registers, it must ensure that the entire contents of v1-v7 and v24-v31 are preserved across the call. In other cases it no need to preserve.
@@ -353,9 +355,9 @@ The rules for passing the scalable vector argument are as follows:
 
 NOTE: It should be stressed that the search for the appropriate vector register groups starts at v8 each time and does not start at the next register after the registers are allocated for the previous scalable vector argument. Therefore, it is possible that the vector register number allocated to a scalable vector argument can be less than the vector register number allocated to previous scalable vector arguments. For example, for the function `void foo (vint32m1_t a, vint32m2_t b, vint32m1_t c)`, according to the rules of allocation, v8 will be allocated to `a`, v10-v11 will be allocated to `b` and v9 will be allocated to `c`.
 
-For now, vector types are not allowed in struct or union.
-
 Values are returned in the same manner as the first named argument of the same type would be passed.
+
+Scalable vector arguments and return values cannot be passed to an unprototyped function.
 
 === ILP32E Calling Convention
 
