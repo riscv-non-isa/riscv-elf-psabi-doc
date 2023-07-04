@@ -99,22 +99,34 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 === Vector Register Convention
 
-.Vector register convention
+.Vector register convention for standard calling convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
 
-| v0      |              | Argument register            | No
-| v1-v7   |              | Callee-saved registers       | Yes*
-| v8-v23  |              | Argument registers           | No
-| v24-v31 |              | Callee-saved registers       | Yes*
+| v0-v31  |              | Temporary registers          | No
 | vl      |              | Vector length                | No
 | vtype   |              | Vector data type register    | No
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
-*: Only functions using vector registers to pass arguments or return values need to preserve these registers, other functions treat these registers as temporary registers.
+.Vector register convention for standard vector calling convention variant
+[%autowidth]
+|===
+| Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
+
+| v0      |              | Argument register            | No
+| v1-v7   |              | Callee-saved registers       | Yes
+| v8-v23  |              | Argument registers           | No
+| v24-v31 |              | Callee-saved registers       | Yes
+| vl      |              | Vector length                | No
+| vtype   |              | Vector data type register    | No
+| vxrm    |              | Vector fixed-point rounding mode register    | No
+| vxsat   |              | Vector fixed-point saturation flag register  | No
+|===
+
+Please refer to the <<Standard Vector Calling Convention Variant>> section for more details about standard vector calling convention variant.
 
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
@@ -128,8 +140,7 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 
 == Procedure Calling Convention
 
-This chapter defines standard calling conventions, and describes how to pass
-parameters and return values.
+This chapter defines standard calling conventions and standard calling convention variants and describes how to pass arguments and return values.
 
 Functions must follow the register convention defined in calling convention: the
 contents of any register without specifying it as an argument register
@@ -333,7 +344,7 @@ provided they hold values no more than ABI_FLEN bits wide.
 
 The https://github.com/riscv/riscv-v-spec[RISC-V V Vector Extension] defines a set of thirty-two scalable vector registers, v0-v31. The https://github.com/riscv-non-isa/rvv-intrinsic-doc/blob/master/rvv-intrinsic-rfc.md#type-system[RISC-V V Vector Extension Intrinsics] defines scalable vector types which include scalable mask types, scalable data types, and scalable tuple types. A scalable vector value can be stored in vector register groups.
 
-The remainder of this section applies only to named arguments. Variadic arguments of scalable vector type are passed by reference.
+The remainder of this section applies only to named scalable vector arguments, other named arguments and return values follow the standard calling convention. Variadic scalable vector arguments are passed by reference.
 
 For now, scalable vector types are not allowed in struct or union.
 
@@ -341,7 +352,7 @@ v0 is used to pass the first scalable mask argument to a function, and to return
 
 If a function takes at least one argument in scalable vector registers, or if it returns results in such registers, it must ensure that the entire contents of v1-v7 and v24-v31 are preserved across the call. In other cases it no need to preserve.
 
-Each scalable data and tuple type has an LMUL attribute that indicates a vector register group. The value of LMUL indicates the number of vector registers in the vector register group and requires the first vector register number in the vector register group must be a multiple of it. For example, the LMUL of `vint64m8_t` is 8, so v8-v15 vector register group can be allocated to this type, but v9-v16 can not because the v9 register number is not a multiple of 8. If LMUL is less than 1, it is treated as 1. If it is a scalable mask type, its LMUL is 1.
+Each scalable data type and scalable tuple type has an LMUL attribute that indicates a vector register group. The value of LMUL indicates the number of vector registers in the vector register group and requires the first vector register number in the vector register group must be a multiple of it. For example, the LMUL of `vint64m8_t` is 8, so v8-v15 vector register group can be allocated to this type, but v9-v16 can not because the v9 register number is not a multiple of 8. If LMUL is less than 1, it is treated as 1. If it is a scalable mask type, its LMUL is 1.
 
 Each scalable tuple type also has an NFIELDS attribute that indicates how many vector register groups the type contains. Thus a scalable tuple type needs to take up LMUL×NFIELDS registers.
 
