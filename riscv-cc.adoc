@@ -111,7 +111,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
-.Vector register convention for standard vector calling convention variant
+.Vector register convention for standard vector calling convention variant*
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -125,6 +125,11 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
+
+*: Functions that use vector registers to pass arguments and return values must
+follow this calling convention. Some programming languages can require extra
+functions to follow this calling convention (e.g. C/C++ functions with
+attribute `riscv_vector_cc`).
 
 Please refer to the <<Standard Vector Calling Convention Variant>> section for
 more details about standard vector calling convention variant.
