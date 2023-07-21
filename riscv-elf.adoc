@@ -201,6 +201,7 @@ below.
 
 +
 --
+[[EF_RISCV_RVC]]
   EF_RISCV_RVC (0x0001)::: This bit is set when the binary targets the C ABI,
   which allows instructions to be aligned to 16-bit boundaries (the base RV32
   and RV64 ISAs only allow 32-bit instruction alignment).  When linking
@@ -430,7 +431,7 @@ Description:: Additional information about the relocation
                                             <| S + A
 .2+| 47-50   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
-.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address
+.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address.  This relocation might point to an optional dummy mapping symbol, indicating which extension is permitted for use during the linker relaxation process.
                                             <|
 .2+| 52      .2+| SUB6          .2+| Static  | _word6_           .2+| Local label subtraction
                                             <| V - S - A
@@ -1621,6 +1622,37 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
     addi  a0, a0, %pcrel_lo(1b)
     csrw  jvt, a0
 ----
+
+=== Compressed and Non-compressed Relaxations in the Same Object
+
+Linker used to enables and disables the compressed relaxations by checking the
+[[EF_RISCV_RVC]] of each intput object. Since [[EF_RISCV_RVC]] is an
+object-level tag, it cannot handle the case that if `.option arch, +c` and
+`.option arch, -c` are in the same object. Therefore, encode the mapping symbols
+into each R_RISCV_RELAX can resolve the problem.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    .option arch, rv32i
+    auipc ra, 0          # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX ($xrv32i)
+    jalr  ra, ra, 0
+
+    .option arch, +c
+    auipc ra, 0          # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX ($xrv32ic)
+    jalr  ra, ra, 0
+----
+Relaxation result:
+[,asm]
+----
+    jal    ra, 0         # R_RISCV_JAL (symbol)
+
+    c.jal  ra, <offset-between-pc-and-symbol>
+----
+--
 
 [bibliography]
 == References
