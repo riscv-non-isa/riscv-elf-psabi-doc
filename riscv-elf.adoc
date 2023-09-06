@@ -1072,6 +1072,7 @@ non-standard ABI extensions.
 | Tag_RISCV_priv_spec                 |        8 | uleb128        | *Deprecated*, indicates the major version of the privileged specification.
 | Tag_RISCV_priv_spec_minor           |       10 | uleb128        | *Deprecated*, indicates the minor version of the privileged specification.
 | Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
+| Tag_RISCV_atomic_abi                |       14 | uleb128        | Indicates which version of the atomics ABI is being used.
 | Tag_RISCV_x3_reg_usage              |       16 | uleb128        | Indicates the usage definition of the X3 register.
 | Reserved for non-standard attribute | >= 32768 | -              | -
 |===
@@ -1177,7 +1178,47 @@ Merge policy:::
 The linker should report errors if object files of different privileged
 specification versions are merged.
 
-===== Tag_RISCV_x3_reg_usage, 14, uleb128=value
+===== Tag_RISCV_atomic_abi, 14, uleb128=version
+
+Tag_RISCV_atomic_abi denotes the atomic ABI used within this object
+file. Its values are defined as follows:
+
+[cols="1,2,5"]
+[width=100%]
+|===
+| Value | Symbolic Name | Description
+
+| 0     | UNKNOWN  | This object uses unknown atomic ABI.
+| 1     | A6C      | This object uses the A6 classical atomic ABI, which is defined in table A.6 in <<riscv-unpriv-20191213>>.
+| 2     | A6S      | This object uses the strengthened A6 ABI, which uses the atomic mapping defined by <<Mappings from C/C++ primitives to RISC-V primitives>> and does not rely on any note 3 annotated mappings.
+| 3     | A7       | This object uses the A7 atomic ABI, which uses the atomic mapping defined by <<Mappings from C/C++ primitives to RISC-V primitives>> and may rely on note 3 annotated mappings.
+|===
+
+Merge policy:::
+The linker should report errors if object files with incompatible atomics ABIs
+are merged; the compatibility rules for atomic ABIs can be found in the
+compatibility column in the following table.
+
+[cols="6,2,3"]
+[width=100%]
+|===
+| Input Values        | Compatible? | Ouput Value
+
+| UNKNOWN and A6C     | Yes         | A6C
+| UNKNOWN and A6S     | Yes         | A6S
+| UNKNOWN and A7      | Yes         | A7
+| A6C and A6S         | Yes         | A6C
+| A6C and A7          | No          | -
+| A6S and A7          | Yes         | A7
+|===
+
+NOTE: Merging object files with the same ABI will result in the same ABI.
+
+NOTE: Programs that implement atomic operations without relying on the
+A-extension are classified as UNKNOWN for now. A new value for those
+may be defined in the future.
+
+===== Tag_RISCV_x3_reg_usage, 16, uleb128=value
 
 Tag_RISCV_x3_reg_usage indicates the usage of `x3`/`gp` register. `x3`/`gp` could be used for
 global pointer relaxation, as a reserved platform register, or as a temporary register.
@@ -1664,6 +1705,10 @@ https://www.akkadia.org/drepper/tls.pdf, Ulrich Drepper
 
 * [[[riscv-unpriv]]] "The RISC-V Instruction Set Manual, Volume I: User-Level
 ISA, Document", Editors Andrew Waterman and Krste Asanovi´c,
+RISC-V International.
+
+* [[[riscv-unpriv-20191213]]] "The RISC-V Instruction Set Manual, Volume I: User-Level
+ISA, Document release 20191213", Editors Andrew Waterman and Krste Asanovi´c,
 RISC-V International.
 
 * [[[riscv-zc-extension-group]]] "ZC* extension specification"
