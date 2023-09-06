@@ -1218,7 +1218,7 @@ NOTE: Programs that implement atomic operations without relying on the
 A-extension are classified as UNKNOWN for now. A new value for those
 may be defined in the future.
 
-===== Tag_RISCV_x3_reg_usage, 14, uleb128=value
+===== Tag_RISCV_x3_reg_usage, 16, uleb128=value
 
 Tag_RISCV_x3_reg_usage indicates the usage of `x3`/`gp` register. `x3`/`gp` could be used for
 global pointer relaxation, as a reserved platform register, or as a temporary register.
