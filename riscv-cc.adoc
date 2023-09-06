@@ -352,8 +352,8 @@ provided they hold values no more than ABI_FLEN bits wide.
 The _RISC-V V Vector Extension_<<riscv-v-extension>> defines a set of thirty-two
 vector registers, v0-v31. The _RISC-V Vector Extension Intrinsic
 Document_<<rvv-intrinsic-doc>> defines vector types which include vector mask
-types, vector data types, and vector tuple types. A value of vector type can be
-stored in vector register groups.
+types, vector data types, and tuple vector data types. A value of vector type can
+be stored in vector register groups.
 
 The remainder of this section applies only to named vector arguments, other
 named arguments and return values follow the standard calling convention.
@@ -361,7 +361,7 @@ Variadic vector arguments are passed by reference.
 
 v0 is used to pass the first vector mask argument to a function, and to return
 vector mask result from a function. v8-v23 are used to pass vector data
-arguments, vector tuple arguments and the rest vector mask arguments to a
+arguments, tuple vector data arguments and the rest vector mask arguments to a
 function, and to return vector data and vector tuple results from a function.
 
 It must ensure that the entire contents of v1-v7 and v24-v31 are preserved
@@ -392,11 +392,17 @@ then allocate this vector register group to the argument and mark these
 registers as allocated. Otherwise, pass it by reference. The argument has now
 been allocated.
 
-3. For vector tuple arguments, starting from the v8 register, if NFIELDS
+3. For tuple vector data arguments, starting from the v8 register, if NFIELDS
 consecutive vector register groups between v8-v23 that have not been allocated
 can be found and the first register number is a multiple of LMUL, then allocate
 these vector register groups to the argument and mark these registers as
 allocated. Otherwise, pass it by reference. The argument has now been allocated.
+
+NOTE: The registers assigned to the tuple vector data argument must be
+consecutive. For example, for the function
+`void foo(vint32m1_t a, vint32m2_t b, vint32m1x2_t c)`, v8 will be allocated
+to `a`, v10-v11 will be allocated to `b`, v12-v13 instead of v9 and v12 will
+beallocated to `c`.
 
 NOTE: It should be stressed that the search for the appropriate vector register
 groups starts at v8 each time and does not start at the next register after the
