@@ -368,6 +368,8 @@ Description:: Additional information about the relocation
                                             <| S + A + TLSOFFSET
 .2+| 11      .2+| TLS_TPREL64   .2+| Dynamic | _word64_          .2+|
                                             <| S + A + TLSOFFSET
+.2+| 12      .2+| TLSDESC       .2+| Dynamic | See <<TLS Descriptors>> .2+|
+                                            <| TLSDESC(S+A)
 .2+| 16      .2+| BRANCH        .2+| Static  | _B-Type_          .2+| 12-bit PC-relative branch offset
                                             <| S + A - P
 .2+| 17      .2+| JAL           .2+| Static  | _J-Type_          .2+| 20-bit PC-relative jump offset
@@ -452,7 +454,15 @@ Description:: Additional information about the relocation
                                             <| S + A
 .2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label subtraction <<uleb128-note,*note>>
                                             <| V - S - A
-.2+| 62-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 62      .2+| TLSDESC_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_hi(symbol)`
+                                            <| S + A - P
+.2+| 63      .2+| TLSDESC_LOAD_LO12 .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_load_lo(address of %tlsdesc_hi)`, the addend must be 0
+                                            <| S - P
+.2+| 64      .2+| TLSDESC_ADD_LO12  .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_add_lo(address of %tlsdesc_hi)`, the addend must be 0
+                                            <| S - P
+.2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
+                                            <|
+.2+| 66-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
@@ -805,7 +815,7 @@ thread local storage models:
 
 [[tls-model]]
 .TLS models
-[cols="1,2,3"]
+[cols="1,2"]
 [width=70%]
 |===
 | Mnemonic | Model
@@ -940,6 +950,55 @@ typedef struct
   unsigned long int ti_offset;
 } tls_index;
 ----
+
+==== TLS Descriptors
+
+TLS Descriptors (TLSDESC) are an alternative implementation of the Global Dynamic model
+that allows the dynamic linker to achieve performance close to that
+of Initial Exec when the library was not loaded dynamically with `dlopen`.
+
+The linker reserves a consecutive pair of pointer-sized entry in the GOT for each `TLSDESC`
+relocation. At runtime, the dynamic linker fills in the TLS descriptor entry as defined below:
+
+[,c]
+----
+typedef struct
+{
+  unsigned long (*entry)(tls_descriptor *);
+  unsigned long arg;
+} tls_descriptor;
+----
+
+Upon accessing the thread local variable, the `entry` function is called with the address
+of `tls_descriptor` containing it, returning `<address of thread local variable> - tp`.
+
+The TLS descriptor `entry` is called with a special calling convention, specified as follows:
+
+- `a0` is used to pass the argument and return value.
+- `t0` is used as the link register.
+- Any other registers are callee-saved. This includes any vector registers when the vector extension is supported.
+
+Example assembler load and store of a thread local variable `i` using the `%tlsdesc_hi`, `%tlsdesc_load_lo`, `%tlsdesc_add_lo` and `%tlsdesc_call`
+assembler functions. The emitted relocations are in the comments.
+
+[,asm]
+----
+label:
+	auipc tX, %tlsdesc_hi(symbol)         // R_RISCV_TLSDESC_HI20 (symbol)
+	lw    tY, tX, %tlsdesc_load_lo(label) // R_RISCV_TLSDESC_LOAD_LO12_I (label)
+	addi  a0, tX, %tlsdesc_add_lo(label)  // R_RISCV_TLSDESC_ADD_LO12_I (label)
+	jalr  t0, tY, %tlsdesc_call(label)    // R_RISCV_TLSDESC_CALL (label)
+----
+
+`tX` and `tY` in the example may be replaced with any combination of two general purpose registers.
+
+The `%tlsdesc_call` assembler function does not return a value and is used purely
+to associate the `R_RISCV_TLSDESC_CALL` relocation with the `jalr` instruction.
+
+The linker can use the relocations to recognize the sequence and to perform relaxations. To ensure correctness, only the following changes to the sequence are allowed:
+
+- Instructions outside the sequence that do not clobber the registers used within the sequence may be inserted in-between the instructions of the sequence (known as instruction scheduling).
+- Instructions in the sequence with no data dependency may be reordered. In the preceding example, the only instructions that can be reordered are `lw` and `addi`.
 
 === Sections
 
@@ -1610,6 +1669,91 @@ Relaxation result:
 [,asm]
 ----
     lw t1, <tp-offset-for-symbol>(tp)
+----
+--
+
+==== TLS Descriptors -> Initial Exec Relaxation
+
+Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12_I, R_RISCV_TLSDESC_ADD_LO12_I, R_RISCV_TLSDESC_CALL
+
+Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a GOT load instruction.
+
+Condition::
+- Linker output is an executable.
+
+Relaxation::
+
+- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12_I` can be removed.
+- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with load of the high PC-relative offset of the symbol's GOT entry.
+- Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with load of the low PC-relative offset of the symbol's GOT entry.
+Example::
++
+--
+Relaxation candidate (`tX` and `tY` can be any combination of two general purpose registers):
+
+[,asm]
+----
+label:
+	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12_I (label), R_RISCV_RELAX
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12_I (label), R_RISCV_RELAX
+	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
+----
+
+Relaxation result:
+
+[,asm]
+----
+	lui a0, <pcrel-got-offset-for-symbol-hi>
+	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(a0)
+----
+--
+
+==== TLS Descriptors -> Local Exec Relaxation
+
+Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12_I, R_RISCV_TLSDESC_ADD_LO12_I, R_RISCV_TLSDESC_CALL
+
+Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a thread-pointer-relative instruction sequence.
+
+Condition::
+
+- Short form only: Offset between thread-pointer and thread-local symbol is within +-2KiB.
+- Linker output is an executable.
+- Target symbol is non-preemptible.
+
+Relaxation::
+
+- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12_I` can be removed.
+- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with the high TP-relative offset of symbol (long form) or be removed (short form).
+- Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with the low TP-relative offset of symbol.
+
+Example::
++
+--
+Relaxation candidate (`tX` and `tY` can be any combination of two general purpose registers):
+
+[,asm]
+----
+label:
+	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12_I (label), R_RISCV_RELAX
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12_I (label), R_RISCV_RELAX
+	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
+----
+
+Relaxation result (long form):
+
+[,asm]
+----
+	lui a0, <tp-offset-for-symbol-hi>
+	addi a0, a0, <tp-offset-for-symbol-lo>
+----
+
+Relaxation result (short form):
+
+[,asm]
+----
+	addi a0, zero, <tp-offset-for-symbol>
 ----
 --
 
