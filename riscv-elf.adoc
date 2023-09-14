@@ -1684,8 +1684,8 @@ Condition::
 Relaxation::
 
 - Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12_I` can be removed.
-- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with load of the high PC-relative offset of the symbol's GOT entry.
-- Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with load of the low PC-relative offset of the symbol's GOT entry.
+- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with load of the high half of the symbol's GOT address.
+- Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with load of the low half of the symbol's GOT address.
 Example::
 +
 --
@@ -1704,7 +1704,7 @@ Relaxation result:
 
 [,asm]
 ----
-	lui a0, <pcrel-got-offset-for-symbol-hi>
+	auipc   a0, <pcrel-got-offset-for-symbol-hi>
 	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(a0)
 ----
 --
