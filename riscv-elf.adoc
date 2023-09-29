@@ -428,8 +428,8 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 45      .2+| RVC_JUMP      .2+| Static  | _CJ-Type_         .2+| 11-bit PC-relative jump offset
                                             <| S + A - P
-.2+| 46      .2+| RVC_LUI       .2+| Static  | _CI-Type_         .2+| High 6 bits of 18-bit absolute address
-                                            <| S + A
+.2+| 46      .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
 .2+| 47      .2+| GPREL_LO12_I  .2+| Static  | _I-type_          .2+| Low 12 bits of a 32-bit GP-relative address, `%gprel_lo(symbol)`
                                             <| S + A - GP
 .2+| 48      .2+| GPREL_LO12_S  .2+| Static  | _S-Type_          .2+| Low 12 bits of a 32-bit GP-relative address, `%gprel_lo(symbol)`
