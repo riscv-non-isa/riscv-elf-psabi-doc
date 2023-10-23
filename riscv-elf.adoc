@@ -456,9 +456,9 @@ Description:: Additional information about the relocation
                                             <| `ifunc_resolver(B + A)`
 .2+| 59      .2+| PLT32         .2+| Static  | _word32_          .2+| 32-bit relative offset to a function or its PLT entry
                                             <| S + A - P
-.2+| 60      .2+| SET_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label assignment <<uleb128-note,*note>>
+.2+| 60      .2+| SET_ULEB128   .2+| Static  | _ULEB128_         .2+| Must be placed immediately before a SUB_ULEB128 with the same offset. Local label assignment <<uleb128-note,*note>>
                                             <| S + A
-.2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Local label subtraction <<uleb128-note,*note>>
+.2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Must be placed immediately after a SET_ULEB128 with the same offset. Local label subtraction <<uleb128-note,*note>>
                                             <| V - S - A
 .2+| 62      .2+| TLSDESC_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_hi(symbol)`
                                             <| S + A - P
