@@ -1134,6 +1134,7 @@ non-standard ABI extensions.
 | Tag_RISCV_stack_align               |        4 | uleb128        | Indicates the stack alignment requirement in bytes.
 | Tag_RISCV_arch                      |        5 | NTBS           | Indicates the target architecture of this object.
 | Tag_RISCV_unaligned_access          |        6 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
+| Tag_RISCV_profile                   |        7 | NTBS           | Encodes the target profile.
 | Tag_RISCV_priv_spec                 |        8 | uleb128        | *Deprecated*, indicates the major version of the privileged specification.
 | Tag_RISCV_priv_spec_minor           |       10 | uleb128        | *Deprecated*, indicates the minor version of the privileged specification.
 | Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
@@ -1227,6 +1228,44 @@ the linker should set this field into 1 if any of the input objects has
 been set.
 
 --
+
+===== Tag_RISCV_profile, 7, NTBS=profile
+
+The Tag_RISCV_profile contains a string that identifies the target profile
+of an ELF object. Only a single profile can be set as the target profile.
+
+The profile string must conform to the profile naming convention
+defined in the _RISC-V Profiles_ specification <<riscv-profiles-v1>>.
+
+NOTE: An informal and simplified description of the target profile could be
+"This software is expected to run on hardware that conforms to the target
+profile.".
+
+NOTE: No guarantees are provided that the code can be executed on hardware
+that conforms to the target profile. But tools should only set a target
+profile if there is no obvious contradiction. E.g., tools should not set
+this attribute if _non-profile_ extensions are part of the Tag_RISCV_arch
+string.
+
+NOTE: A set profile does not prevent support of _non-profile_ extensions.
+However, support for _non-profile_ extensions must be treated as optional,
+and appropriate mechanisms must be in place to guarantee that no errors or
+warnings are reported if such extensions are not present in the
+execution environment. E.g., software may choose to use a discovery
+mechanism to probe the existence of a _non-profile_ extension before
+executing code that depends on it.
+
+NOTE: Execution environments may choose to restrict the execution of
+ELF files that list a compatible target profile.
+E.g. a run-time linker could enforce a policy that only those ELF
+objects are accepted that match the list of profiles that are
+reported as supported by the kernel.
+
+NOTE: In general, linkers are advised only to link ELF objects if they
+have the same target profile or have both no set target profile.
+However, there may be additional mechanisms in place to overrule this policy
+(e.g. to link code for a _non-profile_ extension where the calling code ensures
+to probe for these extensions to be present before the call).
 
 ===== Tag_RISCV_priv_spec, 8, uleb128=version
 ===== Tag_RISCV_priv_spec_minor, 10, uleb128=version
@@ -1852,6 +1891,8 @@ https://github.com/riscv-non-isa/riscv-asm-manual
 
 * [[[tls]]] "ELF Handling For Thread-Local Storage"
 https://www.akkadia.org/drepper/tls.pdf, Ulrich Drepper
+
+* [[[riscv-profiles-v1]]] "RISC-V Profiles, Version 1.0, April 2, 2023", RISC-V International.
 
 * [[[riscv-unpriv]]] "The RISC-V Instruction Set Manual, Volume I: User-Level
 ISA, Document", Editors Andrew Waterman and Krste Asanovi´c,
