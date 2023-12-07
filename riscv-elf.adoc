@@ -420,7 +420,9 @@ Description:: Additional information about the relocation
                                             <| V - S - A
 .2+| 40      .2+| SUB64         .2+| Static  | _word64_          .2+| 64-bit label subtraction
                                             <| V - S - A
-.2+| 41-42   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
+.2+| 41      .2+| GOT32_PCREL   .2+| Static  | _word32_          .2+| 32-bit difference between the GOT entry for a symbol and the current location
+                                            <| G + GOT + A - P
+.2+| 42      .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 43      .2+| ALIGN         .2+| Static  |                   .2+| Alignment statement. The addend indicates the number of bytes occupied by `nop` instructions at the relocation offset. The alignment boundary is specified by the addend rounded up to the next power of two.
                                             <|
