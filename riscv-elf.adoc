@@ -1612,6 +1612,80 @@ optimize code size and performance of the symbol accessing.
 
 NOTE: Tag_RISCV_x3_reg_usage is treated as 0 if it is not present.
 
+==== GOT load relaxation
+
+  Target Relocation:: R_RISCV_GOT_HI20, R_RISCV_PCREL_LO12_I
+
+  Description:: This relaxation can relax a GOT indirection into load
+  immediate or PC-relative addressing. This relaxation is intended to
+  optimize the `lga` assembly pseudo-instruction (and thus `la` for
+  PIC objects), which loads a symbol's address from a GOT entry with
+  an `auipc` + `l[w|d]` instruction pair.
+
+  Condition::
+  - Both `R_RISCV_GOT_HI20` and `R_RISCV_PCREL_LO12_I` are marked with
+  `R_RISCV_RELAX`.
+
+  - The symbol pointed to by `R_RISCV_PCREL_LO12_I` is at the location to
+  which `R_RISCV_GOT_HI20` refers.
+
+  - If the symbol is absolute, its address is within `0x0` ~ `0x7ff` or
+  `0xfffffffffffff800` ~ `0xffffffffffffffff` for RV64 and
+  `0xfffff800` ~ `0xffffffff` for RV32.
+  Note that an undefined weak symbol satisfies this condition because
+  such a symbol is handled as if it were an absolute symbol at address 0.
+
+  - If the symbol is relative, it's bound at link time to be within the
+  object. It should not be of the GNU ifunc type. Additionally, the offset
+  between the location to which `R_RISCV_GOT_HI20` refers and the target
+  symbol should be within a range of +-2GiB.
+
+  Relaxation::
+  - The `auipc` instruction associated with `R_RISCV_GOT_HI20` can be
+  removed if the symbol is absolute.
+
+  - The instruction or instructions associated with `R_RISCV_PCREL_LO12_I`
+  can be rewritten to either `c.li` or `addi` to materialize the symbol's
+  address directly in a register.
+
+  - If this relaxation eliminates all references to the symbol's GOT slot,
+  the linker may opt not to create a GOT slot for that symbol.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+label:
+    auipc   tX, 0      # R_RISCV_GOT_HI20 (symbol), R_RISCV_RELAX
+    l[w|d]  tY, 0(tX)  # R_RISCV_PCREL_LO12_I (label), R_RISCV_RELAX
+----
+
+Relaxation result (absolute symbol whose address can be represented as
+a 6-bit signed integer and if the RVC instruction is permitted):
+
+[,asm]
+----
+    c.li    tY, <symbol-value>
+----
+
+Relaxation result (absolute symbol and did not meet the above condition
+to use `c.li`):
+
+[,asm]
+----
+    addi    tY, zero, <symbol-value>
+----
+
+Relaxation result (relative symbol):
+[,asm]
+----
+    auipc   tX, <hi>
+    addi    tY, tX, <lo>
+----
+--
+
 ==== Zero-page Relaxation
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
