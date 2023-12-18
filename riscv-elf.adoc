@@ -1155,6 +1155,7 @@ non-standard ABI extensions.
 | Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
 | Tag_RISCV_atomic_abi                |       14 | uleb128        | Indicates which version of the atomics ABI is being used.
 | Tag_RISCV_x3_reg_usage              |       16 | uleb128        | Indicates the usage definition of the X3 register.
+| TAG_RISCV_addsubset_addend_bug      |       17 | byte           | Indicates whether the object suffers from the ADD/SUB/SET addend duplication bug (see binutils PR31179).
 | Reserved for non-standard attribute | >= 32768 | -              | -
 |===
 
