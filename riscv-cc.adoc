@@ -429,6 +429,81 @@ NOTE: `setjmp`/`longjmp` follow the standard calling convention, which clobbers
 all vector registers. Hence, the standard vector calling convention variant
 won't disrupt the `jmp_buf` ABI.
 
+=== Standard Fixed-length Vector Calling Convention Variant
+
+This section defines the calling convention variant for fixed-length vectors.
+The intention of this variant is to pass fixed-length vectors via the vector
+register. For the definition of a fixed-length vector, see
+<<Fixed-length vector>>.
+
+This variant is based on the standard vector calling convention variant:
+the register convention and the rules for passing arguments and return values
+are the same.
+
+NOTE: The reason we define a separate calling convention variant is that we
+would like to define a flexible convention to utilize the variable length
+feature in the vector extension, also considering embedded vector extensions,
+such as zve32x.
+
+ABI_VLEN refers to the width of a vector register in the calling convention
+variant.
+
+The ABI_VLEN must be no wider than the ISA's VLEN, meaning that the ISA may
+support wider vector registers than the ABI, but the ABI's VLEN cannot exceed
+the ISA's VLEN.
+
+The ABI_VLEN is a parameter of this calling convention variant. It could be set
+by the command line option for the compiler or specified by the function
+attribute in the source code.
+
+NOTE: We suggest the toolchain implementation set the default value of ABI_VLEN
+to 128, as it's the most common minimal requirement. However, it is not fixed
+to 128, since the ISA allows the VLEN to be only 32 bits or 64 bits. This
+also enables the utilization of the capacity of longer VLEN. Users can build
+with an optimized library with larger ABI_VLEN for better utilization of those
+cores with longer VLEN.
+
+A fixed-length vector argument is passed in a vector argument register if the
+size of the vector is less than ABI_VLEN bit.
+
+A fixed-length vector argument is passed in two vector argument registers,
+similar to vector data arguments with LMUL=2, if the size of the vector is
+greater than ABI_VLEN bit and less than or equal to 2×ABI_VLEN bit.
+
+A fixed-length vector argument is passed in four vector argument registers,
+similar to vector data arguments with LMUL=4, if the size of the vector is
+greater than 2×ABI_VLEN bit and less than or equal to 4×ABI_VLEN bit.
+
+A fixed-length vector argument is passed in eight vector argument registers,
+similar to vector data arguments with LMUL=8, if the size of the vector is
+greater than 4×ABI_VLEN bit and less than or equal to 8×ABI_VLEN bit.
+
+A struct containing members with all fixed-length vectors will be passed in
+vector argument registers like a vector tuple type if all members have the
+same length, the length is less or equal to 8×ABI_VLEN bit, and the size of
+the whole struct is less than 8×ABI_VLEN bit. Otherwise, it will use the rule
+defined in the hardware floating-point calling convention.
+
+A struct containing just one fixed-length vector array is passed as though it
+were a vector tuple type if the size of the base element for the array is less
+or equal to 8×ABI_VLEN bit, and the size of the array is less than 8×ABI_VLEN
+bit. Otherwise, it will use the rule defined in the hardware floating-point
+calling convention.
+
+A fixed-length vector argument is passed by reference and is replaced in the
+argument list with the address if it is larger than 8×ABI_VLEN bit or if
+there is a shortage of vector argument registers.
+
+Unions with fixed-length vectors are always passed according to the integer
+calling convention.
+
+The details of vector argument register rules are the same as the standard
+vector calling convention variant.
+
+NOTE: Functions that use the standard fixed-length vector calling convention
+variant must be marked with STO_RISCV_VARIANT_CC. See <<Dynamic Linking>>
+for the meaning of STO_RISCV_VARIANT_CC.
+
 === ILP32E Calling Convention
 
 IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
