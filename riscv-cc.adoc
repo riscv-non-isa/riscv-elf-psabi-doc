@@ -382,21 +382,21 @@ take up LMUL×NFIELDS registers.
 
 The rules for passing vector arguments are as follows:
 
-1. For the first vector mask argument, use v0 to pass it. The argument has now
-been allocated.
+1. For the first vector mask argument, use v0 to pass it.
 
 2. For vector data arguments or rest vector mask arguments, starting from the
 v8 register, if a vector register group between v8-v23 that has not been
 allocated can be found and the first register number is a multiple of LMUL,
 then allocate this vector register group to the argument and mark these
-registers as allocated. Otherwise, pass it by reference. The argument has now
-been allocated.
+registers as allocated. Otherwise, pass it by reference and are replaced in
+the argument list with the address.
 
 3. For tuple vector data arguments, starting from the v8 register, if NFIELDS
 consecutive vector register groups between v8-v23 that have not been allocated
 can be found and the first register number is a multiple of LMUL, then allocate
 these vector register groups to the argument and mark these registers as
-allocated. Otherwise, pass it by reference. The argument has now been allocated.
+allocated. Otherwise, pass it by reference and are replaced in the argument list
+with the address.
 
 NOTE: The registers assigned to the tuple vector data argument must be
 consecutive. For example, for the function
@@ -422,6 +422,14 @@ Vector types are disallowed in struct or union.
 
 Vector arguments and return values are disallowed to pass to an unprototyped
 function.
+
+NOTE: Functions that use the standard vector calling convention variant must be
+marked with `STO_RISCV_VARIANT_CC`, see <<Dynamic Linking>> for the meaning of
+`STO_RISCV_VARIANT_CC`.
+
+NOTE: `setjmp`/`longjmp` follow the standard calling convention, which clobbers
+all vector registers. Hence, the standard vector calling convention variant
+won't disrupt the `jmp_buf` ABI.
 
 === ILP32E Calling Convention
 
