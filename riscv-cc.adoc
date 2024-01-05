@@ -185,6 +185,10 @@ sign-extended to XLEN bits.
 When passed in registers or on the stack, floating-point types narrower than
 XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
+When passed in registers or on the stack, `__BitInt(N)`, unused bits are
+undefined, types narrower than XLEN bits are widened to XLEN bits, with the
+upper bits undefined.
+
 Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
 XLEN bits in the higher-numbered register.  If no argument registers are
@@ -587,6 +591,12 @@ alignments (based on the ILP32 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
+| _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
 |===
 
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
@@ -614,6 +624,12 @@ alignments (based on the LP64 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
+| _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
 |===
 
 The alignment of `max_align_t` is 16.
@@ -634,6 +650,17 @@ alignment requirement of its elemental type.
 
 The size of the fixed length vector is determined by multiplying the size of its
 elemental type by the total number of elements within the vector.
+
+==== _BitInt (N)
+
+`_BitInt (N)` is the type defined in C23, allow user to define an
+arbitrary-sized integer type, where N is a postive integer larger than zero.
+
+`_BitInt(N)` types are stored in little-endian order in memory. Bits in each
+byte are allocated from low to high.
+
+Unused bits of the `_BitInt (N)` are unspecified when stored in memory or
+register.
 
 === C/{Cpp} Type Representations
 
