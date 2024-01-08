@@ -99,7 +99,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 === Vector Register Convention
 
-.Vector register convention
+.Vector register convention for standard calling convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -111,10 +111,28 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
+.Vector register convention for standard vector calling convention variant*
+[%autowidth]
+|===
+| Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
 
-Vector registers are not used for passing arguments or return values; we
-intend to define a new calling convention variant to allow that as a future
-software optimization.
+| v0      |              | Argument register            | No
+| v1-v7   |              | Callee-saved registers       | Yes
+| v8-v23  |              | Argument registers           | No
+| v24-v31 |              | Callee-saved registers       | Yes
+| vl      |              | Vector length                | No
+| vtype   |              | Vector data type register    | No
+| vxrm    |              | Vector fixed-point rounding mode register    | No
+| vxsat   |              | Vector fixed-point saturation flag register  | No
+|===
+
+*: Functions that use vector registers to pass arguments and return values must
+follow this calling convention. Some programming languages can require extra
+functions to follow this calling convention (e.g. C/C++ functions with
+attribute `riscv_vector_cc`).
+
+Please refer to the <<Standard Vector Calling Convention Variant>> section for
+more details about standard vector calling convention variant.
 
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
@@ -128,8 +146,8 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 
 == Procedure Calling Convention
 
-This chapter defines standard calling conventions, and describes how to pass
-parameters and return values.
+This chapter defines standard calling conventions and standard calling
+convention variants, and describes how to pass arguments and return values.
 
 Functions must follow the register convention defined in calling convention: the
 contents of any register without specifying it as an argument register
@@ -328,6 +346,90 @@ type would be passed.
 
 Floating-point registers fs0-fs11 shall be preserved across procedure calls,
 provided they hold values no more than ABI_FLEN bits wide.
+
+=== Standard Vector Calling Convention Variant
+
+The _RISC-V V Vector Extension_<<riscv-v-extension>> defines a set of thirty-two
+vector registers, v0-v31. The _RISC-V Vector Extension Intrinsic
+Document_<<rvv-intrinsic-doc>> defines vector types which include vector mask
+types, vector data types, and tuple vector data types. A value of vector type can
+be stored in vector register groups.
+
+The remainder of this section applies only to named vector arguments, other
+named arguments and return values follow the standard calling convention.
+Variadic vector arguments are passed by reference.
+
+v0 is used to pass the first vector mask argument to a function, and to return
+vector mask result from a function. v8-v23 are used to pass vector data
+arguments, tuple vector data arguments and the rest vector mask arguments to a
+function, and to return vector data and vector tuple results from a function.
+
+It must ensure that the entire contents of v1-v7 and v24-v31 are preserved
+across the call.
+
+Each vector data type and vector tuple type has an LMUL attribute that
+indicates a vector register group. The value of LMUL indicates the number of
+vector registers in the vector register group and requires the first vector
+register number in the vector register group must be a multiple of it. For
+example, the LMUL of `vint64m8_t` is 8, so v8-v15 vector register group can be
+allocated to this type, but v9-v16 can not because the v9 register number is
+not a multiple of 8. If LMUL is less than 1, it is treated as 1. If it is a
+vector mask type, its LMUL is 1.
+
+Each vector tuple type also has an NFIELDS attribute that indicates how many
+vector register groups the type contains. Thus a vector tuple type needs to
+take up LMUL×NFIELDS registers.
+
+The rules for passing vector arguments are as follows:
+
+1. For the first vector mask argument, use v0 to pass it.
+
+2. For vector data arguments or rest vector mask arguments, starting from the
+v8 register, if a vector register group between v8-v23 that has not been
+allocated can be found and the first register number is a multiple of LMUL,
+then allocate this vector register group to the argument and mark these
+registers as allocated. Otherwise, pass it by reference and are replaced in
+the argument list with the address.
+
+3. For tuple vector data arguments, starting from the v8 register, if NFIELDS
+consecutive vector register groups between v8-v23 that have not been allocated
+can be found and the first register number is a multiple of LMUL, then allocate
+these vector register groups to the argument and mark these registers as
+allocated. Otherwise, pass it by reference and are replaced in the argument list
+with the address.
+
+NOTE: The registers assigned to the tuple vector data argument must be
+consecutive. For example, for the function
+`void foo(vint32m1_t a, vint32m2_t b, vint32m1x2_t c)`, v8 will be allocated
+to `a`, v10-v11 will be allocated to `b`, v12-v13 instead of v9 and v12 will
+beallocated to `c`.
+
+NOTE: It should be stressed that the search for the appropriate vector register
+groups starts at v8 each time and does not start at the next register after the
+registers are allocated for the previous vector argument. Therefore, it is
+possible that the vector register number allocated to a vector argument can be
+less than the vector register number allocated to previous vector arguments.
+For example, for the function
+`void foo (vint32m1_t a, vint32m2_t b, vint32m1_t c)`, according to the rules
+of allocation, v8 will be allocated to `a`, v10-v11 will be allocated to `b`
+and v9 will be allocated to `c`. This approach allows more vector registers to
+be allocated to arguments in some cases.
+
+Vector values are returned in the same manner as the first named argument of
+the same type would be passed.
+
+Vector types are disallowed in struct or union.
+
+Vector arguments and return values are disallowed to pass to an unprototyped
+function.
+
+NOTE: Functions that use the standard vector calling convention variant must be
+marked with `STO_RISCV_VARIANT_CC`, see <<Dynamic Linking>> for the meaning of
+`STO_RISCV_VARIANT_CC`.
+
+NOTE: `setjmp`/`longjmp` follow the standard calling convention, which clobbers
+all vector registers. Hence, the standard vector calling convention variant
+won't disrupt the `jmp_buf` ABI.
 
 === ILP32E Calling Convention
 
@@ -555,3 +657,13 @@ The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 ABIs.
 
 `wchar_t` is signed.  `wint_t` is unsigned.
+
+[bibliography]
+== References
+
+* [[[riscv-v-extension]]] "RISC-V V vector extension specification"
+https://github.com/riscv/riscv-v-spec
+
+* [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
+https://github.com/riscv-non-isa/rvv-intrinsic-doc
+
