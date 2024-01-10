@@ -142,12 +142,45 @@ any vector registers.
 
 {Cpp} name mangling for RISC-V follows
 the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>;
-there are no RISC-V specific mangling rules.
+plus mangling for RISC-V vector data types and vector mask types,
+which are defined in the following section.
 
 See the "Type encodings" section in _Itanium {Cpp} ABI_
 for more detail on how to mangle types. Note that `__bf16` is mangled in the
 same way as `std::bfloat16_t`.
 
+=== Name Mangling for Vector Data Types, Vector Mask Types and Vector Tuple Types.
+
+The vector data types and vector mask types, as defined in the section
+<<Vector type sizes and alignments>>, are treated as vendor-extended types in
+the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>. These mangled name for
+these types is `"u"<len>"__rvv_"<type-name>`. Specifically,
+prefixing the type name with `__rvv_`, which is prefixed by
+a decimal string indicating its length, which is prefixed by "u".
+
+For example:
+
+[,c]
+----
+    void foo(vint8m1_t x);
+----
+
+is mangled as
+[,c]
+----
+    _Z3foou15__rvv_vint8m1_t
+----
+[source,abnf]
+----
+mangled-name = "u" len "__rvv_" type-name
+
+len = nonzero *DIGIT
+nonzero = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+
+type-name = identifier-nondigit *identifier-char
+identifier-nondigit = ALPHA / "_"
+identifier-char = identifier-nondigit / "_"
+----
 == ELF Object Files
 
 The ELF object file format for RISC-V follows the
@@ -1977,3 +2010,6 @@ RISC-V International.
 
 * [[[riscv-zc-extension-group]]] "ZC* extension specification"
 https://github.com/riscv/riscv-code-size-reduction
+
+* [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
+https://github.com/riscv-non-isa/rvv-intrinsic-doc

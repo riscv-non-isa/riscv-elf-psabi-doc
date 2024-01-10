@@ -19,3 +19,6 @@ $(NAME).pdf: $(NAME).adoc $(wildcard *.adoc) resources/themes/risc-v_spec-pdf.ym
 	    -a pdf-fontsdir=resources/fonts \
 	    -v \
 	    $< -o $@
+
+regen_vector_type_infos:
+	python3 gen_vector_type_infos.py > vector_type_infos.adoc
