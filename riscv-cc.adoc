@@ -201,6 +201,8 @@ Aggregates larger than 2×XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are {Cpp} aggregates with nontrivial copy
 constructors, destructors, or vtables.
 
+Fixed-length vectors are treated as aggregates.
+
 Empty structs or union arguments or return values are ignored by C compilers
 which support them as a non-standard extension.  This is not the case for {Cpp},
 which requires them to be sized types.
@@ -594,6 +596,18 @@ The alignment of `max_align_t` is 16.
 
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
+
+=== Fixed-length vector
+
+Various compilers have support for fixed-length vector types, for example GCC
+and Clang both support declaring a type with `__attribute__((vector_size(N))`,
+where N is a positive number larger than zero.
+
+The alignment requirement for the fixed length vector shall be equivalent to the
+alignment requirement of its elemental type.
+
+The size of the fixed length vector is determined by multiplying the size of its
+elemental type by the total number of elements within the vector.
 
 === C/{Cpp} type representations
 
