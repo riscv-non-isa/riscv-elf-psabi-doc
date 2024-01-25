@@ -1857,8 +1857,8 @@ Relaxation result:
 
 [,asm]
 ----
-	auipc   tX, <pcrel-got-offset-for-symbol-hi>
-	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(tX)
+	auipc   a0, <pcrel-got-offset-for-symbol-hi>
+	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(a0)
 ----
 --
 
