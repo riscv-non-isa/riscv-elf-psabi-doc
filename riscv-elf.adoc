@@ -1041,8 +1041,8 @@ assembler functions. The emitted relocations are in the comments.
 ----
 label:
 	auipc tX, %tlsdesc_hi(symbol)         // R_RISCV_TLSDESC_HI20 (symbol)
-	lw    tY, tX, %tlsdesc_load_lo(label) // R_RISCV_TLSDESC_LOAD_LO12_I (label)
-	addi  a0, tX, %tlsdesc_add_lo(label)  // R_RISCV_TLSDESC_ADD_LO12_I (label)
+	lw    tY, tX, %tlsdesc_load_lo(label) // R_RISCV_TLSDESC_LOAD_LO12 (label)
+	addi  a0, tX, %tlsdesc_add_lo(label)  // R_RISCV_TLSDESC_ADD_LO12 (label)
 	jalr  t0, tY, %tlsdesc_call(label)    // R_RISCV_TLSDESC_CALL (label)
 ----
 
@@ -1827,7 +1827,7 @@ Relaxation result:
 
 ==== TLS Descriptors -> Initial Exec Relaxation
 
-Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12_I, R_RISCV_TLSDESC_ADD_LO12_I, R_RISCV_TLSDESC_CALL
+Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12, R_RISCV_TLSDESC_ADD_LO12, R_RISCV_TLSDESC_CALL
 
 Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a GOT load instruction.
 
@@ -1836,8 +1836,8 @@ Condition::
 
 Relaxation::
 
-- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12_I` can be removed.
-- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with load of the high half of the symbol's GOT address.
+- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12` can be removed.
+- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12` can be replaced with load of the high half of the symbol's GOT address.
 - Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with load of the low half of the symbol's GOT address.
 Example::
 +
@@ -1848,8 +1848,8 @@ Relaxation candidate (`tX` and `tY` can be any combination of two general purpos
 ----
 label:
 	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
-	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12_I (label), R_RISCV_RELAX
-	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12_I (label), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label), R_RISCV_RELAX
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label), R_RISCV_RELAX
 	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
 ----
 
@@ -1857,14 +1857,14 @@ Relaxation result:
 
 [,asm]
 ----
-	auipc   a0, <pcrel-got-offset-for-symbol-hi>
-	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(a0)
+	auipc   tX, <pcrel-got-offset-for-symbol-hi>
+	{ld,lw} a0, <pcrel-got-offset-for-symbol-lo>(tX)
 ----
 --
 
 ==== TLS Descriptors -> Local Exec Relaxation
 
-Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12_I, R_RISCV_TLSDESC_ADD_LO12_I, R_RISCV_TLSDESC_CALL
+Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12, R_RISCV_TLSDESC_ADD_LO12, R_RISCV_TLSDESC_CALL
 
 Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a thread-pointer-relative instruction sequence.
 
@@ -1876,8 +1876,8 @@ Condition::
 
 Relaxation::
 
-- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12_I` can be removed.
-- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12_I` can be replaced with the high TP-relative offset of symbol (long form) or be removed (short form).
+- Instruction associated with `R_RISCV_TLSDESC_HI20` or `R_RISCV_TLSDESC_LOAD_LO12` can be removed.
+- Instruction associated with `R_RISCV_TLSDESC_ADD_LO12` can be replaced with the high TP-relative offset of symbol (long form) or be removed (short form).
 - Instruction associated with `R_RISCV_TLSDESC_CALL` can be replaced with the low TP-relative offset of symbol.
 
 Example::
@@ -1889,8 +1889,8 @@ Relaxation candidate (`tX` and `tY` can be any combination of two general purpos
 ----
 label:
 	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
-	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12_I (label), R_RISCV_RELAX
-	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12_I (label), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label), R_RISCV_RELAX
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label), R_RISCV_RELAX
 	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
 ----
 
