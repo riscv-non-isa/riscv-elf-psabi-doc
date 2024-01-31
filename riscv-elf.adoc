@@ -503,14 +503,22 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 66-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
+.2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
 |===
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
-purpose.  These relocations may conflict with other nonstandard extensions.
+purpose. These vendor-specific relocations must be preceded by a
+`R_RISCV_VENDOR` relocation against a vendor ID symbol.
+
+Where possible, tools should present relocation as their vendor-specific
+relocation types, otherwise a generic name of `R_RISCV_CUSTOM<enum value>` must
+be shown. Data contained in paired `RISCV_VENDOR` can be used to select the
+appropriate vendor when performing relocations.
 
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
@@ -522,6 +530,16 @@ value for the `R_RISCV_SET_ULEB128` and `R_RISCV_SUB_ULEB128` relocation pair
 and fill the space with a single ULEB128-encoded value.
 This is achieved by prepending the redundant `0x80` byte as necessary.
 The linker must not alter the length of the ULEB128-encoded value.
+
+==== Vendor identifiers
+
+Vendor identifiers are dummy symbols used in the corresponding `R_RISCV_VENDOR`
+relocation (irrespective of ELF class/XLEN) and must be unique amongst all
+vendors providing custom relocations. Vendor identifiers may be suffixed with a
+tag to provide extra relocations for a given vendor.
+
+NOTE: Please refer to the _RISC-V Toolchain Conventions_
+<<rv-toolchain-conventions>> for the full list.
 
 ==== Calculation Symbols
 
@@ -2013,3 +2031,6 @@ https://github.com/riscv/riscv-code-size-reduction
 
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
+
+* [[[rv-toolchain-conventions]]] "RISC-V Toolchain Conventions"
+https://github.com/riscv-non-isa/riscv-toolchain-conventions
