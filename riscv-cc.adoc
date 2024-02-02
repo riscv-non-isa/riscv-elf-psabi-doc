@@ -522,6 +522,10 @@ NOTE: Functions that use the standard fixed-length vector calling convention
 variant must be marked with STO_RISCV_VARIANT_CC. See <<Dynamic Linking>>
 for the meaning of STO_RISCV_VARIANT_CC.
 
+NOTE: Functions that use the standard fixed-length vector calling convention
+variant follow an additional name mangling rule for {Cpp}.
+For more details, see <<Name Mangling for Standard Calling Convention Variant>>.
+
 [NOTE]
 ====
 When ABI_VLEN is smaller than the VLEN, the number of vector argument
