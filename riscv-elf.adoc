@@ -503,6 +503,16 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
+
+.2+| 66      .2+| EPIC_HI20    .2+| Static  | _U-Type_          .2+| <<Embedded PIC rewrite rules,Embedded PIC rewrite>> for the high 20 bits of a 32-bit PC- or GP-relative offset, `epic_hi(symbol)`
+                                            <| Rewrite
+.2+| 67      .2+| EPIC_LO12_I  .2+| Static  | _I-type_          .2+| <<Embedded PIC rewrite rules,Embedded PIC rewrite>> for the low 12 bits of a 32-bit PC- or GP-relative offset,  `epic_low(address of %epic_high)`
+                                            <| Rewrite
+.2+| 68      .2+| EPIC_LO12_S  .2+| Static  | _S-Type_          .2+| <<Embedded PIC rewrite rules,Embedded PIC rewrite>> for the low 12 bits of a 32-bit PC- or GP-relative offset,  `epic_low(address of %epic_high)`
+                                            <| Rewrite
+.2+| 69      .2+| EPIC_BASE_ADD .2+| Static  | _I-type_         .2+| <<Embedded PIC rewrite rules,Embedded PIC rewrite>> of `gp` addition, `%epic_base_add(symbol)`
+                                            <| Rewrite
+
 .2+| 66-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
@@ -848,6 +858,48 @@ def align(addend):
     ALIGN *= 2
   return ALIGN
 ----
+
+==== Embedded PIC rewrite rules
+
+The Embedded PIC (ePIC) relocations allow addressing a symbol relative to either the PC or the GP, as appropriate for that symbol.
+
+ NOTE: Implementations are permitted to specify their own rules for choosing between GP-relative or PC-relative addressing. A possible rule is:
+
+* If the symbol resides in a writable output section, then GP-relative addressing is used;
+* If the symbol does not reside in an output section or the section is not writable, then PC-relative addressing is used instead.
+
+The ePIC relocations are applied to a sequence of instructions that initially address a symbol relative to the GP. When PC-relative addressing should be used instead, the ePIC relocations rewrite the instructions to perform PC-relative addressing and add the appropriate PC-relative relocations. When GP-relative addressing should be used, the instruction rewrites do not occur and GP-relative relocations are added. For correctness, the rewrites must occur even when linker relaxations are disabled. Paired `R_RISCV_RELAX` relocations are preserved during the rewrite process, and will pair with relocations added as part of that rewrite.
+
+===== `R_RISCV_EPIC_HI20` [[rels-epic-hi]]
+
+The `R_RISCV_EPIC_HI20` relocation must apply to an `lui` instruction. Its behavior depends on the residence of the referenced symbol, per the <<Embedded PIC rewrite rules,ePIC rewrite rules>>.
+
+* For PC-relative addressing:
+** Rewrites the `lui` instruction into an `auipc` instruction with the same operands, by overwriting the opcode field.
+** Adds a `R_RISCV_PCREL_HI20` relocation with the same symbol and addend, at the same offset.
+* For GP-relative addressing:
+** Adds a `R_RISCV_GPREL_HI20` relocation with the same symbol and addend, at the same offset.
+
+===== `R_RISCV_EPIC_BASE_ADD` [[rels-epic-base]]
+
+The `R_RISCV_EPIC_BASE_ADD` relocation must apply to an `add` or `c.add` instruction. Its behavior depends on the residence of the referenced symbol, per the <<Embedded PIC rewrite rules,ePIC rewrite rules>>.
+
+* For PC-relative addressing, it either:
+** Rewrites the addition instruction into a canonical `nop` (`addi x0, x0, 0`) or `c.nop` instruction (if the relocation is being applied to an `add` or `c.add` instruction, respectively), or
+** Deletes the `add` or `c.add` instruction.
+* For GP-relative addressing:
+** Nothing needs to be done.
+
+NOTE: If a `R_RISCV_GPREL_ADD` relaxation relocation is defined in the future, the GP-relative addressing rule could be updated to read: "Optionally adds a `R_RISCV_GPREL_ADD` relaxation relocation with the same symbol and addend, at the same offset."
+
+===== `R_RISCV_EPIC_LO12_*` [[rels-epic-lo]]
+
+The `R_RISCV_EPIC_LO12_I` and `R_RISCV_EPIC_LO12_S` relocations apply to instructions encoded using the `I` and `S` instruction formats, respectively. For both of them, the symbol points to an instruction with a `R_RISCV_EPIC_HI20` relocation. Their behavior depends on the residence of the symbol referenced by the respective `R_RISCV_EPIC_HI20` relocation, per the <<Embedded PIC rewrite rules,ePIC rewrite rules>>.
+
+* For PC-relative addressing, it either:
+** Adds a `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocation, as appropriate, with the same symbol and addend, at the same offset.
+* For GP-relative addressing:
+** Adds a `R_RISCV_GPREL_LO12_I` or `R_RISCV_GPREL_LO12_S` relocation, as appropriate, at the same offset. The symbol and addend of the new relocation are those of the corresponding `R_RISCV_EPIC_HI20` relocation.
 
 === Thread Local Storage
 
