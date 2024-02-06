@@ -130,16 +130,11 @@ This model is similar to the medium any code model, but uses the
 The `large` code model allows the code to address the whole RV64 address space.
 Thus, this model is only available for RV64. By putting object addresses
 into literal pools, a 64-bit address literal can be loaded from the pool.
-This model also changes the function call patterns. An external function
-address must be loaded from a literal pool entry, and use `jalr` to jump to
-the target function.
 
 NOTE: Because calculating the pool entry address must use `aupic` and
 `addi` or `ld`, each pool entry has to be located within the range
 between -2GiB and +2GiB from its access intructions.  In general, the pool
 is appeneded in .text section or put into .rodata section.
-
-NOTE: Large code model is disallowed to be used with PIC code model.
 
 [,asm]
 ----
@@ -148,8 +143,20 @@ NOTE: Large code model is disallowed to be used with PIC code model.
          .LCPI0:
            .dword symbol
 .Ltmp0:  auipc   a0, %pcrel_hi(.LCPI0)
-         ld      a0, %pcrel_lo(.Ltmp0)(10)
+         ld      a0, %pcrel_lo(.Ltmp0)(a0)
+----
 
+This model also changes the function call patterns. An external function
+address must be loaded from a literal pool entry, and use `jalr` to jump to
+the target function.
+
+
+NOTE: Same as getting address of symbol, each pool entry has to be located
+within the range between -2GiB and +2GiB from its access intructions.  The
+function call can reach the whole 64-bit address space.
+
+[,asm]
+----
          # Function call
          # Literal pool
          .LCPI1:
@@ -157,8 +164,12 @@ NOTE: Large code model is disallowed to be used with PIC code model.
 .Ltmp1:  auipc   a0, %pcrel_hi(.LCPI1)
          ld      a0, %pcrel_lo(.Ltmp1)(a0)
          jalr    a0
-
 ----
+
+NOTE: Large code model is disallowed to be used with PIC code model.
+
+NOTE: There will be more different code generation strategies for different
+usage purposes in the future.
 
 == Dynamic Linking
 
