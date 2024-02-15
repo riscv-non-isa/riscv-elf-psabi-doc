@@ -99,7 +99,8 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 === Vector Register Convention
 
-.Vector register convention for standard calling convention
+==== Standard calling convention
+.Standard vector register calling convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -111,7 +112,22 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
-.Vector register convention for standard vector calling convention variant*
+NOTE: Vector registers are not used for passing arguments or return values in this 
+calling convention. Use the calling convention variant to pass arguments and return 
+values in vector registers.
+
+The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
+values are unspecified upon entry.
+
+Procedures may assume that `vstart` is zero upon entry. Procedures may assume
+that `vstart` is zero upon return from a procedure call.
+
+NOTE: Application software should normally not write `vstart` explicitly.
+Any procedure that does explicitly write `vstart` to a nonzero value must zero
+`vstart` before either returning or calling another procedure.
+
+==== Calling convention variant
+.Variant vector register calling convention*
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -134,15 +150,8 @@ attribute `riscv_vector_cc`).
 Please refer to the <<Standard Vector Calling Convention Variant>> section for
 more details about standard vector calling convention variant.
 
-The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
-values are unspecified upon entry.
-
-Procedures may assume that `vstart` is zero upon entry. Procedures may assume
-that `vstart` is zero upon return from a procedure call.
-
-NOTE: Application software should normally not write `vstart` explicitly.
-Any procedure that does explicitly write `vstart` to a nonzero value must zero
-`vstart` before either returning or calling another procedure.
+NOTE: The `vxrm` and `vxsat` fields of `vcsr` follow the same behavior as the
+standard calling convention.
 
 == Procedure Calling Convention
 
