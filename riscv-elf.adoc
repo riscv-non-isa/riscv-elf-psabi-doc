@@ -1848,9 +1848,9 @@ Relaxation candidate (`tX` and `tY` can be any combination of two general purpos
 ----
 label:
 	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
-	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label), R_RISCV_RELAX
-	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label), R_RISCV_RELAX
-	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label)
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label)
+	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label)
 ----
 
 Relaxation result:
@@ -1889,9 +1889,9 @@ Relaxation candidate (`tX` and `tY` can be any combination of two general purpos
 ----
 label:
 	auipc tX, <hi>      // R_RISCV_TLSDESC_HI20 (symbol), R_RISCV_RELAX
-	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label), R_RISCV_RELAX
-	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label), R_RISCV_RELAX
-	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label), R_RISCV_RELAX
+	lw    tY, tX, <lo>  // R_RISCV_TLSDESC_LOAD_LO12 (label)
+	addi  a0, tX, <lo>  // R_RISCV_TLSDESC_ADD_LO12 (label)
+	jalr  t0, tY        // R_RISCV_TLSDESC_CALL (label)
 ----
 
 Relaxation result (long form):
