@@ -216,21 +216,6 @@ Empty structs or union arguments or return values are ignored by C compilers
 which support them as a non-standard extension.  This is not the case for {Cpp},
 which requires them to be sized types.
 
-Bitfields are packed in little-endian fashion. A bitfield that would span the
-alignment boundary of its integer type is padded to begin at the next
-alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
-a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
-undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
-type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
-undefined.
-
-Bitfields may larger than its integer type, bits excess than its integer
-type will treat as padding bits, then padding to begin at the next alignment
-boundary. For example `struct { char x : 9; char y; }` is a 24 byte type with
-`x` in bits 7-0, `y` in bit 23-16, and bits 15-8 undefined,
-`struct { char x : 9; char y : 2 }` is a 16-bit type with `x` in bits 7-0, `y`
-in bit 10-9, and bit 8, bits 15-11 is undefined.
-
 Arguments passed by reference may be modified by the callee.
 
 Floating-point reals are passed the same way as aggregates of the same size;
@@ -638,6 +623,35 @@ member holding the real part and the second member holding the imaginary part.
 The type `size_t` is defined as `unsigned int` for RV32 and `unsigned long` for RV64.
 
 The type `ptrdiff_t` is defined as `int` for RV32 and `long` for RV64.
+
+=== Bit-fields
+
+Bit-fields are packed in little-endian fashion. A bit-field that would span the
+alignment boundary of its integer type is padded to begin at the next
+alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
+a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
+undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
+type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
+undefined.
+
+Bit-fields which are larger than their integer types are only present in {Cpp}
+and are defined by the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>.  The bit-field
+and containing struct are aligned on a boundary corresponding to the largest
+integral type smaller than the bit-field, up to 64-bit alignment on RV32 or
+128-bit alignment on RV64.  Any bits in excess of the size of the declared type
+are treated as padding.  For example `struct { char x : 9; char y; }` is a
+24-bit type with `x` in bits 7-0, `y` in bit 23-16, and bits 15-8 undefined;
+`struct { char x : 9; char y : 2 }` is a 16-bit type with `x` in bits 7-0, `y`
+in bit 10-9, and bits 8 and 15-11 undefined.
+
+Unnamed nonzero length bit-fields allocate space in the same fashion as named
+bitfields but do not affect the alignment of the containing struct.
+
+Zero length bit-fields are aligned relative to the start of the containing
+struct according to their declared type and, since they must be unnamed, do not
+affect the struct alignment.  C requies bit-fields on opposite sides of a
+zero-length bitfield to be treated as separate memory locations for the
+purposes of data races.
 
 === va_list, va_start, and va_arg
 
