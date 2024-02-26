@@ -1442,6 +1442,43 @@ that a linker or runtime loader needs to check for compatibility.
 The linker should ignore and discard unknown bits in program properties, and
 issue warnings or errors.
 
+[[rv-prog-prop-type]]
+.RISC-V-specific program property types
+[cols="3,2,2,3"]
+[width=80%]
+|===
+| Name                              | Value      | Size    | Meaning
+
+| GNU_PROPERTY_RISCV_FEATURE_1_AND  | 0xc0000000 | 4-bytes | RISC-V processor-specific features used in program.
+|===
+
+==== GNU_PROPERTY_RISCV_FEATURE_1_AND
+
+`GNU_PROPERTY_RISCV_FEATURE_1_AND` describe a set of features, each bit describe
+a different features.
+
+[%autowidth]
+|===
+| Bit | Bit Name
+|   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE
+|   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
+|===
+
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` This bit indicate that all executable
+sections are built to be compatible with the landing pad mechanism provided by
+the `Zicfilp` extension. An executable or shared library with this bit set is
+required to generate PLTs with the landing pad (`lpad`) instruction, and all
+label are set to `1`.
+
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicate that all executable
+sections are built to be compatible with the shadow stack mechanism provided by
+the `Zicfiss` extension. Loading an executable or shared library with this bit
+set requires the execution environment to provide either the `Zicfiss` extension
+or the `Zimop` extension. When the executable or shared library is compiled with
+compressed instructions then loading an executable with this bit set requires
+the execution environment to provide the `Zicfiss` extension or to provide both
+the `Zcmop` and `Zimop` extensions.
+
 === Mapping Symbol
 
 The section can have a mixture of code and data or code with different ISAs.
