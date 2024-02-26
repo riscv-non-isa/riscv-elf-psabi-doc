@@ -1484,7 +1484,7 @@ a different features.
 sections are built to be compatible with the landing pad mechanism provided by
 the `Zicfilp` extension. An executable or shared library with this bit set is
 required to generate PLTs with the landing pad (`lpad`) instruction, and all
-label are set to `1`.
+label are set to `0`.
 
 `GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicate that all executable
 sections are built to be compatible with the shadow stack mechanism provided by
