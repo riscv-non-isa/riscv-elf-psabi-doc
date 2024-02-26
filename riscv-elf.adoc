@@ -1445,14 +1445,27 @@ that a linker or runtime loader needs to check for compatibility.
 The linker should ignore and discard unknown bits in program properties, and
 issue warnings or errors.
 
+<<rv-prog-prop-type>> provides details of the RISC-V ELF program property; the
+meaning of each column is given below:
+
+
+Name:: The name of the program property type, omitting the prefix of `GNU_PROPERTY_RISCV_`.
+
+Value:: The type value for the program property type.
+
+Size:: The data type size hold within this program property type.
+
+Description:: Additional information about the program property type.
+
+
 [[rv-prog-prop-type]]
 .RISC-V-specific program property types
-[cols="3,2,2,3"]
-[width=80%]
+[cols="3,3,2,5"]
+[width=100%]
 |===
-| Name                              | Value      | Size    | Meaning
+| Name           | Value      | Size    | Description
 
-| GNU_PROPERTY_RISCV_FEATURE_1_AND  | 0xc0000000 | 4-bytes | RISC-V processor-specific features used in program.
+| FEATURE_1_AND  | 0xc0000000 | 4-bytes | RISC-V processor-specific features used in program.
 |===
 
 ==== GNU_PROPERTY_RISCV_FEATURE_1_AND
