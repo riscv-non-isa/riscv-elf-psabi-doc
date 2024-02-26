@@ -727,6 +727,19 @@ The PLT (Procedure Linkage Table) exists to allow function calls between
 dynamically linked shared objects. Each dynamic object has its own
 GOT (Global Offset Table) and PLT (Procedure Linkage Table).
 
+RISC-V has defined several PLT styles, which used for different situation,
+the default PLT sytle should be used if the program is not met the condition for
+using all other PLT sytle.
+
+[[plt-style]]
+.PLT styles
+[cols="1,2"]
+[width=70%]
+|===
+| Default PLT                  | -
+| Simple landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` is set.
+|===
+
 The first entry of a shared object PLT is a special entry that calls
 `_dl_runtime_resolve` to resolve the GOT offset for the called function.
 The `_dl_runtime_resolve` function in the dynamic loader resolves the
@@ -734,8 +747,9 @@ GOT offsets lazily on the first call to any function, except when
 `LD_BIND_NOW` is set in which case the GOT entries are populated by the
 dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
-resolution to the first time the function is called. The first entry
-in the PLT occupies two 16 byte entries:
+resolution to the first time the function is called.
+
+The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
 [,asm]
 ----
@@ -749,17 +763,43 @@ in the PLT occupies two 16 byte entries:
     jr     t3
 ----
 
-Subsequent function entry stubs in the PLT take up 16 bytes and load a
-function pointer from the GOT. On the first call to a function, the
-entry redirects to the first PLT entry which calls `_dl_runtime_resolve`
-and fills in the GOT entry for subsequent calls to the function:
+And occupies three 16 byte entries for the simple landing pad PLT style:
+[,asm]
+----
+1:  lpad 0
+    auipc  t2, %pcrel_hi(.got.plt)
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+    addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
+    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
+    srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
+    l[w|d] t0, PTRSIZE(t0)          # link map
+    jr     t3
+    nop
+    nop
+----
 
+Subsequent function entry stubs in the PLT take up 16 bytes.
+On the first call to a function, the entry redirects to the first PLT entry
+which calls `_dl_runtime_resolve` and fills in the GOT entry for subsequent
+calls to the function.
+
+The code sequences of the PLT entry for the default PLT style:
 [,asm]
 ----
 1:  auipc   t3, %pcrel_hi(function@.got.plt)
     l[w|d]  t3, %pcrel_lo(1b)(t3)
     jalr    t1, t3
     nop
+----
+
+The code sequences of the PLT entry for the the simple landing pad PLT style:
+[,asm]
+----
+1:  lpad 0
+    auipc   t3, %pcrel_hi(function@.got.plt)
+    l[w|d]  t3, %pcrel_lo(1b)(t3)
+    jalr    t1, t3
 ----
 
 ==== Procedure Calls
@@ -1207,11 +1247,16 @@ The defined processor-specific dynamic array tags are listed in <<rv-dyn-tag>>.
 | Name                | Value      | d_un  | Executable        | Shared Object
 
 | DT_RISCV_VARIANT_CC | 0x70000001 | d_val | Platform specific | Platform specific
+| DT_RISCV_SIMPLE_LP_PLT | 0x70000003 | d_val | Platform specific | Platform specific
 |===
 
 An object must have the dynamic tag `DT_RISCV_VARIANT_CC` if it has one or more
 `R_RISCV_JUMP_SLOT` relocations against symbols with the `STO_RISCV_VARIANT_CC`
 attribute.
+
+`DT_RISCV_SIMPLE_LP_PLT` indicate PLTs enabled landing pad with simple labeling
+scheme, an object must have the dynamic tag `DT_RISCV_SIMPLE_LP_PLT` if
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` has set in the output.
 
 `DT_INIT` and `DT_FINI` are not required to be supported and should be avoided
 in favour of `DT_PREINIT_ARRAY`, `DT_INIT_ARRAY` and `DT_FINI_ARRAY`.
