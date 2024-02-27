@@ -1,0 +1,549 @@
+[[riscv-fdpic-epic]]
+= RISC-V FDPIC and ePIC ABI supplement
+ifeval::["{docname}" == "riscv-cc"]
+include::prelude.adoc[]
+endif::[]
+
+== Purpose and need
+
+The RISC-V ELF psABI defines PIC code models which can be used to change the
+load address of an object or combine several independently linked objects
+without modifying executable memory. This supports loading of shared libraries,
+as well as dynamic memory management in systems with a single address space.
+However, the existing PIC mechanisms assume a constant displacement between the
+code and data of a single object, which precludes sharing code between multiple
+instances of a single object in an environment without address translation, as
+well as using code located in read-only memory if the location of the data is
+variable.
+
+The FDPIC and ePIC supplement permits dynamic memory management in such cases
+by defining new code models where the code and data have independently varying
+addresses for each object in a process image. These models may also be useful
+as an alternative to the non-PIC large model in cases where the code and data
+occupy fixed addresses, but at a larger separation than is accomodated by the
+range limits of the exsiting code models.
+
+== High level alternatives
+
+Not providing code models supporting independent relocation of code and data
+requires RISC-V systems without address translation to provide a separate
+instance of the code for each instance of the data, and in writable memory if
+the number or location of the data instances can change.
+
+This document proposes an implementation strategy called **FDPIC**.  Under
+FDPIC the `gp` register holds a per-function base address, called the **GOT
+address**, for the data of the object containing the currently executing
+function. All control transfers that potentially cross between FDPIC objects
+must load `gp` for the new function to establish the ABI environment. All data
+accesses are either relative to `pc`, for read-only data local to the object
+containing the function, or are indirectly derived from `gp`. A simplified
+version of FDPIC where there is only one object in each process image and all
+functions use the same value of `gp` is defined under the name **ePIC**.
+
+An alternative, not studied in detail, would be to associate identifiers with
+each object, unique within a process image, and use `gp` as a directory of data
+addresses for each object in the process image. Such an **ID shared library**
+ABI would have advantages and disadvantages, most notably the need to globally
+assign the identifiers, for which no standard tooling exists.
+
+== Code models
+
+The default code model for FDPIC/ePIC is **large**. This model provides an
+unlimited size for both code and data, but limits the size of the GOT to 4GB,
+providing access to 256-512 million unique symbols on RV64. A single GOT
+address is used for all functions in an object. Linker relaxation is used to
+generate the most efficient access sequence for any symbol.
+
+The name **huge** is reserved for a code model which relaxes the GOT size
+limit. Two approaches are possible, defining multiple GOTs in an object and
+using different access sequences to increase the size of a single GOT. Detailed
+design will not be done until there is a clear need.
+
+== Data representation
+
+FDPIC redefines a function pointer as a pointer to a struct containing two
+address-sized values, called a **function descriptor** and the ABI's namesake.
+The first value in the descriptor is the address of the first instruction of
+the function's code. The second value is the `gp` register for the function.
+
+NOTE: This style of function descriptor is used in specialized FDPIC ABIs for
+Blackfin, FR-V, SuperH, and Arm, and is part of the default ABI for PA-RISC,
+POWER (v1 only, has a third "static chain" field), and IA-64.
+
+C++ vtables have the same layout as the base ABI, but the method pointers are
+replaced with pointers to function descriptors.
+
+NOTE: This matches all function descriptor ABIs except IA-64, where the vtable
+slots are 16 bytes in size and contain inline copies of the function
+descriptors.
+
+Every function whose address is taken has a **canonical function descriptor**
+somewhere in memory used for the taken address, which is constant within the
+process image.
+
+ePIC does not use function descriptors; the representation of function pointers
+and vtables is identical between ePIC and the base ABI.
+
+== Register and calling convention
+
+In FDPIC, `gp` is an argument register. It is valid on entry to a function and
+contains that functions's GOT address. It is not valid at any other time and
+may be allocated within functions. If a function performs multiple calls, the
+caller is responsible for saving `gp` across calls other than the last and
+restoring it before subsequent calls. Calls through a function descriptor load
+`gp` from the descriptor; all other calls use the value of `gp` the caller was
+entered with.
+
+FDPIC `gp` rules apply orthogonally to all standard calling convention
+variants and do not affect the setting of `STO_RISCV_VARIANT_CC`.
+
+In ePIC, `gp` is invariant and holds the GOT address for the process image at
+all instruction boundries.
+
+== Range extension thunks
+
+If a direct call is performed across a distance exceeding that possible with a
+call pseudoinstruction the linker is expected to insert a range extension
+thunk, which can use the `t1` and `t2` registers.
+
+== ELF file header
+
+Two bits in `e_flags` are allocated for FDPIC/ePIC. Bit 5, `EF_RISCV_FUNCDESC`,
+is set on objects which contain code using the FDPIC calling convention.
+`EF_RISCV_FUNCDESC` is clear for objects where code uses the base calling
+convention. Bit 6, `EF_RISCV_NONCONSTDISP`, is set on executables or shared
+libraries when each segment in the program header table can be loaded at an
+independent address, and clear when the relative addresses of segments must be
+maintained.
+
+NOTE: All four combinations are meaningful, although `EF_RISCV_FUNCDESC`
+without `EF_RISCV_NONCONSTDISP` generally represents a misuse of relocations.
+
+TODO: The scheme above matches SuperH; Arm and Xtensa instead use special
+EI_OSABI values. Evaluate pros and cons. Linux requires both flags to be
+available from the ELF header alone so a note is not an option.
+
+== Dynamic section
+
+DT_PLTGOT holds the GOT address used for all functions in the object.
+
+== Tag_RISCV_x3_reg_usage
+
+Value 4 indicates FDPIC, and can merge with itself or value 0. Value 5
+indicates ePIC, and can merge with itself or value 0.
+
+== New relocations and relaxation
+
+TODO: Edit this into a form consistent with the existing relocation
+descriptions and separate the relaxation information.
+
+Non-TLSDESC global dynamic TLS is not supported.  No special provision is made
+to distinguish rematerializable from non-rematerializable addressing sequences,
+although compilers may treat addressing sequences as rematerializable if they
+are known to not be in the code segment.  Omitting `R_RISCV_RELAX` allows
+length-preserving rewrites.  This sketch optimizes the number of relocation
+types at the expense in some cases of the number of relocation entries.
+
+I've gone back and forth several times over exactly which transformations
+should be permitted without RELAX.  The current rules allow us to express the
+"use PCREL or GPREL but never use a GOT" property of ePIC and also allow the
+use of code models in non-relaxed FDPIC, but in the default FDPIC model do not
+allow rematerialization or omission of `R_RISCV_PIC_ADD` relocations.
+
+Requiring `R_RISCV_INTERMEDIATE_LOAD` to be explicitly marked even when it is
+optimized out at compilation or assembly time is a wart on the design and the
+only place we're quantitatively worse than ePIC.  To fix it, use the 11-type
+scheme.
+
+A full FDPIC proposal would include, in addition to the relocations and
+relaxations described here, a precise definition of the calling convention, ELF
+flags and attributes, the list of code models, and sibling PRs to asm-manual
+and c-api.
+
+* `R_RISCV_FUNCDESC` (Static/Dynamic, FDPIC ABI only)
+
+  Populates a 32/64 bit location with a pointer to a canonical function
+descriptor created by the dynamic linker for globally visible symbols and the
+static linker otherwise.
+
+  NOTE: PPC64 ELFv1 points symbol values directly at function descriptors but
+consistency with FR-V/Blackfin/SuperH/Arm favors this approach.
+
+* `R_RISCV_FUNCDESC_VALUE` (Static/Dynamic, FDPIC ABI only)
+
+  Populates a 64/128 bit location with a copy of the canonical function
+descriptor.
+
+  This is the relocation type used to support lazy binding if present in the
+relocation table pointed to by DT_JMPREL.
+
+  NOTE: This could be used as a static relocation to populate an ia64-style
+vtable containing inline descriptors, however all function descriptor ABIs for
+architectures supported in LLVM use pointers to canonical descriptors in the
+vtable.  This relocation type may also be used for lazy binding when referenced
+from DT_JMPREL.
+
+* `R_RISCV_GOTGPREL_HI` (Static, all GP ABIs)
+
+  Nondeterministically pick an _access method_, which is one of GOT entry,
+GP-relative, PC-relative, or absolute.  Absolute, GP-relative, and PC-relative
+can only be used for symbols which are resolved to a definition at static link
+time.  Absolute requires that the symbol be absolute and within signed ±2GiB of
+zero.  GP-relative requires that the symbol be within ±2GiB of
+`__global_pointer$` in the data segment.  PC-relative requires that the symbol
+be within ±2GiB of the relocation's offset in the code segment.  PC-relative
+and absolute access methods can only be used if the relocation offset is even
+and points at a `lui`.
+
+  If the access method is GOT entry, find or add an entry to the GOT which
+will, at runtime, contain the address of the relocation target.  When
+generating a dynamically linked executable or shared library this will
+typically involve creating a `R_RISCV_32` or `R_RISCV_64` dynamic relocation.
+
+  The offset of the relocation must be odd, even and point at a `c.lui`
+instruction, or even and point at a `lui` instruction.  Other cases are
+reserved for future standard use.
+
+  For the GOT entry access method and the GP relative address method, the byte
+displacement from `__global_pointer$` to the GOT entry or the target is divided
+by 4096, rounding to nearest ties up.  The divided displacement is inserted in
+the immediate field of the `lui` or `c.lui` instruction.  If the divided
+displacement cannot be represented in the immediate field or if the relocation
+offset is odd and the divided displacement is not zero, relocation fails.
+
+  For the absolute access method, the absolute address of the target is divided
+and inserted into the instruction immediate as described in the previous
+paragraph.
+
+  For the PC-relative access method, the displacement from the relocation
+offset to the target is divided and inserted into the immediate of the
+instruction, which also has its opcode rewritten from `lui` to `auipc`.
+
+  The relocation may be paired with `R_RISCV_RELAX`.  In this case, if the
+`lui` instruction is not replaced with an `auipc` it may be replaced with a
+`c.lui` (if RVC is available for relaxation), and a `lui` or `c.lui` may be
+deleted outright if it receives an immediate of 0.
+
+* `R_RISCV_FUNCDESC_GOTGPREL_HI` (Static, FDPIC ABI only)
+
+  Find or create a GOT entry which will receive a canonical function descriptor
+for the target, which must be a function symbol with zero addend.  Perform
+relocation and relaxation as for `R_RISCV_GOTGPREL_HI` with a forced access
+method of the chosen GOT entry.
+
+* `R_RISCV_FUNCDESC_VALUE_GPREL_HI` (Static, FDPIC ABI only)
+
+  Find or create an aligned pair of GOT entries which will receive a function
+descriptor for the target, which must be a function symbol with zero addend.
+If the target lacks global visibility, the aligned pair will be the canonical
+function descriptor for the symbol.  Perform relocation and relaxation as for
+`R_RISCV_GOTGPREL_HI` with a forced GP relative access method and target of the
+first chosen GOT entry.
+
+* `R_RISCV_TLSDESC_GPREL_HI` (Static, all GP ABIs but only useful when dynamic
+* linking)
+
+  Find or create a pair of GOT entries which will receive a TLS descriptor for
+the target, which must be a symbol in a `SHF_TLS` section, typically through
+creation of a `R_RISCV_TLSDESC` dynamic relocation.  Perform relocation and
+relaxation as for `R_RISCV_GOTGPREL_HI` with an access method of GP relative
+and a target of the first GOT entry.  May also be relaxed into an initial-exec
+or local-exec form as described elsewhere for TLSDESC (except for the presence
+of an add instruction).
+
+  The calling convention of the TLS descriptor **does not change**; even if an
+object uses the FDPIC calling convention, the descriptor must ignore but
+preserve the `gp` value it is called with.
+
+* `R_RISCV_TLS_GOTGPREL_HI` (Static, all GP ABIs but only useful when dynamic
+* linking)
+
+  Find or create a GOT entry containing the TP offset for the target, which
+must be a symbol in a `SHF_TLS` section, typically through creation of a
+`R_RISCV_TLS_TPREL32` or `R_RISCV_TLS_TPREL64` dynamic relocation.  Perform
+relocation and relaxation as for `R_RISCV_GOTGPREL_HI` with the GOT entry.  May
+also be relaxed into local-exec as described elsewhere (except for the presence
+of an add instruction).
+
+* `R_RISCV_PIC_ADD` (Static, all GP ABIs; replaces `R_RISCV_EPIC_BASE_ADD`)
+
+  The target of the relocation is used to locate another ("parent") relocation
+which must have the basic behavior of `R_RISCV_GOTGPREL_HI`.  The offset of the
+relocation must be even and point to an `add` or `c.add` instruction with `gp`
+as one argument; all other cases are reserved for standard use.
+
+  If the parent relocation deleted its `lui` instruction (only possible if the
+parent relocation is paired with `R_RISCV_RELAX`), delete the `add` or `c.add`
+instruction.
+
+  If the parent relocation did not delete its `lui` instruction and its access
+method is GOT entry or GP-relative, no action is taken.
+
+  If the parent relocation did not delete its `lui` instruction and its access
+method is absolute or PC-relative, rewrite the instruction into a `c.mv` or
+canonical `mv` instruction which copies the non-`gp` argument of the add to its
+result.  If the resulting instruction would move a register to itself and the
+parent relocation is paired with `R_RISCV_RELAX`, the instruction may
+optionally be deleted instead.
+
+  NOTE: `R_RISCV_PIC_ADD` relocations have no effect and can be omitted when
+the parent relocation is not paired with `R_RISCV_RELAX` and either points to a
+`c.lui` or has odd offset.
+
+* `R_RISCV_TLSDESC_LOAD_LO12` (Existing relocation)
+
+  Extended to allow using the low 12 bits of the computed displacement of a
+parent relocation of type `R_RISCV_TLSDESC_GOTGPREL_HI`.  Replace `rs1` with
+`gp` if the parent relocation deleted its instruction.
+
+* `R_RISCV_TLSDESC_ADD_LO12` (Existing relocation)
+
+  Extended to allow using the low 12 bits of the computed displacement of a
+parent relocation of type `R_RISCV_TLSDESC_GOTGPREL_HI`.  Replace `rs1` with
+`gp` if the parent relocation deleted its instruction.
+
+* `R_RISCV_CALL` (Existing relocation)
+
+  Becomes reserved for standard use in the GP-relative ABIs.
+
+* `R_RISCV_CALL_PLT` (Existing relocation)
+
+  In addition to the `auipc` `jalr` sequence supported for PLT calls, we also
+recognize `lui` `add/c.add` `lx` `lx` `jalr/c.jr` sequences for no-PLT calls.
+
+  All `R_RISCV_CALL_PLT` relocations may pass control through a
+linker-generated stub which clobbers registers equivalent to an eagerly bound
+PLT stub (`t1` - `t6`).
+
+* `R_RISCV_GPREL_HI` (New; Static, all GP ABIs)
+
+  Acts exactly as `R_RISCV_GOTGPREL_HI` except that the GOT entry access method
+will not be used.  Relocation shall fail if no other access method is possible.
+
+* `R_RISCV_INTERMEDIATE_LOAD` (Redefined; Static, all GP ABIs)
+
+  The target of the relocation is used to locate another ("parent") relocation
+which must have the basic behavior of `R_RISCV_GOTGPREL_HI`.  The offset of the
+relocation must be even and point to a `lw` (for ELFCLASS32) or `ld` (for
+ELFCLASS64) instruction; all other cases are reserved for standard use.
+
+  If the parent relocation access method is not GOT entry, replace the
+instruction with an instruction that moves `rs1` to `rd`.
+
+  If the parent relocation access method is GOT entry, write the low 12 bits of
+the parent relocation computed displacement into the I-type immediate of the
+instruction.  If the parent relocation has odd offset or deleted its `lui`
+instruction, replace the `rs1` register specifier with `gp`.
+
+  If the parent relocation is paired with `R_RISCV_RELAX` and RVC is available
+for relaxation, optionally replace the instruction with an equivalent
+compressed instruction or delete it if it has no effect.
+
+* `R_RISCV_PIC_ADDR_LO12_I` (New; Static, all GP ABIs)
+
+  The target of the relocation is used to locate another ("parent") relocation
+which must have the basic behavior of `R_RISCV_GOTGPREL_HI`.  The offset of the
+relocation must be even and point to a `lw` (for ELFCLASS32) or `ld` (for
+ELFCLASS64) instruction; all other cases are reserved for standard use.
+
+  For all access methods, write the low 12 bits of the parent relocation
+computed displacement into the I-type immediate of the instruction.  If the
+parent relocation has odd offset or deleted its `lui` instruction, replace the
+`rs1` register specifier with `gp`.
+
+  If the access method is not GOT entry, replace opcode and funct3 to convert
+the instruction into an `addi`.
+
+  If the parent relocation is paired with `R_RISCV_RELAX` and RVC is available
+for relaxation, optionally replace the instruction with an equivalent
+compressed instruction or delete it if it has no effect.
+
+* `R_RISCV_PIC_LO12_I` (Rename of `R_RISCV_PCREL_LO12_I`)
+
+  The target of the relocation is used to locate another ("parent") relocation.
+If the parent relocation has an existing type (only `R_RISCV_PCREL_HI20`
+remains valid in GP ABIs), perform relocation as described currently.  The
+following applies if the parent relocation has the basic behavior of
+`R_RISCV_GOTGPREL_HI`; all other new cases are reserved.
+
+  If the parent relocation access method is not GOT entry, add the low 12 bits
+of the parent relocation computed displacement to the 12-bit I-type immediate
+of the instruction at the relocation offset.  Relocation fails if addition
+overflows and may fail if the addends have any bits in common.  If the parent
+relocation has odd offset or deleted its instruction, replace the `rs1`
+register specifier with `gp` (for the GP relative access method) or `zero` (for
+the absolute access method).
+
+  For all access methods, if the parent relocation is paired with
+`R_RISCV_RELAX` and RVC is available for relaxation, optionally replace the
+instruction with an equivalent compressed instruction or delete it if it has no
+effect.
+
+* `R_RISCV_PIC_LO12_S` (Rename of `R_RISCV_PCREL_LO12_S`)
+
+  The target of the relocation is used to locate another ("parent") relocation.
+If the parent relocation has an existing type (no defined cases as of writing
+remain valid in GP ABIs), perform relocation as described currently.  The
+following applies if the parent relocation has the basic behavior of
+`R_RISCV_GOTGPREL_HI`; all other new cases are reserved.
+
+  If the parent relocation access method is not GOT entry, add the low 12 bits
+of the parent relocation computed displacement to the 12-bit S-type immediate
+of the instruction at the relocation offset.  Relocation fails if addition
+overflows and may fail if the addends have any bits in common.  If the parent
+relocation has odd offset or deleted its instruction, replace the `rs1`
+register specifier with `gp` (for the GP relative access method) or `zero` (for
+the absolute access method).
+
+  For all access methods, if the parent relocation is paired with
+`R_RISCV_RELAX` and RVC is available for relaxation, optionally replace the
+instruction with an equivalent compressed instruction or delete it if it has no
+effect.
+
+== Access sequences
+
+```
+lb, sb, la, lla,  Pseudoinstructions documented in riscv-asm-manual
+la.tls.ie
+la.fd, lla.fd     Materializes a pointer to a function descriptor (i.e. a C
+                  function pointer) for a global or local symbol
+llb, lsb          Like lb/sb but for local symbols
+tlsdesc_call      Materialize tp-relative offset to a global dynamic TLS symbol
+call_noplt        Like call but inlines PLT entry
+
+### lb a0, symbol ###                  ### llb a0, symbol ###
+0  lui a0, 0                           0  lui a0, 0
+0     R_RISCV_GOTGPREL_HI symbol       0     R_RISCV_GPREL_HI symbol
+0     R_RISCV_RELAX                    0     R_RISCV_RELAX
+4  c.add a0, gp                        4  c.add a0, gp
+4     R_RISCV_PIC_ADD 0                4     R_RISCV_PIC_ADD 0
+6  ld a0, 0(a0)                        6  lb a0, 0(a0)
+6     R_RISCV_INTERMEDIATE_LOAD 0      6     R_RISCV_PIC_LO12_I 0
+a  lb a0, 0(a0)
+a     R_RISCV_PIC_LO12_I 0
+
+### sb a1, symbol, a0 ###              ### lsb a1, symbol, a0 ###
+0  lui a0, 0                           0  lui a0, 0
+0     R_RISCV_GOTGPREL_HI symbol       0     R_RISCV_GPREL_HI symbol
+0     R_RISCV_RELAX                    0     R_RISCV_RELAX
+4  c.add a0, gp                        4  c.add a0, gp
+4     R_RISCV_PIC_ADD 0                4     R_RISCV_PIC_ADD 0
+6  ld a0, 0(a0)                        6  sb a1, 0(a0)
+6     R_RISCV_INTERMEDIATE_LOAD 0      6     R_RISCV_PIC_LO12_S 0
+a  sb a1, 0(a0)                     
+a     R_RISCV_PIC_LO12_S 0
+
+### lla a0, symbol ###
+0  lui a0, 0
+0     R_RISCV_GPREL_HI symbol
+0     R_RISCV_RELAX
+4  c.add a0, gp
+4     R_RISCV_PIC_ADD 0
+6  ld a0, 0(a0)
+6     R_RISCV_PIC_ADDR_LO12_I 0
+
+### la a0, symbol ###                  ### la.fd a0, symbol ###
+0  lui a0, 0                           0  lui a0, 0
+0     R_RISCV_GOTGPREL_HI symbol       0     R_RISCV_FUNCDESC_GOTGPREL_HI symbol
+0     R_RISCV_RELAX                    0     R_RISCV_RELAX
+4  c.add a0, gp                        4  c.add a0, gp
+4     R_RISCV_PIC_ADD 0                4     R_RISCV_PIC_ADD 0
+6  ld a0, 0(a0)                        6  ld a0, 0(a0)
+6     R_RISCV_PIC_ADDR_LO12_I 0        6     R_RISCV_PIC_ADDR_LO12_I 0
+
+### la.tls.ie a0, symbol ###           ### lla.fd a0, symbol ###
+0  lui a0, 0                           0  lui a0, 0
+0     R_RISCV_TLS_GOTGPREL_HI symbol   0     R_RISCV_FUNCDESC_VALUE_GPREL_HI symbol   
+0     R_RISCV_RELAX                    0     R_RISCV_RELAX
+4  c.add a0, gp                        4  c.add a0, gp
+4     R_RISCV_PIC_ADD 0                4     R_RISCV_PIC_ADD 0
+6  ld a0, 0(a0)                        6  ld a0, 0(a0)
+6     R_RISCV_PIC_ADDR_LO12_I 0        6     R_RISCV_PIC_ADDR_LO12_I 0
+
+### call_noplt symbol, t2 ###          ### tlsdesc_call symbol, t2 ###
+0  lui t2, 0                           0  lui a0, 0
+0     R_RISCV_CALL symbol              0     R_RISCV_TLSDESC_GPREL_HI symbol
+0     R_RISCV_RELAX                    0     R_RISCV_RELAX
+4  c.add t2, gp                        4  c.add a0, gp
+6  ld gp, 8(t2)                        4     R_RISCV_PIC_ADD 0
+a  ld t2, 0(t2)                        6  ld t2, 0(a0)
+e  c.jr t2                             6     R_RISCV_TLSDESC_LOAD_LO12 0
+                                       a  addi a0, a0, 0
+                                       a     R_RISCV_TLSDESC_ADD_LO12 0
+                                       e  jalr t0, t2
+                                       e     R_RISCV_TLSDESC_CALL 0
+```
+
+== Changes to other specifications
+
+=== riscv-toolchain-conventions
+
+Add -mfdpic option for FDPIC and -mepic option for ePIC.
+
+=== riscv-c-api-doc
+
+Command line options, preprocessor defines
+
+=== riscv-asm-manual
+
+Document new pseudoinstructions and changes to pseudoinstructions.
+
+Document new relocation syntax.
+
+== Changes to toolchain and runtime software
+
+=== gcc
+
+=== binutils
+
+=== llvm
+
+=== Linux
+
+There is an unfixable mistake in the RISC-V Linux syscall ABI where struct
+sigaction doesn't have space for a restorer field. In the short term, signal
+handling on fdpic should use the existing code generation on the stack
+approach. This should likely be changed to using a global restorer allocated as
+part of the kernel. Future (s)PMP support, in both options, will require
+handling instruction access fault traps and treating them as rt_sigreturn
+if they occur at the restorer address.
+
+Make sure that we're currently zeroing integer registers to new processes. It
+isn't happening in flush_thread, start_thread, or ELF_PLAT_INIT where other
+architectures do it, if it isn't happening at all it's a minor security hole
+(userspace ASLR bypass from child processes). It is needed for FDPIC binaries
+to be able to detect and operate properly under binfmt_elf.
+
+The two new flags correspond to elf_check_fdpic and
+elf_check_const_displacement.
+
+Signal handling with a FDPIC personality sets pc and gp from a function
+descriptor used in sa_handler or sa_sigaction.
+
+TODO: Research core dumps, ptrace, and compat ptrace and establish
+requirements.
+
+=== musl
+
+The dynamic linker code is highly arch-agnostic and should work with the
+proposed relocation scheme with no changes.  The startup assembly in crt_arch
+will need to be translated.
+
+None of the assembly code performs user callbacks or accesses global data in a
+way that would be affected by FDPIC or ePIC.
+
+The name of the dynamic linker is `/lib/ld-musl-riscv{32,64}{,-sp,-sf}-fdpic`.
+
+=== uclibc
+
+TODO:
+
+== Expected testing
+
+llvm internal codegen tests
+
+libc-test, LTP for fdpic
+
+ePIC static PIE smoke tests
+
+TODO: More ideas. Is anything suitable for ePIC?
