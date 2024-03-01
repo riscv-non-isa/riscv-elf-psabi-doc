@@ -662,6 +662,7 @@ using all other PLT sytle.
 |===
 | Default PLT                  | -
 | Simple landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` is set.
+| Complex landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_COMPLEX` is set.
 |===
 
 The first entry of a shared object PLT is a special entry that calls
@@ -672,6 +673,9 @@ GOT offsets lazily on the first call to any function, except when
 dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
 resolution to the first time the function is called.
+
+The PLT entry is 16 bytes for the default PLT style and the simple landing pad
+PLT style, and 32 bytes for the complex landing pad PLT style.
 
 The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
@@ -703,7 +707,25 @@ And occupies three 16 byte entries for the simple landing pad PLT style:
     nop
 ----
 
-Subsequent function entry stubs in the PLT take up 16 bytes.
+The complex landing pad PLT style occupies two 32 byte entries:
+
+[,asm]
+----
+1:  lpad 0
+    auipc  t2, %pcrel_hi(.got.plt)
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 24
+    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+    addi   t1, t1, -(hdr size + 24) # shifted .got.plt offset
+    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
+    srli   t1, t1, log2(32/PTRSIZE) # .got.plt offset
+    l[w|d] t0, PTRSIZE(t0)          # link map
+    jr     t3
+    nop
+    nop
+----
+
+Subsequent function entry stubs in the PLT take up 16 bytes or 32 bytes depends
+on the style.
 On the first call to a function, the entry redirects to the first PLT entry
 which calls `_dl_runtime_resolve` and fills in the GOT entry for subsequent
 calls to the function.
@@ -724,6 +746,19 @@ The code sequences of the PLT entry for the the simple landing pad PLT style:
     auipc   t3, %pcrel_hi(function@.got.plt)
     l[w|d]  t3, %pcrel_lo(1b)(t3)
     jalr    t1, t3
+----
+
+The code sequences of the PLT entry for the the complex landing pad PLT style:
+[,asm]
+----
+1:  lpad    <hash-value-for-function>
+    auipc   t3, %pcrel_hi(function@.got.plt)
+    l[w|d]  t3, %pcrel_lo(1b)(t3)
+    lui     t2, <hash-value-for-function>
+    jalr    t1, t3
+    nop
+    nop
+    nop
 ----
 
 ==== Procedure Calls
@@ -1337,7 +1372,7 @@ should have associate with a Tag_RISCV_function_signature if
 --
 
 Merge policy:::
-Not allowed
+Not allowed.
 
 --
 
@@ -1554,6 +1589,33 @@ like memcpy provides two versions, one built with `rv64gc`, and one built with
 attribute is recording for minimal execution environment requirements, so the
 ISA information from arch attribute is not enough for the disassembler to
 disassemble the `rv64gcv` version correctly.
+
+== Label Value Compuatation for Complex Labeling Scheme Landing Pad
+
+TODO: RISC-V has defined `Zicfilp` extension to provided...blah blah blah...
+
+The label value for the complex labeling scheme landing pad is computed from the
+hash of the function signature string, and the signature string are specified
+below:
+
+[source,abnf]
+----
+SIGNATURE-STRING := RETURN-TYPE '(' ARGS ')'
+                  | RETURN-TYPE '(' ')'
+RETURN-TYPE := TYPE-NAME
+
+ARGS := ARGS ',' ARG
+      | ARG
+
+ARG  := TYPE-NAME
+----
+
+The `TYPE-NAME` is using the mangling name defined in <<{Cpp} Name Mangling>>,
+for example, `void foo(int, int)` is encoded into `v(i,i)`.
+
+The label value is computed from the low 20 bits of MD5 result of the signature
+string, for example MD5 hash of `v(i,i)` is `3a7a68c073dcdbd6ee282a598c2dc44e`,
+so the lable value is `0xdc44e`.
 
 == Linker Relaxation
 
