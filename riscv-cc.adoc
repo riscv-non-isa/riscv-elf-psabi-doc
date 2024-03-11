@@ -493,10 +493,8 @@ LP64Q:: LP64 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
-The ILP32* ABIs are only compatible with RV32* ISAs, and the LP64* ABIs are
-only compatible with RV64* ISAs. A future version of this specification may
-define an ILP32 ABI for the RV64 ISA, but currently this is not a supported
-operating mode.
+The LP64* ABIs are only compatible with RV64* ISAs. The ILP32* are compatible
+with RV32* and RV64 ISAs.
 
 The *F ABIs require the *F ISA extension, the *D ABIs require the *D ISA
 extension, and the LP64Q ABI requires the Q ISA extension.
