@@ -735,6 +735,56 @@ that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
 can represent an even signed 13-bit offset (-4096 to +4094).
 
+==== Range Extension Thunks
+
+`R_RISCV_JAL`, `R_RISCV_CALL`, and `R_RISCV_CALL_PLT` relocations to targets in
+other input sections may be resolved by the linker to point to a range
+extension thunk instead of the target symbol.  Range extension thunks will
+eventually transfer control to the target symbol, and preserve the contents of
+memory and all registers except for `t1` and `t2`.
+
+[NOTE]
+.Suggested forms of range extension thunks
+====
+20-bit range:
+
+[,asm]
+----
+    jal   zero, <offset to target>
+----
+
+32-bit range:
+
+[,asm]
+----
+    auipc t2, <high offset to target>
+    jalr  zero, t2, <low offset to target>
+----
+
+64-bit range, position dependent:
+
+[,asm]
+----
+    auipc t2, <high offset to literal>
+    ld    t2, <low offset to literal>(t2)
+    jalr  zero, t2, 0  OR  c.jr t2
+    ...
+    .quad 0
+----
+
+64-bit range, position independent:
+
+[,asm]
+----
+    auipc t1, <high offset to literal>
+    ld    t2, <low offset to literal>(t1)
+    add   t2, t2, t1   OR  c.add t2, t1
+    jalr  zero, t2, 0  OR  c.jr t2
+    ...
+    .quad <offset to target from auipc result>
+----
+====
+
 ==== PC-Relative Symbol Addresses
 
 32-bit PC-relative relocations for symbol addresses on sequences of
