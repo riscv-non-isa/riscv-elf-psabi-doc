@@ -170,6 +170,7 @@ contents of any fixed registers like `gp` and `tp` never change,
 NOTE: Calling convention for big-endian is *NOT* included in this specification
 yet, we intend to define that in future version of this specification.
 
+[#integer-cc]
 === Integer Calling Convention
 
 The base integer calling convention provides eight argument registers,
@@ -215,21 +216,6 @@ Fixed-length vectors are treated as aggregates.
 Empty structs or union arguments or return values are ignored by C compilers
 which support them as a non-standard extension.  This is not the case for {Cpp},
 which requires them to be sized types.
-
-Bitfields are packed in little-endian fashion. A bitfield that would span the
-alignment boundary of its integer type is padded to begin at the next
-alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
-a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
-undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
-type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
-undefined.
-
-Bitfields may larger than its integer type, bits excess than its integer
-type will treat as padding bits, then padding to begin at the next alignment
-boundary. For example `struct { char x : 9; char y; }` is a 24 byte type with
-`x` in bits 7-0, `y` in bit 23-16, and bits 15-8 undefined,
-`struct { char x : 9; char y : 2 }` is a 16-bit type with `x` in bits 7-0, `y`
-in bit 10-9, and bit 8, bits 15-11 is undefined.
 
 Arguments passed by reference may be modified by the callee.
 
@@ -639,15 +625,66 @@ The type `size_t` is defined as `unsigned int` for RV32 and `unsigned long` for 
 
 The type `ptrdiff_t` is defined as `int` for RV32 and `long` for RV64.
 
+=== Bit-fields
+
+Bit-fields are packed in little-endian fashion. A bit-field that would span the
+alignment boundary of its integer type is padded to begin at the next
+alignment boundary. For example, `struct { int x : 10; int y : 12; }` is
+a 32-bit type with `x` in bits 9-0, `y` in bits 21-10, and bits 31-22
+undefined.  By contrast, `struct { short x : 10; short y : 12; }` is a 32-bit
+type with `x` in bits 9-0, `y` in bits 27-16, and bits 31-28 and bits 15-10
+undefined.
+
+Bit-fields which are larger than their integer types are only present in {Cpp}
+and are defined by the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>.  The bit-field
+and containing struct are aligned on a boundary corresponding to the largest
+integral type smaller than the bit-field, up to 64-bit alignment on RV32 or
+128-bit alignment on RV64.  Any bits in excess of the size of the declared type
+are treated as padding.  For example `struct { char x : 9; char y; }` is a
+24-bit type with `x` in bits 7-0, `y` in bit 23-16, and bits 15-8 undefined;
+`struct { char x : 9; char y : 2 }` is a 16-bit type with `x` in bits 7-0, `y`
+in bit 10-9, and bits 8 and 15-11 undefined.
+
+Unnamed nonzero length bit-fields allocate space in the same fashion as named
+bitfields but do not affect the alignment of the containing struct.
+
+Zero length bit-fields are aligned relative to the start of the containing
+struct according to their declared type and, since they must be unnamed, do not
+affect the struct alignment.  C requies bit-fields on opposite sides of a
+zero-length bitfield to be treated as separate memory locations for the
+purposes of data races.
+
 === va_list, va_start, and va_arg
 
-The `va_list` type is `void*`. A callee with variadic arguments is responsible
-for copying the contents of registers used to pass variadic arguments to the
-vararg save area, which must be contiguous with arguments passed on the stack.
-The `va_start` macro initializes its `va_list` argument to point to the start
-of the vararg save area.  The `va_arg` macro will increment its `va_list`
-argument according to the size of the given type, taking into account the
-rules about 2×XLEN aligned arguments being passed in "aligned" register pairs.
+The `va_list` type has the same representation as `void*` and points to a
+sequence of zero or more arguments with preceding padding for alignment,
+formatted and aligned as variadic arguments passed on the stack according to
+the integer calling convention (<<integer-cc>>). All standard calling conventions use the
+same representation for variadic arguments to allow `va_list` types to be
+shared between them.
+
+The `va_start` macro in a function initializes its `va_list` argument to point
+to the first address at which a variadic argument could be passed to the
+function. If all integer argument registers are used for named formal
+arguments, the first variadic argument will have been passed on the stack by
+the caller, and the `va_list` can point to the address immediately after the
+last named argument passed on the stack, or the `sp` value on entry if no named
+arguments were passed on the stack. If some integer argument registers were not
+used for named formal arguments, then the first variadic argument may have been
+passed in a register.  The function is then expected to construct a _varargs
+save area_ immediately below the entry `sp` and fill it with the entry values
+of all integer argument registers not used for named arguments, in sequence.
+The `va_list` value can then be initialized to the start of the varargs save
+area, and it will iterate through any variadic arguments passed via registers
+before continuing to variadic arguments passed on the stack, if any.
+
+The `va_arg` macro will align its `va_list` argument, fetch a value, and
+increment the `va_list` according to the alignment and size of a variadic
+argument of the given type, which may not be the same as the alignment and size
+of the given type in memory. If the type is passed by reference, the size and
+alignment used will be those of a pointer, and the fetched pointer will be used
+as the address of the actual argument. The `va_copy` macro is a single pointer
+copy and the `va_end` macro performs no operation.
 
 === Vector type sizes and alignments
 
