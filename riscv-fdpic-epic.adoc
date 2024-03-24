@@ -490,6 +490,80 @@ Document new pseudoinstructions and changes to pseudoinstructions.
 
 Document new relocation syntax.
 
+=== FLAT
+
+Static PIE ELF binaries provide all functionality of FLAT binaries except for
+the deprecated and poorly supported ID-based shared library mechanism in a more
+consistent and flexible, but equally simple, fashion. This document recommends
+use of static PIE ELF in preference to FLAT in all new systems.
+
+The following bugs and design flaws are known to exist in FLAT binary support
+for RISC-V as of 2024-03-23:
+
+1. On non-RISC-V architectures, FLAT provides a single type of relocation,
+which produces a pointer-sized value. 64-bit RISC-V FLAT binaries relocate
+32-bit fields, causing address corruption if the load address is greater than
+4GB.
+
+2. FLAT provides a "RISC-V specific GOT header" which must be skipped by the
+kernel during the relocation process. This is a misinterpretation; the data
+structure which the kernel is interpreting is part of the ELF lazy binding
+definition. It is not architecure specific in any way, but the kernel provides
+an architecture-specific workaround for an elf2flt behavior which in turn means
+that the elf2flt bug must be retained in an architecture-specific fashion to
+match kernel expectations.
+
+3. FLAT binaries on other architectures have a variable length area immediately
+before the data segment used to store pointers to other data segments to
+support the ID-based shared library ABI on MC68000. Since no attempt was made
+to define a GP-relative ABI before adding RISC-V to FLAT, all RISC-V FLAT
+binaries are effectively CONSTDISP. Rather than setting a flag in the FLAT
+header to require data immediately adjacent to text, this was made into a
+Kconfig option, CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET.
+
+4. Unlike other FLAT architectures, neither FLAT_PLAT_INIT nor start_thread
+passes the data segment location to the new process; it is impossible to find
+the process data segment without setting FLAT_FLAG_RAM on the image and relying
+on the implicit layout effects of CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET.
+
+5. Insufficient alignment is provided for `__init_array` sections on RV64; see
+https://github.com/uclinux-dev/elf2flt/pull/34[].
+
+6. FLAT_PLAT_INIT does not zero registers, which allows insecure information
+leaking from the parent process in the MMU case and makes forward compatible
+changles to FLAT_PLAT_INIT difficult.
+
+7. Shared library pointers are still written with
+CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET; this corrupts the last pointer's
+worth of the text segment. A fix exists.
+
+The last three are ABI-independent bugs and fixes are being persued independent
+of the FDPIC/ePIC effort.
+
+ePIC provides exactly the type of ABI that FLAT was designed to use, and adding
+ePIC support to FLAT will maximize similarity between RISC-V FLAT and other
+architectures. The proposal is to set gp in FLAT_PLAT_INIT to
+`current->mm->start_data + 0x800`; this will be usable as-is, but a constant
+can be added to gp in `_start` code if `__global_pointer$` is somewhere else.
+There is an obvious and well defined mapping of the ID-based FLAT shared
+library ABI to RISC-V; no attempt will be made to implement compiler or linker
+support for it, as software support for the linkage model is minimal to
+nonexistent.
+
+Constant-displacement FLAT binaries are useful, at least to the extent that it
+is ever useful to use FLAT instead of ELF static-PIE. The proposal is to add an
+architecture neutral FLAT_FLAG_CONSTDISP flag, which implies the current
+effects of FLAT_FLAG_RAM and CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET, but with
+the effects on data layout explicit.
+
+Fixing the first three issues requires breaking compatibility between old
+kernels and new elf2flt tools. The proposal is to add
+CONFIG_BINFMT_FLAT_BROKEN_RISCV, replacing
+CONFIG_BINFMT_FLAT_NO_DATA_START_OFFSET. CONFIG_BINFMT_FLAT_BROKEN_RISCV
+implies FLAT_FLAG_CONSTDISP for all binaries, forces relocations to apply to
+32-bit values instead of pointer-sized, and modifies the relocation logic to
+skip the ELF-specific PLTGOT header.
+
 == Changes to toolchain and runtime software
 
 === gcc
