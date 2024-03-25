@@ -650,7 +650,7 @@ bitfields but do not affect the alignment of the containing struct.
 
 Zero length bit-fields are aligned relative to the start of the containing
 struct according to their declared type and, since they must be unnamed, do not
-affect the struct alignment.  C requies bit-fields on opposite sides of a
+affect the struct alignment.  C requires bit-fields on opposite sides of a
 zero-length bitfield to be treated as separate memory locations for the
 purposes of data races.
 
