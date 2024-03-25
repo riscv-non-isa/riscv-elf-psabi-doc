@@ -463,15 +463,7 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 45      .2+| RVC_JUMP      .2+| Static  | _CJ-Type_         .2+| 11-bit PC-relative jump offset
                                             <| S + A - P
-.2+| 46      .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
-                                            <|
-.2+| 47      .2+| GPREL_LO12_I  .2+| Static  | _I-type_          .2+| Low 12 bits of a 32-bit GP-relative address, `%gprel_lo(symbol)`
-                                            <| S + A - GP
-.2+| 48      .2+| GPREL_LO12_S  .2+| Static  | _S-Type_          .2+| Low 12 bits of a 32-bit GP-relative address, `%gprel_lo(symbol)`
-                                            <| S + A - GP
-.2+| 49      .2+| GPREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit GP-relative address, `%gprel_hi(symbol)`
-                                            <| S + A - GP
-.2+| 50      .2+| *Reserved*                          .2+| -        |                  .2+| Reserved for future standard use
+.2+| 46-50   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address
                                             <|
