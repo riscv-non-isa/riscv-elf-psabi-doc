@@ -1085,12 +1085,15 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
 | .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
+| .note.gnu.property         | SHT_NOTE             | SHF_ALLOC
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
 
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
+
++++.note.gnu.property+++ names a section that contains a program property note.
 
 === Program Header Table
 
@@ -1354,6 +1357,43 @@ combined. However, an exception exists: the value `0` can merge with `1` or `2`
 value. After the merge, the resulting value will be the non-zero one.
 
 --
+
+=== Program Property
+
+Program property are used to record information about an object file/binary that
+a linker or runtime loader needs to check compatibility.
+
+The program property is divided into different classes, each defining a range
+of program property types and specifying the merge semantics. This is designed
+for forward compatibility in linker implementations, allowing them to correctly
+handle program property types even if they are not recognized.
+
+[[rv-prog-prop-classes]]
+.RISC-V-specific program property classes
+[cols="3,2,2,5"]
+[width=100%]
+|===
+| Name           | Range                    | Data Type | Merge Semantic
+
+| UINT32_AND     | 0xc0000000 ~ 0xc0007fff  | 4-bytes   | A bit is set if it is set in all inputs.
+| UINT32_OR      | 0xc0008000 ~ 0xc000ffff  | 4-bytes   | A bit is set if it is set in any inputs.
+| UINT32_OR_AND  | 0xc0010000 ~ 0xc0017fff  | 4-bytes   | A bit is set if it is set in any inputs and the property is present in all inputs.
+|===
+
+[[rv-prog-prop-class-constants]]
+.Constants for RISC-V-specific program property class
+[cols="3,2"]
+[width=80%]
+|===
+| Name                                 | Value
+
+| GNU_PROPERTY_RISCV_UINT32_AND_LO     | 0xc0000000
+| GNU_PROPERTY_RISCV_UINT32_AND_HI     | 0xc0007fff
+| GNU_PROPERTY_RISCV_UINT32_OR_LO      | 0xc0008000
+| GNU_PROPERTY_RISCV_UINT32_OR_HI      | 0xc000ffff
+| GNU_PROPERTY_RISCV_UINT32_OR_AND_LO  | 0xc0010000
+| GNU_PROPERTY_RISCV_UINT32_OR_AND_HI  | 0xc0017fff
+|===
 
 === Mapping Symbol
 
