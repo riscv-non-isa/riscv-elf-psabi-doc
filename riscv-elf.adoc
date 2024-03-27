@@ -1092,22 +1092,6 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
 
-=== Program Header Table
-
-The defined processor-specific segment types are listed in <<rv-seg-type>>.
-
-[[rv-seg-type]]
-.RISC-V-specific segment types
-[cols="3,2,3"]
-[width=80%]
-|===
-| Name                 | Value       | Meaning
-
-| PT_RISCV_ATTRIBUTES  | 0x70000003  | RISC-V ELF attribute section.
-|===
-
-`PT_RISCV_ATTRIBUTES` describes the location of RISC-V ELF attribute section.
-
 === Note Sections
 
 There are no RISC-V specific definitions relating to ELF note sections.
