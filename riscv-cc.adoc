@@ -595,7 +595,7 @@ member. The size of any object is a multiple of its alignment.
 === Fixed-length vector
 
 Various compilers have support for fixed-length vector types, for example GCC
-and Clang both support declaring a type with `__attribute__((vector_size(N))`,
+and Clang both support declaring a type with `\\__attribute__\((vector_size(N))`,
 where N is a positive number larger than zero.
 
 The alignment requirement for the fixed length vector shall be equivalent to the
