@@ -1247,16 +1247,11 @@ The defined processor-specific dynamic array tags are listed in <<rv-dyn-tag>>.
 | Name                | Value      | d_un  | Executable        | Shared Object
 
 | DT_RISCV_VARIANT_CC | 0x70000001 | d_val | Platform specific | Platform specific
-| DT_RISCV_SIMPLE_LP_PLT | 0x70000003 | d_val | Platform specific | Platform specific
 |===
 
 An object must have the dynamic tag `DT_RISCV_VARIANT_CC` if it has one or more
 `R_RISCV_JUMP_SLOT` relocations against symbols with the `STO_RISCV_VARIANT_CC`
 attribute.
-
-`DT_RISCV_SIMPLE_LP_PLT` indicate PLTs enabled landing pad with simple labeling
-scheme, an object must have the dynamic tag `DT_RISCV_SIMPLE_LP_PLT` if
-`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` has set in the output.
 
 `DT_INIT` and `DT_FINI` are not required to be supported and should be avoided
 in favour of `DT_PREINIT_ARRAY`, `DT_INIT_ARRAY` and `DT_FINI_ARRAY`.
