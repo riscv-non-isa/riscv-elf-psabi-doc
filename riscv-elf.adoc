@@ -777,6 +777,7 @@ And occupies three 16 byte entries for the simple landing pad PLT style:
     jr     t3
     nop
     nop
+    nop
 ----
 
 Subsequent function entry stubs in the PLT take up 16 bytes.
