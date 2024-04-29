@@ -1100,6 +1100,10 @@ The defined processor-specific segment types are listed in <<rv-seg-type>>.
 
 `PT_RISCV_ATTRIBUTES` describes the location of RISC-V ELF attribute section.
 
+WARNING: `PT_RISCV_ATTRIBUTES` is deprecated. The build attributes section does
+not contain the `SHF_ALLOC` flag. Dynamic loaders cannot assume that the region
+described by `PT_RISCV_ATTRIBUTES` is present.
+
 === Note Sections
 
 There are no RISC-V specific definitions relating to ELF note sections.
