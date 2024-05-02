@@ -1220,19 +1220,18 @@ as `rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0` in which the
 abbreviation `g` is expanded to the `imafd_zicsr_zifencei` combination with
 default versions of the standard extensions.
 
-The toolchain should normalized the architecture string into canonical order
-which defined in
+The toolchain should normalize the architecture string by expanding all
+required extensions and placing them in canonical order which is defined in
 _The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document_ <<riscv-unpriv>>
-, expanded with all required extension and should add shorthand extension into
-architecture string if all expanded extensions are included in architecture
-string.
+. Shorthand extensions should be expanded into the architecture string if all
+expanded extensions are included in the architecture string.
 
 NOTE: A shorthand extension is an extension that does not define any actual
 instructions, registers or behavior, but requires other extensions, such as the
-`zks` extension, which is defined in the cryptographic extension,
+`zks` cryptography extension.
 `zks` extension is shorthand for `zbkb`, `zbkc`, `zbkx`, `zksed` and `zksh`, so
 the toolchain should normalize `rv32i_zbkb_zbkc_zbkx_zksed_zksh` to
-`rv32i_zbkb_zbkc_zbkx_zks_zksed_zksh`; `g` is an exception and does not apply to
+`rv32i_zbkb_zbkc_zbkx_zks_zksed_zksh`; `g` is an exception and does not follow
 this rule.
 
 Merge Policy:::
