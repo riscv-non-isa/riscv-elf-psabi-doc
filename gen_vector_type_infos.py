@@ -81,7 +81,7 @@ print (".Type sizes and alignments for vector data types")
 print ("[cols=\"4,3,>3,>2\"]")
 print ("[width=80%]")
 print ("|===")
-print("| Internal Name | Type | Description")
+print ("| Internal Name          | Type                 | Size (Bytes)  | Alignment (Bytes)")
 print("")
 
 for sew in SEW:
@@ -93,6 +93,8 @@ for sew in SEW:
             mname = "__rvv_" + typename
             size = sizestr(lmul)
             print ("| %-22s | %-20s | %-18s | %d" %(mname, typename, size, sew/8))
+print ("|===")
+print ("")
 
 print (".Type sizes and alignments for vector tuple types")
 print ("[cols=\"4,3,>3,>2\"]")
@@ -100,6 +102,7 @@ print ("[width=80%]")
 print ("|===")
 
 print ("| Internal Name          | Type                 | Size (Bytes)  | Alignment (Bytes)")
+print ("")
 for sew in SEW:
     for lmul in LMUL:
         for nf in NF:
@@ -110,3 +113,4 @@ for sew in SEW:
                 mname = "__rvv_" + typename
                 size = sizestr(lmul, nf)
                 print ("| %-22s | %-20s | %-18s | %d" %(mname, typename, size, sew/8))
+print ("|===")

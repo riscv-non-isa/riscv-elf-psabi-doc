@@ -2,7 +2,7 @@
 [cols="4,3,>3,>2"]
 [width=80%]
 |===
-| Internal Name | Type | Description
+| Internal Name          | Type                 | Size (Bytes)  | Alignment (Bytes)
 
 | __rvv_vint8mf8_t       | vint8mf8_t           | (VLEN / 8) / 8     | 1
 | __rvv_vuint8mf8_t      | vuint8mf8_t          | (VLEN / 8) / 8     | 1
@@ -88,11 +88,14 @@
 | __rvv_vint64m8_t       | vint64m8_t           | (VLEN / 8) * 8     | 8
 | __rvv_vuint64m8_t      | vuint64m8_t          | (VLEN / 8) * 8     | 8
 | __rvv_vfloat64m8_t     | vfloat64m8_t         | (VLEN / 8) * 8     | 8
+|===
+
 .Type sizes and alignments for vector tuple types
 [cols="4,3,>3,>2"]
 [width=80%]
 |===
 | Internal Name          | Type                 | Size (Bytes)  | Alignment (Bytes)
+
 | __rvv_vint8mf8x2_t     | vint8mf8x2_t         | (VLEN / 8) / 4     | 1
 | __rvv_vuint8mf8x2_t    | vuint8mf8x2_t        | (VLEN / 8) / 4     | 1
 | __rvv_vfloat8mf8x2_t   | vfloat8mf8x2_t       | (VLEN / 8) / 4     | 1
@@ -477,3 +480,4 @@
 | __rvv_vint64m4x2_t     | vint64m4x2_t         | (VLEN / 8) * 8     | 8
 | __rvv_vuint64m4x2_t    | vuint64m4x2_t        | (VLEN / 8) * 8     | 8
 | __rvv_vfloat64m4x2_t   | vfloat64m4x2_t       | (VLEN / 8) * 8     | 8
+|===
