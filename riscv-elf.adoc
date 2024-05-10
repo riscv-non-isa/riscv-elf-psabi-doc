@@ -735,7 +735,7 @@ for using all other PLT sytles.
 |===
 | Default PLT                  | -
 | Unlabeled landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
-| Complex landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_COMPLEX` is set.
+| Function signature based landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG` is set.
 |===
 
 The first entry of a shared object PLT is a special entry that calls
@@ -748,7 +748,7 @@ entries is intended to speed up program loading by deferring symbol
 resolution to the first time the function is called.
 
 The PLT entry is 16 bytes for the default PLT style and the simple landing pad
-PLT style, and 32 bytes for the complex landing pad PLT style.
+PLT style, and 32 bytes for the function signature based landing pad PLT style.
 
 The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
@@ -781,35 +781,20 @@ And occupies three 16 byte entries for the unlabeled landing pad PLT style:
     nop
 ----
 
-The complex landing pad PLT style occupies two 32 byte entries:
+The function signature based landing pad PLT style occupies two 32 byte entries:
 
 [,asm]
 ----
 1:  lpad 0
     sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 24
-    auipc  t2, %pcrel_hi(.got.plt)
-    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
-    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+    auipc  t3, %pcrel_hi(.got.plt)
+    addi   t0, t3, %pcrel_lo(1b)    # &.got.plt
+    l[w|d] t3, %pcrel_lo(1b)(t3)    # _dl_runtime_resolve
     addi   t1, t1, -(hdr size + 24) # shifted .got.plt offset
     srli   t1, t1, log2(32/PTRSIZE) # .got.plt offset
     l[w|d] t0, PTRSIZE(t0)          # link map
     jr     t3
     nop
-    nop
-----
-
-
-[,asm]
-----
-1:  lpad 0
-    auipc  t2, %pcrel_hi(.got.plt)
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 24
-    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
-    addi   t1, t1, -(hdr size + 24) # shifted .got.plt offset
-    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
-    srli   t1, t1, log2(32/PTRSIZE) # .got.plt offset
-    l[w|d] t0, PTRSIZE(t0)          # link map
-    jr     t3
     nop
     nop
 ----
@@ -838,7 +823,7 @@ The code sequences of the PLT entry for the unlabeled landing pad PLT style:
     jalr    t1, t3
 ----
 
-The code sequences of the PLT entry for the the complex landing pad PLT style:
+The code sequences of the PLT entry for the the function signature based landing pad PLT style:
 [,asm]
 ----
 1:  lpad    <hash-value-for-function>
@@ -1569,7 +1554,7 @@ operation when merging different objects.
 | Bit | Bit Name
 |   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED
 |   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
-|   2 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_COMPLEX
+|   2 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG
 |===
 
 `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`: This bit indicates that all
@@ -1587,7 +1572,7 @@ or the `Zimop` extension. When the executable or shared library is compiled with
 compressed instructions then loading it with this bit set requires the execution
 environment to provide the `Zicfiss` extension or the `Zimop` extensions.
 
-`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_COMPLEX` This bit indicate that all executable
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG` This bit indicate that all executable
 sections are built to be compatible with the landing pad mechanism provided by
 the `Zicfilp` extension. An executable or shared library with this bit set is
 required to generate PLTs with the landing pad (`lpad`) instruction, and all
@@ -1637,21 +1622,27 @@ is not enough for the disassembler to disassemble the `rv64gcv` version
 correctly. Specifying ISA string appropriately with the two memcpy instruction
 mapping symbols helps the disassembler to disassemble instructions correctly.
 
-== Label Value Compuatation for Complex Labeling Scheme Landing Pad
+== Label Value Compuatation for Function Signature based Scheme Landing Pad
 
-The label value for the complex labeling scheme landing pad is computed from the
+The label value for the function signature based labeling scheme landing pad is computed from the
 hash of the function signature string, which uses the same scheme as the
 "Function types" mangling rule defined in the _Itanium {Cpp} ABI_
-<<itanium-cxx-abi>>, the value is taken from the lower 20 bits of the MD5
-hash result of the function signature string.
+<<itanium-cxx-abi>>, and the function signature will use the "Compression" rule
+defined in  _Itanium {Cpp} ABI_, the value is taken from the lower 20 bits of
+the MD5 hash result of the function signature string.
 
-Additionally, here are a few specific rules for {Cpp} member functions:
+Additionally, here are a few specific rules:
 
+- `main` funciton is using signature of
+   `(int, pointer to pointer to char) returning int` (`FiiPPcE`).
+- `_dl_runtime_resolve` use zero for the landing pad.
 - {Cpp} member functions should use the "Pointer-to-member types" mangling rule
   defined in the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>.
 - Virtual functions in {Cpp} should use the member function type of the base
   class that first defined the virtual function.
-
+- If a virtual function is inherited from more than one base class, it should
+  use the type of the first base class. Thunk functions will use the type of
+  the corresponding base class.
 
 Example:
 
@@ -1675,7 +1666,13 @@ public:
   void memfunc4();
 };
 
-class DerivedDerived : public Derived
+class OtherBase
+{
+public:
+  virtual void memfunc2(int);
+}
+
+class DerivedDerived : public Derived, OtherBase
 {
 public:
   virtual void memfunc2(int);
@@ -1688,9 +1685,13 @@ The function signatures for the above functions are described below:
 
 - `foo` is encoded as `FdiPfE`.
 - `Base::memfunc1` and `Derived::memfunc1` are both encoded as `M4BaseFvvE`.
-- `Base::memfunc2` and `DerivedDerived::memfunc2` are both encoded as `M4BaseFviE`.
-- `Derived::memfunc3` and `DerivedDerived::memfunc3` are both encoded as `M7DerivedFvdE`.
+- `Base::memfunc2` is encoded as `M4BaseFviE`.
+- `OtherBase::memfunc2` is encoded as `M9OtherBaseFviE`.
+- `Derived::memfunc3` and `DerivedDerived::memfunc3` are both encoded as
+  `M7DerivedFvdE`.
 - `Derived::memfunc4` is encoded as `M7DerivedFvvE`.
+- `DerivedDerived::memfunc2` is encoded as `M4BaseFviE`, and the thunk function
+   for `OtherBase::memfunc2` will be `M9OtherBaseFviE`.
 
 == Linker Relaxation
 
