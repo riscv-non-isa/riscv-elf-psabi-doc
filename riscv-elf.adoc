@@ -156,6 +156,11 @@ NOTE: Same as getting address of symbol, each pool entry has to be located
 within the range between -2GiB and +2GiB from its access intructions.  The
 function call can reach the whole 64-bit address space.
 
+NOTE: The code generation of function call may be changed after the range
+extension thunk is implemented. The compiler can emit `call` directly,
+and leave the model variation to the linker which could decide to jump
+via the literal pool or not.
+
 [,asm]
 ----
          # Function call
