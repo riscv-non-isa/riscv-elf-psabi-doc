@@ -1639,23 +1639,20 @@ Additionally, here are a few specific rules:
 - {Cpp} member functions should use the "Pointer-to-member types" mangling rule
   defined in the Itanium C++ ABI <<itanium-cxx-abi>> with the following
   additional rules:
-  - Virtual functions in {Cpp} should use the member function type of the base
-    class that first defined the virtual function.
-  - If a virtual function is inherited from more than one base class, it should
-    use the type of the first base class. Thunk functions will use the type of
-    the corresponding base class.
-  - The return type of a class member function should mangle to `void *` if it
-    is a pointer or reference to a non-primitive type. A pointer to a pointer
-    of a non-primitive type is not included in this rule.
+  - Virtual functions should use `v` for `<class type>` rather than the actual
+    class name.
+  - The return type of a virtual class member function should mangle to
+    `void *` if it is a pointer or reference to a non-primitive type. A pointer
+    to a pointer of a non-primitive type is not included in this rule.
   - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
   - `<exception-sepc>` should be ignored.
-  - Static function is following the rule as normal function.
+  - Static function is following the rule as non-member function.
 - `wchar_t` should match the type of the target platform. For example, on
    Linux, it uses `int`, so it mangles to `i` rather than `w` for {Cpp}.
 - Function with an empty parameter list are treated as `void` (`v`).
 
-NOTE: The special rule for the return type of class member functions is defined
-      to handle covariant return types.
+NOTE: The special rule for the return type of virtual class member functions is
+      defined to handle covariant return types.
 
 NOTE: Class destructors generally should not be called via indirect call, but
       they may be registered as program destructors via `__cxa_atexit`.
