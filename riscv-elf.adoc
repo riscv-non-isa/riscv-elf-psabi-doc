@@ -1651,9 +1651,11 @@ Additionally, here are a few specific rules:
   - `<exception-sepc>` should be ignored.
   - Static function is following the rule as normal function.
 - `wchar_t` should match the type of the target platform. For example, on
-   Linux, it uses int, so it mangles to `i` rather than `w`.
+   Linux, it uses `int`, so it mangles to `i` rather than `w` for {Cpp}.
 - Function with an empty parameter list are treated as `void` (`v`).
 
+NOTE: The special rule for the return type of class member functions is defined
+      to handle covariant return types.
 
 NOTE: Class destructors generally should not be called via indirect call, but
       they may be registered as program destructors via `__cxa_atexit`.
@@ -1661,7 +1663,7 @@ NOTE: Class destructors generally should not be called via indirect call, but
       `__cxa_atexit`, which is `void (*)(void*)`.
 
 NOTE: `<exception-spec>` is ignored due to C++ standard backward compatibility,
-      as it was introduced after C++17.
+      as it was introduced after {Cpp}17.
 
 Example:
 
