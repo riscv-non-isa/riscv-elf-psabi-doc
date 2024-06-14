@@ -1635,14 +1635,33 @@ Additionally, here are a few specific rules:
 
 - `main` funciton is using signature of
    `(int, pointer to pointer to char) returning int` (`FiiPPcE`).
-- `_dl_runtime_resolve` use zero for the landing pad.
+- `_dl_runtime_resolve` uses zero for the landing pad.
 - {Cpp} member functions should use the "Pointer-to-member types" mangling rule
-  defined in the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>.
-- Virtual functions in {Cpp} should use the member function type of the base
-  class that first defined the virtual function.
-- If a virtual function is inherited from more than one base class, it should
-  use the type of the first base class. Thunk functions will use the type of
-  the corresponding base class.
+  defined in the Itanium C++ ABI <<itanium-cxx-abi>> with the following
+  additional rules:
+  - Virtual functions in {Cpp} should use the member function type of the base
+    class that first defined the virtual function.
+  - If a virtual function is inherited from more than one base class, it should
+    use the type of the first base class. Thunk functions will use the type of
+    the corresponding base class.
+  - The return type of a class member function should mangle to `void *` if it
+    is a pointer or reference to a non-primitive type. A pointer to a pointer
+    of a non-primitive type is not included in this rule.
+  - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
+  - `<exception-sepc>` should be ignored.
+  - Static function is following the rule as normal function.
+- `wchar_t` should match the type of the target platform. For example, on
+   Linux, it uses int, so it mangles to `i` rather than `w`.
+- Function with an empty parameter list are treated as `void` (`v`).
+
+
+NOTE: Class destructors generally should not be called via indirect call, but
+      they may be registered as program destructors via `__cxa_atexit`.
+      Therefore, they must match the signature of the argument of
+      `__cxa_atexit`, which is `void (*)(void*)`.
+
+NOTE: `<exception-spec>` is ignored due to C++ standard backward compatibility,
+      as it was introduced after C++17.
 
 Example:
 
