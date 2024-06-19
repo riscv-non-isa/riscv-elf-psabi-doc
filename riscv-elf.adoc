@@ -1369,29 +1369,30 @@ A number of symbols, named mapping symbols, describe the boundaries.
 The mapping symbol should set the type to `STT_NOTYPE`, binding to `STB_LOCAL`,
 and the size of symbol to zero.
 
-The mapping symbol for data(`$d`) indicates the start of a sequence of data bytes.
+The mapping symbol for data(`$d`) indicates the start of a sequence of data
+bytes.
 
 The mapping symbol for instruction(`$x`) indicates the start of a sequence of
-instructions.
-and it has an optional ISA string, which means the following code regions are
-using ISA is different than the ISA recorded in the arch attribute;
-the ISA information will used until the next instruction mapping symbol;
-an instruction mapping symbol without ISA string means using ISA configuration
-from ELF attribute.
-
-Format and rule of the optional ISA string are same as `Tag_RISCV_arch`, must
-having explicit version, more detailed rule please refer to <<Attributes>>.
+instructions. It has an optional ISA string that indicates the following code
+regions are using ISA which is different from the ISA recorded in the arch
+attribute. The optional ISA information, when present, will be used until the
+next instruction mapping symbol. An instruction mapping symbol without ISA
+string means using ISA configuration from ELF attribute. The format and rules
+of the optional ISA string are same as `Tag_RISCV_arch` and must have explicit
+version. For more detailed rules, please refer to <<Attributes>>.
 
 The mapping symbol can be followed by an optional uniquifier, which is prefixed
 with a dot (`.`).
 
 NOTE: The use case for mapping symbol for instruction(`$x`) with ISA information
-is used with ifunc, e.g. libraries are built with `rv64gc`, but few functions
-like memcpy provides two versions, one built with `rv64gc`, and one built with
-`rv64gcv`, and select by ifunc mechanism at run-time; however, the arch
-attribute is recording for minimal execution environment requirements, so the
-ISA information from arch attribute is not enough for the disassembler to
-disassemble the `rv64gcv` version correctly.
+is used with `IFUNC`. Consider a scenario where C library is built with `rv64gc`
+but few functions like memcpy may provide two versions, one built with `rv64gc`
+and another built with `rv64gcv`, and the `IFUNC` mechanism selects one version
+of those at run-time. However, the arch attribute is recorded for the minimal
+execution environment requirements, so the ISA information from arch attribute
+is not enough for the disassembler to disassemble the `rv64gcv` version
+correctly. Specifying ISA string appropriately with the two memcpy instruction
+mapping symbols helps the disassembler to disassemble instructions correctly.
 
 == Linker Relaxation
 
