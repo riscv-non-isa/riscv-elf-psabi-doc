@@ -536,53 +536,53 @@ ILP32, ILP32F, ILP32D, and ILP32E:: Use the following type sizes and
 alignments (based on the ILP32 convention):
 +
 .C/{Cpp} type sizes and alignments for RV32
-[cols="4,>2,>3"]
+[cols="4,>2,>3,4"]
 [width=60%]
 |===
-| Type                 | Size (Bytes)  | Alignment (Bytes)
+| Type                 | Size (Bytes)  | Alignment (Bytes) | Note
 
-| bool/_Bool           |  1            |  1
-| char                 |  1            |  1
-| short                |  2            |  2
-| int                  |  4            |  4
-| long                 |  4            |  4
-| long long            |  8            |  8
-| void *               |  4            |  4
-| +++__bf16+++         |  2            |  2
-| _Float16             |  2            |  2
-| float                |  4            |  4
-| double               |  8            |  8
-| long double          | 16            | 16
-| float _Complex       |  8            |  4
-| double _Complex      | 16            |  8
-| long double _Complex | 32            | 16
+| bool/_Bool           |  1            |  1                |
+| char                 |  1            |  1                |
+| short                |  2            |  2                |
+| int                  |  4            |  4                |
+| long                 |  4            |  4                |
+| long long            |  8            |  8                |
+| void *               |  4            |  4                |
+| +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
+| _Float16             |  2            |  2                | Half precision floating point (binary16 in IEEE 754-2008)
+| float                |  4            |  4                | Single precision floating point (binary32 in IEEE 754-2008)
+| double               |  8            |  8                | Double precision floating point (binary64 in IEEE 754-2008)
+| long double          | 16            | 16                | Quadruple precision floating point (binary128 in IEEE 754-2008)
+| float _Complex       |  8            |  4                |
+| double _Complex      | 16            |  8                |
+| long double _Complex | 32            | 16                |
 |===
 
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
 alignments (based on the LP64 convention):
 +
 .C/{Cpp} type sizes and alignments for RV64
-[cols="4,>2,>3"]
+[cols="4,>2,>3,4"]
 [width=60%]
 |===
-| Type                 | Size (Bytes)  | Alignment (Bytes)
+| Type                 | Size (Bytes)  | Alignment (Bytes) | Note
 
-| bool/_Bool           |  1            |  1
-| char                 |  1            |  1
-| short                |  2            |  2
-| int                  |  4            |  4
-| long                 |  8            |  8
-| long long            |  8            |  8
-| +++__int128+++       | 16            | 16
-| void *               |  8            |  8
-| +++__bf16+++         |  2            |  2
-| _Float16             |  2            |  2
-| float                |  4            |  4
-| double               |  8            |  8
-| long double          | 16            | 16
-| float _Complex       |  8            |  4
-| double _Complex      | 16            |  8
-| long double _Complex | 32            | 16
+| bool/_Bool           |  1            |  1                |
+| char                 |  1            |  1                |
+| short                |  2            |  2                |
+| int                  |  4            |  4                |
+| long                 |  8            |  8                |
+| long long            |  8            |  8                |
+| +++__int128+++       | 16            | 16                |
+| void *               |  8            |  8                |
+| +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
+| _Float16             |  2            |  2                | Half precision floating point (binary16 in IEEE 754-2008)
+| float                |  4            |  4                | Single precision floating point (binary32 in IEEE 754-2008)
+| double               |  8            |  8                | Double precision floating point (binary64 in IEEE 754-2008)
+| long double          | 16            | 16                | Quadruple precision floating point (binary128 in IEEE 754-2008)
+| float _Complex       |  8            |  4                |
+| double _Complex      | 16            |  8                |
+| long double _Complex | 32            | 16                |
 |===
 
 The alignment of `max_align_t` is 16.
