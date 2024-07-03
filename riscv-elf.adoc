@@ -1639,7 +1639,7 @@ Additionally, here are a few specific rules:
 - {Cpp} member functions should use the "Pointer-to-member types" mangling rule
   defined in the Itanium C++ ABI <<itanium-cxx-abi>> with the following
   additional rules:
-  - Virtual functions should use `v` for `<class type>` rather than the actual
+  - Member functions should use `v` for `<class type>` rather than the actual
     class name.
   - The return type of a virtual class member function should mangle to
     `void *` if it is a pointer or reference to a non-primitive type. A pointer
