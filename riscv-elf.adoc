@@ -1644,8 +1644,9 @@ Additionally, here are a few specific rules:
   - Member functions should use `v` for `<class type>` rather than the actual
     class name, e.g. `M1v` rahter than `M3foo` for `class foo`.
   - The return type of a virtual class member function should mangle to
-    `void *` if it is a pointer or reference to a non-primitive type. A pointer
-    to a pointer of a non-primitive type is not included in this rule.
+    `void *`/`void &` if it is a pointer/reference to a non-primitive
+    type. A pointer to a pointer of a non-primitive type is not included in
+    this rule.
   - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
   - Static function is following the rule as non-member function.
 - `wchar_t` should match the type of the target platform. For example, on
@@ -1676,27 +1677,37 @@ class Base
 public:
   virtual void memfunc1();
   virtual void memfunc2(int);
+  virtual Base *memfunc3(int);
 };
 
 class Derived : public Base
 {
 public:
-  virtual void memfunc1();
-  virtual void memfunc3(double);
-  void memfunc4();
+  virtual void memfunc1() override;
+  virtual Derived *memfunc3(int) override;
+  virtual void memfunc4(double);
+  void memfunc5();
 };
 
 class OtherBase
 {
 public:
   virtual void memfunc2(int);
-}
+};
+
+class OtherClass;
 
 class DerivedDerived : public Derived, OtherBase
 {
 public:
-  virtual void memfunc2(int);
-  virtual void memfunc3(double);
+  virtual void memfunc2(int) override;
+  virtual DerivedDerived *memfunc3(int) override;
+  virtual void memfunc4(double) override;
+  DerivedDerived *memfunc6();
+  OtherClass *memfunc7(float);
+  OtherClass &memfunc8();
+  OtherClass memfunc9(float);
+  int *memfunc10();
 };
 
 ----
@@ -1704,14 +1715,19 @@ public:
 The function signatures for the above functions are described below:
 
 - `foo` is encoded as `FdiPfE`.
-- `Base::memfunc1` and `Derived::memfunc1` are both encoded as `M4BaseFvvE`.
-- `Base::memfunc2` is encoded as `M4BaseFviE`.
-- `OtherBase::memfunc2` is encoded as `M9OtherBaseFviE`.
-- `Derived::memfunc3` and `DerivedDerived::memfunc3` are both encoded as
-  `M7DerivedFvdE`.
-- `Derived::memfunc4` is encoded as `M7DerivedFvvE`.
-- `DerivedDerived::memfunc2` is encoded as `M4BaseFviE`, and the thunk function
-   for `OtherBase::memfunc2` will be `M9OtherBaseFviE`.
+- `Base::memfunc1` and `Derived::memfunc1` are both encoded as `M1vFvvE`.
+- `Base::memfunc2`, `OtherBase::memfunc2` `DerivedDerived::memfunc2`
+   is all encoded as `M1vFviE`.
+- `Base::memfunc3`, `Derived::memfunc3`, `DerivedDerived::memfunc3` is encoded
+   as `M1vFPviE`.
+- `Derived::memfunc4` and `DerivedDerived::memfunc4` are both encoded as
+  `M1vFvdE`.
+- `Derived::memfunc5` is encoded as `M1vFvvE`.
+- `DerivedDerived::memfunc6`, `DerivedDerived::memfunc7` are encoded as
+  `M1vFPviE`.
+- `DerivedDerived::memfunc8` is encoded as `M1vFRvvE`.
+- `DerivedDerived::memfunc9` is encoded as `M1vF10OtherClassvE`.
+- `DerivedDerived::memfunc10` is encoded as `M1vFPivE`.
 
 == Linker Relaxation
 
