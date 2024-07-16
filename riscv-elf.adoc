@@ -1633,26 +1633,28 @@ the MD5 hash result of the function signature string.
 
 Additionally, here are a few specific rules:
 
-- `main` funciton is using signature of
+- `main` function uses the signature of
    `(int, pointer to pointer to char) returning int` (`FiiPPcE`).
 - `_dl_runtime_resolve` uses zero for the landing pad.
-- 'Y' component in the `<function-type>` should be ignored.
+- The 'Y' component in the `<function-type>` should be ignored.
 - `<exception-sepc>` should be ignored.
 - {Cpp} member functions should use the "Pointer-to-member types" mangling rule
   defined in the Itanium C++ ABI <<itanium-cxx-abi>> with the following
   additional rules:
   - Member functions should use `v` for `<class type>` rather than the actual
-    class name, e.g. `M1v` rahter than `M3foo` for `class foo`.
+    class name. For example, use `1v` instead of `3foo` for the `<class type>`
+    in `class foo`.
   - The return type of a virtual class member function should mangle to
-    `void *`/`void &` if it is a pointer/reference to a non-primitive
+    `void *`/`void &`(`Pv`/`Rv`) if it is a pointer/reference to a non-primitive
     type. A pointer to a pointer of a non-primitive type is not included in
     this rule.
   - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
-  - Static function is following the rule as non-member function.
+  - Static functions should follow the rules of non-member functions.
 - `wchar_t` should match the type of the target platform. For example, on
    Linux, it uses `int`, so it mangles to `i` rather than `w` for {Cpp}.
 - Functions with an empty parameter list are treated as explicitly declaring
-  taking no parameters (having void as the parameter list)
+  that they take no parameters (having `void` as the parameter list).
+
 
 NOTE: The special rule for the return type of virtual class member functions is
       defined to handle covariant return types.
@@ -1716,14 +1718,14 @@ The function signatures for the above functions are described below:
 
 - `foo` is encoded as `FdiPfE`.
 - `Base::memfunc1` and `Derived::memfunc1` are both encoded as `M1vFvvE`.
-- `Base::memfunc2`, `OtherBase::memfunc2` `DerivedDerived::memfunc2`
+- `Base::memfunc2`, `OtherBase::memfunc2`, and `DerivedDerived::memfunc2`
    is all encoded as `M1vFviE`.
-- `Base::memfunc3`, `Derived::memfunc3`, `DerivedDerived::memfunc3` is encoded
-   as `M1vFPviE`.
+- `Base::memfunc3`, `Derived::memfunc3`, and `DerivedDerived::memfunc3` are
+   encoded as `M1vFPviE`.
 - `Derived::memfunc4` and `DerivedDerived::memfunc4` are both encoded as
   `M1vFvdE`.
 - `Derived::memfunc5` is encoded as `M1vFvvE`.
-- `DerivedDerived::memfunc6`, `DerivedDerived::memfunc7` are encoded as
+- `DerivedDerived::memfunc6` and `DerivedDerived::memfunc7` are encoded as
   `M1vFPviE`.
 - `DerivedDerived::memfunc8` is encoded as `M1vFRvvE`.
 - `DerivedDerived::memfunc9` is encoded as `M1vF10OtherClassvE`.
