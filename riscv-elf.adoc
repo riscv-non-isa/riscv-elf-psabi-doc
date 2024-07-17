@@ -733,8 +733,8 @@ using all other PLT sytle.
 [cols="1,2"]
 [width=70%]
 |===
-| Default PLT                  | -
-| Simple landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` is set.
+| Default PLT               | -
+| Unlabeled landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
 |===
 
 The first entry of a shared object PLT is a special entry that calls
@@ -765,9 +765,9 @@ And occupies three 16 byte entries for the simple landing pad PLT style:
 ----
 1:  lpad 0
     auipc  t2, %pcrel_hi(.got.plt)
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 16
     l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
-    addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
+    addi   t1, t1, -(hdr size + 16) # shifted .got.plt offset
     addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
     srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
     l[w|d] t0, PTRSIZE(t0)          # link map
@@ -1508,21 +1508,23 @@ Description:: Additional information about the program property type.
 
 ==== GNU_PROPERTY_RISCV_FEATURE_1_AND
 
-`GNU_PROPERTY_RISCV_FEATURE_1_AND` describe a set of features, each bit describe
-a different features.
+
+`GNU_PROPERTY_RISCV_FEATURE_1_AND` describes a set of features, where each bit
+represents a different feature. The linker should perform a bitwise AND
+operation when merging different objects.
 
 [%autowidth]
 |===
 | Bit | Bit Name
-|   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE
+|   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED
 |   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
 |===
 
-`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_SIMPLE` This bit indicate that all executable
-sections are built to be compatible with the landing pad mechanism provided by
-the `Zicfilp` extension. An executable or shared library with this bit set is
-required to generate PLTs with the landing pad (`lpad`) instruction, and all
-label are set to `0`.
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` This bit indicate that all
+executable sections are built to be compatible with the landing pad mechanism
+provided by the `Zicfilp` extension. An executable or shared library with this
+bit set is required to generate PLTs with the landing pad (`lpad`) instruction,
+and all label are set to `0`.
 
 `GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicate that all executable
 sections are built to be compatible with the shadow stack mechanism provided by
