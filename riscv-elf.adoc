@@ -122,7 +122,7 @@ This model is similar to the medium any code model, but uses the
 
          # Calculate address of non-local symbol
 .Ltmp3:  auipc  a0, %got_pcrel_hi(symbol)
-         l[w|d] a0, a0, %pcrel_lo(.Ltmp3)
+         l[w|d] a0, %pcrel_lo(.Ltmp3)(a0)
 ----
 
 == Dynamic Linking
