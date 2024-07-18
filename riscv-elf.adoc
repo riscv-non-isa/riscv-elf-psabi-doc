@@ -1644,10 +1644,10 @@ Additionally, here are a few specific rules:
   - Member functions should use `v` for `<class type>` rather than the actual
     class name. For example, use `1v` instead of `3foo` for the `<class type>`
     in `class foo`.
-  - The return type of a virtual class member function should mangle to
-    `void *`/`void &`(`Pv`/`Rv`) if it is a pointer/reference to a non-primitive
-    type. A pointer to a pointer of a non-primitive type is not included in
-    this rule.
+  - The return type of a virtual class member function should mangle as
+    `class v` rather than the original type name if it is a pointer or reference
+     to a non-primitive type. A pointer to a pointer of a non-primitive type
+     is not included in this rule.
   - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
   - Static functions should follow the rules of non-member functions.
 - `wchar_t` should match the type of the target platform. For example, on
