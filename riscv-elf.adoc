@@ -1077,12 +1077,15 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
 | .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
+| .note.gnu.property         | SHT_NOTE             | SHF_ALLOC
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
 
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
+
++++.note.gnu.property+++ names a section that contains a program property note.
 
 === Program Header Table
 
@@ -1349,6 +1352,14 @@ combined. However, an exception exists: the value `0` can merge with `1` or `2`
 value. After the merge, the resulting value will be the non-zero one.
 
 --
+
+=== Program Property
+
+Program properties are used to record information about an object file or binary
+that a linker or runtime loader needs to check for compatibility.
+
+The linker should ignore and discard unknown bits in program properties, and
+issue warnings or errors.
 
 === Mapping Symbol
 
