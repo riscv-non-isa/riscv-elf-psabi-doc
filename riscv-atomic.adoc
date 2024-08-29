@@ -135,7 +135,7 @@ the `lr` and `sc` instructions.
 
 === Meaning of notes in table
 
-1) Depends on a load instruction with an RCsc aquire annotation,
+1) Depends on a load instruction with an RCsc acquire annotation,
 or a store instruction with an RCsc release annotation. These are currently
 under discussion, but the specification has not yet been approved.
 
