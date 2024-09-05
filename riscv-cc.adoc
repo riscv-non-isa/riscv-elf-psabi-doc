@@ -456,6 +456,12 @@ The ABI_VLEN must be no wider than the ISA's VLEN, meaning that the ISA may
 support wider vector registers than the ABI, but the ABI's VLEN cannot exceed
 the ISA's VLEN.
 
+ABI_VLEN represents the width (in bits) of the vector register available in the
+calling convention for fixed-length vectors. ABI_VLEN can vary from 32 bits
+(as in `Zve32x`) up to the maximum supported by the ISA. The flexibility of
+ABI_VLEN enables the convention to adapt to both low-end embedded systems and
+high-performance processors that utilize wider vector registers.
+
 The ABI_VLEN is a parameter of this calling convention variant. It could be set
 by the command line option for the compiler or specified by the function
 attribute in the source code.
