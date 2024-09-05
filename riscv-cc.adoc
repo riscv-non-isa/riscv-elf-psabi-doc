@@ -484,15 +484,15 @@ there is a shortage of vector argument registers.
 
 A struct containing members with all fixed-length vectors will be passed in
 vector argument registers like a vector tuple type if all members have the
-same length, the length is less or equal to 8×ABI_VLEN bit, and the size of
-the whole struct is less than 8×ABI_VLEN bit.
+same length, the length is less than or equal to 4×ABI_VLEN bit, and the size of
+the whole struct is less than or equal to 8×ABI_VLEN bit.
 If there are not enough vector argument registers to pass the entire struct,
 it will pass by reference and is replaced in the argument list with the address.
 Otherwise, it will use the rule defined in the hardware floating-point calling
 convention.
 
-A struct containing just one fixed-length vector or on fixed-length vector
-array of length one, it will flattening as a single fixed-length vector argument
+A struct containing just one fixed-length vector or a fixed-length vector
+array of length one, it will be flattened as a single fixed-length vector argument
 if the size of the vector is less than or equal to 8×ABI_VLEN bit.
 
 Struct with zero-length fixed-length arrays use the rule defined in the hardware
@@ -500,7 +500,7 @@ floating-point calling convention, which means it won't consume vector argument
 register eitehr in C or {Cpp}.
 
 A struct containing just one fixed-length vector array is passed as though it
-were a vector tuple type if the size of the base element for the array is less
+were a vector tuple type if the size of the base element for the array is less than
 or equal to 8×ABI_VLEN bit, and the size of the array is less than 8×ABI_VLEN
 bit.
 If there are not enough vector argument registers to pass the entire struct,
