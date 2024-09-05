@@ -447,7 +447,7 @@ are the same.
 NOTE: The reason we define a separate calling convention variant is that we
 would like to define a flexible convention to utilize the variable length
 feature in the vector extension, also considering embedded vector extensions,
-such as zve32x.
+such as `Zve32x`.
 
 ABI_VLEN refers to the width of a vector register in the calling convention
 variant.
