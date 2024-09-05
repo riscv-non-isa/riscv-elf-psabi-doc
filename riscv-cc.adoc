@@ -468,7 +468,7 @@ with an optimized library with larger ABI_VLEN for better utilization of those
 cores with longer VLEN.
 
 A fixed-length vector argument is passed in a vector argument register if the
-size of the vector is less than ABI_VLEN bit.
+size of the vector is no more than ABI_VLEN bits.
 
 A fixed-length vector argument is passed in two vector argument registers,
 similar to vector data arguments with LMUL=2, if the size of the vector is
