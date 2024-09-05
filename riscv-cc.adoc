@@ -476,6 +476,27 @@ cores with longer VLEN.
 A fixed-length vector argument is passed in a vector argument register if the
 size of the vector is no more than ABI_VLEN bits.
 
+[NOTE]
+===
+Even in the absence of specific vector extension support for certain element
+types, such as `__bf16`, `_Float16`, `float`, or `double`, the standard
+fixed-length vector calling convention rules still apply. For example,
+even without the support of extensions like `Zvfbfmin`, `Zve32f`, or `Zve64d`,
+these element types will be passed according to the calling convention rules
+outlined here.
+
+Additionally, data types such as `__int128_t`, which currently do not
+have direct support in any vector extension, will also follow these rules.
+This design ensures that the calling convention remains forward-compatible,
+minimizing the need for continuous adjustments as new extensions and data types
+are introduced in the future.
+
+The consistency in applying these rules to unsupported element types guarantees
+a smooth transition when future vector extensions become available, allowing for
+seamless integration of new features without requiring significant changes to
+the calling convention.
+===
+
 A fixed-length vector argument is passed in two vector argument registers,
 similar to vector data arguments with LMUL=2, if the size of the vector is
 greater than ABI_VLEN bit and less than or equal to 2×ABI_VLEN bit.
