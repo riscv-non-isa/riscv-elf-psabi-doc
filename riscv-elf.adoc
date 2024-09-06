@@ -131,7 +131,7 @@ The `large` code model allows the code to address the whole RV64 address space.
 Thus, this model is only available for RV64. By putting object addresses
 into literal pools, a 64-bit address literal can be loaded from the pool.
 
-NOTE: Because calculating the pool entry address must use `aupic` and
+NOTE: Because calculating the pool entry address must use `auipc` and
 `addi` or `ld`, each pool entry has to be located within the range
 between -2GiB and +2GiB from its access intructions.  In general, the pool
 is appeneded in .text section or put into .rodata section.
