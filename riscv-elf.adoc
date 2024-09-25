@@ -1624,12 +1624,16 @@ mapping symbols helps the disassembler to disassemble instructions correctly.
 
 == Label Value Compuatation for Function Signature based Scheme Landing Pad
 
-The label value for the function signature based labeling scheme landing pad is computed from the
-hash of the function signature string, which uses the same scheme as the
-"Function types" mangling rule defined in the _Itanium {Cpp} ABI_
-<<itanium-cxx-abi>>, and the function signature will use the "Compression" rule
-defined in  _Itanium {Cpp} ABI_, the value is taken from the lower 20 bits of
-the MD5 hash result of the function signature string.
+The label value for the function signature-based labeling scheme landing pad is
+computed from the hash of the function signature string, which follows the same
+scheme as the "Function types" mangling rule defined in the _Itanium {Cpp} ABI_
+<<itanium-cxx-abi>>. The function signature will also use the "Compression" rule
+defined in the _Itanium {Cpp} ABI_.
+
+The label value is derived from the lower 20 bits of the MD5 hash result of the
+function signature string. If the lower 20 bits are all zeros, the higher 20
+bits are used. If all 32 bits are zeros, the lower 20 bits of the MD5 hash
+result of the string "RISC-V" are used.
 
 Additionally, here are a few specific rules:
 
