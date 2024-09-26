@@ -781,16 +781,16 @@ And occupies three 16 byte entries for the unlabeled landing pad PLT style:
     nop
 ----
 
-The function signature based landing pad PLT style occupies two 32 byte entries:
+The function signature based landing pad PLT style occupies 48 byte entries:
 
 [,asm]
 ----
 1:  lpad 0
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 24
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 20
     auipc  t3, %pcrel_hi(.got.plt)
     addi   t0, t3, %pcrel_lo(1b)    # &.got.plt
     l[w|d] t3, %pcrel_lo(1b)(t3)    # _dl_runtime_resolve
-    addi   t1, t1, -(hdr size + 24) # shifted .got.plt offset
+    addi   t1, t1, -(hdr size + 20) # shifted .got.plt offset
     srli   t1, t1, log2(32/PTRSIZE) # .got.plt offset
     l[w|d] t0, PTRSIZE(t0)          # link map
     jr     t3
@@ -1647,11 +1647,14 @@ Additionally, here are a few specific rules:
   additional rules:
   - Member functions should use `v` for `<class type>` rather than the actual
     class name. For example, use `1v` instead of `3foo` for the `<class type>`
-    in `class foo`.
-  - The return type of a virtual class member function should mangle as
-    `class v` rather than the original type name if it is a pointer or reference
-     to a non-primitive type. A pointer to a pointer of a non-primitive type
-     is not included in this rule.
+    in `class foo`. This rule only applies to the `<class type>` at the top level
+    of `<pointer-to-member-type>`, and does not affect cases where an argument
+    contains a pointer to a member type.
+  - The return type of a virtual class member function, if it is a pointer or
+    reference to a class type, should have its class type mangled as `class v`
+    rather than the declared class type. Const and volatile type qualifiers
+    should be ignored if this rule applies. Multi-level pointers or references
+    are exempted from this rule.
   - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
   - Static functions should follow the rules of non-member functions.
 - `wchar_t` should match the type of the target platform. For example, on
