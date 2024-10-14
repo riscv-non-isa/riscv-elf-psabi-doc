@@ -1633,9 +1633,9 @@ defined in the _Itanium {Cpp} ABI_.
 The label value is derived from the lower 20 bits of the MD5 hash result of the
 function signature string. If the lower 20 bits are all zeros, use the next
 20 bits, and continue using the next 20 bits until a non-zero value is obtained.
-If less than 20 bits are available in the final segment, the highest 20 bits of
-the MD5 hash result will be used. If all 128 bits are zeros, the lower 20 bits
-of the MD5 hash result of the string "RISC-V" are used.
+If less than 20 bits are available in the final segment, the remaining bits
+will be zero-filled to make up 20 bits. If all 128 bits are zeros, the lower
+20 bits of the MD5 hash result of the string "RISC-V" are used.
 
 Additionally, here are a few specific rules:
 
