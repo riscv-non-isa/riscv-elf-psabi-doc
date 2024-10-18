@@ -2379,11 +2379,14 @@ Can be relaxed into `nop` if no `R_RISCV_RELAX` is paired with `R_RISCV_LPAD`.
 
   Condition:: This relaxation can be performed without `R_RISCV_RELAX`, and
   should not be enabled by default. The user must explicitly enable this
-  relaxation, and it should only be applied during static linking.
+  relaxation. Additionally, if this relaxation is applied, it must be applied
+  consistently to all `R_RISCV_LPAD` relocations in the entire binary.
 
   Relaxation::
   - Lpad instruction associated with `R_RISCV_LPAD` will be replaced with
     `lpad 0`.
+  - The GNU property must be adjusted to reflect the use of this relaxation.
+  - The format of the PLT entries must also be adjusted accordingly.
 
   Example::
 +
