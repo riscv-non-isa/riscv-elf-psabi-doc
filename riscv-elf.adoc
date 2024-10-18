@@ -2324,10 +2324,15 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
 
   Target Relocation::: R_RISCV_LPAD
 
+  Description:: This relaxation type allows the `lpad` instruction to be removed.
+  However, if `R_RISCV_RELAX` is not present, the `lpad` instruction can only be
+  replaced with a sequence of `nop` instructions of the same length as the
+  original instruction.
+
   Description:: This relaxation type can relax lpad instruction into a none,
-  which removed the lpad instruciton.
-  This relaxation type can be performe even without `R_RISCV_RELAX`,
-  but the linker should pad nop instruciton to the same length of the original
+  which removed the lpad instruction.
+  This relaxation type can be performed even without `R_RISCV_RELAX`,
+  but the linker should pad nop instruction to the same length of the original
   instruction sequence.
 
   Condition:: The associated function of this lpad must have local visibility, and
