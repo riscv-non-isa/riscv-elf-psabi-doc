@@ -2407,6 +2407,11 @@ Relaxation result:
 NOTE: This relaxation is designed to be compatible with legacy programs that
       may not declare the function signature correctly.
 
+NOTE: Dependent shared libraries will not undergo the corresponding
+transformation. Therefore, if this Landing Pad Scheme Relaxation is used in a
+dynamically linked environment, ensure that all dependent shared libraries are
+rebuilt with the corresponding version.
+
 [bibliography]
 == References
 
