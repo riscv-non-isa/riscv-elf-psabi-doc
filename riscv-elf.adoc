@@ -2011,7 +2011,7 @@ NOTE: Tag_RISCV_x3_reg_usage is treated as 0 if it is not present.
 
   Relaxation::
   - The `auipc` instruction associated with `R_RISCV_GOT_HI20` can be
-  removed if the symbol is absolute.
+  removes if the symbol is absolute.
 
   - The instruction or instructions associated with `R_RISCV_PCREL_LO12_I`
   can be rewritten to either `c.li` or `addi` to materialize the symbol's
@@ -2338,8 +2338,8 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
   the GOT or by any relocation other than `R_RISCV_CALL` and `R_RISCV_CALL_PLT`.
 
   Relaxation::
-  - Lpad instruciton associated with `R_RISCV_LPAD` can be removed.
-  - Lpad instruciton associated with `R_RISCV_LPAD` can be replaced with nop
+  - Lpad instruction associated with `R_RISCV_LPAD` can be removed.
+  - Lpad instruction associated with `R_RISCV_LPAD` can be replaced with nop
     instruction if the relacation isn't paired with `R_RISCV_RELAX`.
 
   Example::
