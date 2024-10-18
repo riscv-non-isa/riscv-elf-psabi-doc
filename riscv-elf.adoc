@@ -2335,12 +2335,10 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
   but the linker should pad nop instruction to the same length of the original
   instruction sequence.
 
-  Condition:: The associated function of this lpad must have local visibility, and
-  it must not be referenced by any relocation other than `R_RISCV_CALL` and
-  `R_RISCV_CALL_PLT`.
-  This relaxation can also be performed when the function has global visibility,
-  if the symbol does not have a corresponding PLT entry and is not referenced by
-  the GOT or by any relocation other than `R_RISCV_CALL` and `R_RISCV_CALL_PLT`.
+  Condition:: This relaxation can only be applied if the symbol is **NOT**
+  exported to the dynamic symbol table and is only referenced by `R_RISCV_CALL`
+  or `R_RISCV_CALL_PLT` relocations. If the symbol is exported or referenced by
+  other relocations, relaxation cannot be performed.
 
   Relaxation::
   - Lpad instruction associated with `R_RISCV_LPAD` can be removed.
