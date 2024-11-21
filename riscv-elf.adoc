@@ -2011,7 +2011,7 @@ NOTE: Tag_RISCV_x3_reg_usage is treated as 0 if it is not present.
 
   Relaxation::
   - The `auipc` instruction associated with `R_RISCV_GOT_HI20` can be
-  removes if the symbol is absolute.
+  removed if the symbol is absolute.
 
   - The instruction or instructions associated with `R_RISCV_PCREL_LO12_I`
   can be rewritten to either `c.li` or `addi` to materialize the symbol's
