@@ -1212,6 +1212,7 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                  | Value       | Attributes
 
 | SHT_RISCV_ATTRIBUTES  | 0x70000003  | none
+| SHT_RISCV_LADING_PAD_INFO  | 0x70000004  | none
 |===
 
 ==== Special Sections
@@ -1226,11 +1227,15 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                       | Type                 | Attributes
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
+| .riscv.lpadinfo            | SHT_RISCV_LADING_PAD_INFO | none
 | .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
 | .note.gnu.property         | SHT_NOTE             | SHF_ALLOC
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
+
++++.riscv.lpadinfo+++ names a section that contains RISC-V landing pad
+information, which used for generating PLT and also can be used for debugging.
 
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
@@ -1569,6 +1574,51 @@ sections are built to be compatible with the landing pad mechanism provided by
 the `Zicfilp` extension. An executable or shared library with this bit set is
 required to generate PLTs with the landing pad (`lpad`) instruction, and all
 label are set to a value which hashed from its function signature.
+
+=== Landing Pad Information Section (`.riscv.lpadinfo`)
+
+Landing pad information section is a section that contains the nessary information
+for generating function signature based landing pad PLT, this section also may
+exsiting when the unlabeled landing pad scheme is used.
+
+This section is consist by the entries of the following structure:
+
+```
+typedef struct
+{
+  Elf32_Word    lpi_name;                /* Symbol name (string tbl index) */
+  Elf32_Word    lpi_sig;                 /* Signature for the symbol (string tbl index) */
+  Elf32_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf32_Lpadinfo;
+
+typedef struct
+{
+  Elf64_Word    lpi_name;                /* Symbol name (string tbl index) */
+  Elf64_Word    lpi_sig;                 /* Signature for the symbol (string tbl index) */
+  Elf64_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf64_Lpadinfo;
+```
+
+The `lpi_name` field is the index into the string table for the symbol name,
+the `lpi_signature` field is the index into the string table for the function
+signature, it can be 0 if the signature string is not present,
+and the `lpi_value` field is the landing pad value for the symbol.
+
+The string hold by `lpi_signature` field is the function signature string, which
+is encoded as same as the mapping symbol of the function signature.
+
+NOTE: Using same encoding as mapping symbol aims to reduce the size of the
+string table
+
+Every symbol with global or weak bind must has a corresponding entry in this
+section, the `lpi_name` field must be the same as the symbol name string table
+index.
+
+This section can be discard after static linking stage.
+
+Static linker should emit error if objects with same symbol but different
+landing pad value are beging merged, however it may suppress the error if
+linker enable the landing pad schem relaxation.
 
 === Mapping Symbol
 
