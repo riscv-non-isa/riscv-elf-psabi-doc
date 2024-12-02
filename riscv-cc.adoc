@@ -164,7 +164,7 @@ in the calling convention are unspecified upon entry, and the content of any
 register without specifying it as a return value register or callee-saved in
 the calling convention are unspecified upon exit, the contents of all
 callee-saved registers must be restored to what was set on entry, and the
-contents of any fixed registers like `gp` and `tp` never change,
+contents of any fixed registers like `gp` and `tp` never change.
 
 
 NOTE: Calling convention for big-endian is *NOT* included in this specification
