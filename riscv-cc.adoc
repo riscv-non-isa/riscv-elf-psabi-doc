@@ -449,6 +449,15 @@ The ILP32E calling convention is not compatible with ISAs that have registers
 that require load and store alignments of more than 32 bits. In particular, this
 calling convention must not be used with the D ISA extension.
 
+=== RV64ILP32* Calling Convention
+
+IMPORTANT: RV64ILP32* ABIs are experimental.
+
+The RV64ILP32* calling convention is designed to be usable with the RV64* ISA.
+These calling conventions are composed of the integer & floating-point & vector
+calling conventions. When passed in registers or on the stack, pointer scalars
+(32-bit), narrower than XLEN bits (64-bit), are sign-extended to XLEN bits.
+
 === Named ABIs
 
 This specification defines the following named ABIs:
@@ -491,6 +500,26 @@ convention for ABI_FLEN=64 (i.e. <<ELFCLASS64,ELFCLASS64>> and
 [[abi-lp64q]]
 LP64Q:: LP64 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS64,ELFCLASS64>> and
+<<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
+
+[[abi-rv64ilp32]]
+RV64ILP32:: Integer calling-convention only, hardware
+floating-point calling convention is not used (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-rv64ilp32f]]
+RV64ILP32F:: RV64ILP32 with hardware floating-point calling
+convention for ABI_FLEN=32 (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-rv64ilp32d]]
+RV64ILP32D:: RV64ILP32 with hardware floating-point calling
+convention for ABI_FLEN=64 (i.e. <<ELFCLASS32,ELFCLASS32>> and
+<<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
+
+[[abi-rv64ilp32q]]
+RV64ILP32Q:: RV64ILP32 with hardware floating-point calling
+convention for ABI_FLEN=128 (i.e. <<ELFCLASS32,ELFCLASS32>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
 The LP64* ABIs are only compatible with RV64* ISAs. The ILP32* are compatible
