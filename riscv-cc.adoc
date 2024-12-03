@@ -107,7 +107,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 | v0-v31  |              | Temporary registers          | No
 | vl      |              | Vector length                | No
-| vtype   |              | Vector data type register    | No
+| vtype   |              | Vector data type register    | No (but never `VILL`)
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
@@ -120,7 +120,11 @@ The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
 values are unspecified upon entry.
 
 Procedures may assume that `vstart` is zero upon entry. Procedures may assume
-that `vstart` is zero upon return from a procedure call.
+that `vstart` is zero upon return from a procedure call.  Procedures may assume
+that `vtype` is never `VILL`.
+
+NOTE: Versions of the psABI before December 2024 allowed `vtype` to be `VILL`
+at arbitrary times.
 
 NOTE: Application software should normally not write `vstart` explicitly.
 Any procedure that does explicitly write `vstart` to a nonzero value must zero
@@ -137,7 +141,7 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 | v8-v23  |              | Argument registers           | No
 | v24-v31 |              | Callee-saved registers       | Yes
 | vl      |              | Vector length                | No
-| vtype   |              | Vector data type register    | No
+| vtype   |              | Vector data type register    | No (but never VILL)
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
@@ -150,8 +154,8 @@ attribute `riscv_vector_cc`).
 Please refer to the <<Standard Vector Calling Convention Variant>> section for
 more details about standard vector calling convention variant.
 
-NOTE: The `vxrm` and `vxsat` fields of `vcsr` follow the same behavior as the
-standard calling convention.
+NOTE: The `vxrm`,  `vxsat` and `vtype` fields of `vcsr` follow the same
+behavior as the standard calling convention.
 
 == Procedure Calling Convention
 
