@@ -50,6 +50,10 @@ This specification uses the following terms and abbreviations:
 | LP64F             | Ratified
 | LP64D             | Ratified
 | LP64Q             | Ratified
+| RV64ILP32         | Draft
+| RV64ILP32F        | Draft
+| RV64ILP32D        | Draft
+| RV64ILP32Q        | Draft
 |===
 
 NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
