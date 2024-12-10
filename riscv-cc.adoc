@@ -428,6 +428,10 @@ NOTE: `setjmp`/`longjmp` follow the standard calling convention, which clobbers
 all vector registers. Hence, the standard vector calling convention variant
 won't disrupt the `jmp_buf` ABI.
 
+NOTE: Vector functions corresponding to scalar functions which are decorated with
+the OpenMP `declare simd` pragma need to obey an additional name mangling rule.
+For more details, see <<Name Mangling for Vector Function>>.
+
 === ILP32E Calling Convention
 
 IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the

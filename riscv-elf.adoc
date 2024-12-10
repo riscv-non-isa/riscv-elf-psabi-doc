@@ -234,6 +234,116 @@ type-name = identifier-nondigit *identifier-char
 identifier-nondigit = ALPHA / "_"
 identifier-char = identifier-nondigit / "_"
 ----
+
+== Name Mangling for Vector Function
+
+This section describes how to name vector functions corresponding to scalar
+functions which are decorated with `#pragma omp declare simd`. The order of the
+vector function parameters should be the same as that of the original scalar
+function.
+
+Name mangling rule for vector functions.
+
+[source,abnf]
+----
+mangled-vector-name := "_ZGV" <lmul> <mask> <len> <parameters> "_" <func-name>
+
+<lmul> := "1" | "2" | "4" | "8" (LMUL in turn is 1, 2, 4, 8)
+        | "h" | "q" | "e"       (LMUL in turn is 1/2, 1/4, 1/8)
+
+<mask> := "N"  (No mask, default for no inbranch clause)
+        | "M"  (Mask, for inbranch clause)
+
+<len> := SIMDLEN (VLS Mode, the number of elements processed at a time)
+       | "x"     (VLA Mode)
+
+<parameters> := <parameter> { <parameter> }
+
+<parameter> := <parameter_type> [ <alignment> ]
+
+<parameter_type> := "v"
+                  | "l" | "l" <number>
+                  | "R" | "R" <number>
+                  | "L" | "L" <number>
+                  | "U" | "U" <number>
+                  | "ls" <pos>
+                  | "Rs" <pos>
+                  | "Ls" <pos>
+                  | "Us" <pos>
+                  | "u"
+
+<number> := "n" <X>  // if linear step is negative
+          | <Y>
+
+<pos> := <X>
+
+<X> := integral number greater than or equal to 1
+
+<Y> := integral number greater than or equal to 2
+
+<alignment> := [ "a" <X> ]  // specified by aligned clause
+
+<func-name> := the orignal name of the scalar function
+----
+
+=== Description of the parameter_type token
+
+"v":: Vector parameter, default value for no linear or uniform clause.
+
+"l" | "l" <number>:: This parameter is specified by the linear clause with a
+compile-time constant, and its type must be either an integral type or a pointer
+type. `number` is the value of the compile-time constant step, or it is an empty
+string if the constant step is 1. Additionally, the base type of this parameter
+must be an integral type.
+
+"R" | "R" <number>:: This parameter is specified by the linear clause with a
+compile-time constant. It has a ref modifier and its type must be reference type.
+`number` is the value of the compile-time constant step, or it is an empty
+string if the constant step is 1. Additionally, the base type of this parameter
+must be an integral type.
+
+"L" | "L" <number>:: This parameter is specified by the linear clause with a
+compile-time constant. It has either a val modifier or no modifier and its type
+must be reference type. `number` is the value of the compile-time constant step,
+or it is an empty string if the constant step is 1. Additionally, the base type
+of this parameter must be an integral type.
+
+"U" | "U" <number>:: This parameter is specified by the linear clause with a
+compile-time constant. It has a uval modifier and its type must be reference type.
+`number` is the value of the compile-time constant step, or it is an empty
+string if the constant step is 1. Additionally, the base type of this parameter
+must be an integral type.
+
+"ls" <pos>:: This parameter is specified by the linear clause with a
+loop-independent, runtime-invariant step parameter specified in the uniform clause.
+Its type must be either an integral type or a pointer type. `pos' is the position
+(starting from 0) of the step parameter in the function parameter list.
+Additionally, both the base type of this parameter and the step parameter must be
+integral types.
+
+"Rs" <pos>:: This parameter is specified by the linear clause with a
+loop-independent, runtime-invariant step parameter specified in the uniform clause.
+It has a ref modifier and its type must be reference type. `pos' is the position
+(starting from 0) of the step parameter in the function parameter list.
+Additionally, both the base type of this parameter and the step parameter must be
+integral types.
+
+"Ls" <pos>:: This parameter is specified by the linear clause with a
+loop-independent, runtime-invariant step parameter specified in the uniform clause.
+It has either a val modifier or no modifier and its type must be reference type.
+`pos' is the position (starting from 0) of the step parameter in the function
+parameter list. Additionally, both the base type of this parameter and the step
+parameter must be integral types.
+
+"Us" <pos>:: This parameter is specified by the linear clause with a
+loop-independent, runtime-invariant step parameter specified in the uniform clause.
+It has a uval modifier and its type must be reference type. `pos' is the position
+(starting from 0) of the step parameter in the function parameter list.
+Additionally, both the base type of this parameter and the step parameter must be
+integral types.
+
+"u":: Uniform parameter, specified by uniform clause.
+
 == ELF Object Files
 
 The ELF object file format for RISC-V follows the
