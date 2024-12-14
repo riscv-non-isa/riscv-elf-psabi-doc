@@ -276,7 +276,9 @@ Name mangling rule for vector functions.
 
 [source,abnf]
 ----
-mangled-vector-name := "_ZGV" <lmul> <mask> <len> <parameters> "_" <func-name>
+mangled-vector-name := "_ZGV" <isa> <mask> <len> <parameters> "_" <func-name>
+
+<isa> := "r" <lmul>
 
 <lmul> := "1" | "2" | "4" | "8" (LMUL in turn is 1, 2, 4, 8)
         | "h" | "q" | "e"       (LMUL in turn is 1/2, 1/4, 1/8)
