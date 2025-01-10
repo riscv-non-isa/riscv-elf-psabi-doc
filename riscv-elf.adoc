@@ -1222,6 +1222,7 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                  | Value       | Attributes
 
 | SHT_RISCV_ATTRIBUTES  | 0x70000003  | none
+| SHT_RISCV_LADING_PAD_INFO  | 0x70000004  | none
 |===
 
 ==== Special Sections
@@ -1236,11 +1237,15 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                       | Type                 | Attributes
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
+| .riscv.lpadinfo            | SHT_RISCV_LADING_PAD_INFO | none
 | .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
 | .note.gnu.property         | SHT_NOTE             | SHF_ALLOC
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
+
++++.riscv.lpadinfo+++ names a section that contains RISC-V landing pad
+information, which used for generating PLT and also can be used for debugging.
 
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
@@ -1579,6 +1584,79 @@ sections are built to be compatible with the landing pad mechanism provided by
 the `Zicfilp` extension. An executable or shared library with this bit set is
 required to generate PLTs with the landing pad (`lpad`) instruction, and all
 label are set to a value which hashed from its function signature.
+
+=== Landing Pad Information Section (`.riscv.lpadinfo`)
+
+The landing pad information section is named `.riscv.lpadinfo`. The section
+type (`sh_type`) is `SHT_RISCV_LANDING_PAD_INFO`, and the section flags
+(`sh_flags`) should be 0.
+
+The landing pad information section is a section that contains the information
+to generate PLT with landing pads. The static linker is required to use the
+landing pad values provided by this section when generating lpad instructions
+for functions listed in this section, unless otherwise specified by the user
+(e.g. through command line options) or the unlabeled CFI scheme is selected.
+
+This section is consist by the entries of the following structure:
+
+```
+typedef struct
+{
+  Elf32_Word    lpi_sym;                 /* Symbol index */
+  Elf32_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf32_Lpadinfo;
+
+typedef struct
+{
+  Elf64_Word    lpi_sym;                 /* Symbol index */
+  Elf64_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf64_Lpadinfo;
+```
+
+The `lpi_name` field is the index into the string table for the symbol name,
+and the `lpi_value` field is the landing pad value for the symbol.
+
+Every global or weak function symbol, as well as undefined global or weak
+symbols expected to be functions, must have an entry in `.riscv.lpadinfo`.
+
+This section can be discard after static linking stage.
+
+Static linkers should merge landing pad values from objects using the following
+logic:
+1. Definitive Landing Pad Value Determination:
+  - If a resolved symbol has both a zero and a non-zero landing pad value coming
+    from objects that define the symbol (globally or weakly), the non-zero
+    landing pad value is adopted as the "definitive landing pad value" for the
+    symbol.
+  - If all landing pad values for the symbol are zero, the definitive lpad value
+    for the symbol is 0.
+  - If the symbol-defining objects provide more than one non-zero landing pad
+    value for a resolved symbol, an error should be emitted.
+2. Referencing Landing Pad Values:
+  - For symbols referenced (but not defined) by objects, the landing pad values
+    provided by these objects are termed "referencing landing pad values."
+  - Static linkers should emit an error if the referencing landing pad values
+    for a symbol conflict with each other, i.e., they are different.
+3. Merging Rules for Zero and Non-Zero Values:
+  - The merging logic between zero and non-zero landing pad values does not
+    apply to referencing landing pad values, as these are expected to be
+    generated through C declarations, where only non-zero landing pad values
+    are expected.
+4. Final Landing Pad Value Determination:
+  - The final landing pad value is determined by merging definitive and
+    referencing landing pad values as follows:
+    - If the definitive landing pad value exists and is non-zero, the final
+      landing pad value is the definitive landing pad value.
+    - If the referencing landing pad value exists, the final landing pad value
+      is the referencing landing pad value.
+    - If the definitive landing pad value exists but is 0, the final landing
+      pad value is 0.
+    - If neither definitive nor referencing landing pad values exist, the final
+      landing pad value is unknown. If the linker needs to generate a PLT entry
+      for the symbol in this case, it must emit an error.
+
+NOTE: Dynamic linker may also check with same symbol has the same landing pad
+      value when loading shared object.
 
 === Mapping Symbol
 
