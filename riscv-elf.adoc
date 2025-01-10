@@ -1594,6 +1594,7 @@ A number of symbols, named mapping symbols, describe the boundaries.
 | $x.<any>
 | $x<ISA>  .2+| Start of a sequence of instructions with <ISA> extension.
 | $x<ISA>.<any>
+| $s<function-signature-string> | Marker for the landing pad or landing pad value setup instruction.
 |===
 
 The mapping symbol should set the type to `STT_NOTYPE`, binding to `STB_LOCAL`,
@@ -1623,6 +1624,12 @@ execution environment requirements, so the ISA information from arch attribute
 is not enough for the disassembler to disassemble the `rv64gcv` version
 correctly. Specifying ISA string appropriately with the two memcpy instruction
 mapping symbols helps the disassembler to disassemble instructions correctly.
+
+The mapping symbol for the landing pad (`$s`) provides additional information
+for the labeled landing pad scheme. This mapping symbol may be generated when
+setting up a landing pad value (e.g., `auipc t2, %lpad_hash("FvvE")` will
+generate `$sFvvE`) or when emitting a landing pad instruction (e.g.,
+`lpad %lpad_hash("FvvE")` will generate `$sFvvE`).
 
 == Label Value Compuatation for Function Signature based Scheme Landing Pad
 
