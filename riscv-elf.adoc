@@ -558,7 +558,9 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 66      .2+| LPAD              .2+| Static  |                   .2+| Annotates the landing pad instruction inserted at the beginning of the function.
+                                            <|
+.2+| 67-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
@@ -2326,6 +2328,96 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
     addi  a0, a0, %pcrel_lo(1b)
     csrw  jvt, a0
 ----
+
+==== Landing Pad Relaxation
+
+  Target Relocation::: R_RISCV_LPAD
+
+  Description:: This relaxation type allows the `lpad` instruction to be removed.
+  However, if `R_RISCV_RELAX` is not present, the `lpad` instruction can only be
+  replaced with a sequence of `nop` instructions of the same length as the
+  original instruction.
+
+  Description:: This relaxation type can relax lpad instruction into a none,
+  which removed the lpad instruction.
+  This relaxation type can be performed even without `R_RISCV_RELAX`,
+  but the linker should pad nop instruction to the same length of the original
+  instruction sequence.
+
+  Condition:: This relaxation can only be applied if the symbol is **NOT**
+  exported to the dynamic symbol table and is only referenced by `R_RISCV_CALL`
+  or `R_RISCV_CALL_PLT` relocations. If the symbol is exported or referenced by
+  other relocations, relaxation cannot be performed.
+
+  Relaxation::
+  - Lpad instruction associated with `R_RISCV_LPAD` can be removed.
+  - Lpad instruction associated with `R_RISCV_LPAD` can be replaced with nop
+    instruction if the relacation isn't paired with `R_RISCV_RELAX`.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lpad  0x123           # R_RISCV_LPAD, R_RISCV_RELAX
+----
+
+Relaxation result:
+[,asm]
+----
+    # No instruction
+----
+Can be relaxed into `nop` if no `R_RISCV_RELAX` is paired with `R_RISCV_LPAD`.
+[,asm]
+----
+    nop
+----
+--
+
+==== Landing Pad Scheme Relaxation
+
+  Target Relocation::: R_RISCV_LPAD
+
+  Description:: This relaxation type allows an `lpad` instruction to be relaxed
+  into `lpad 0`, which is a universal landing pad that ignores the label value
+  comparison. This relaxation is used when the label value is not computed
+  correctly.
+
+  Condition:: This relaxation can be performed without `R_RISCV_RELAX`, and
+  should not be enabled by default. The user must explicitly enable this
+  relaxation. Additionally, if this relaxation is applied, it must be applied
+  consistently to all `R_RISCV_LPAD` relocations in the entire binary.
+
+  Relaxation::
+  - Lpad instruction associated with `R_RISCV_LPAD` will be replaced with
+    `lpad 0`.
+  - The GNU property must be adjusted to reflect the use of this relaxation.
+  - The format of the PLT entries must also be adjusted accordingly.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lpad  0x123           # R_RISCV_LPAD
+----
+
+Relaxation result:
+[,asm]
+----
+    lpad 0
+----
+--
+
+NOTE: This relaxation is designed to be compatible with legacy programs that
+      may not declare the function signature correctly.
+
+NOTE: Dependent shared libraries will not undergo the corresponding
+transformation. Therefore, if this Landing Pad Scheme Relaxation is used in a
+dynamically linked environment, ensure that all dependent shared libraries are
+rebuilt with the corresponding version.
 
 [bibliography]
 == References
