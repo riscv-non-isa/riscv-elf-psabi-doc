@@ -322,11 +322,66 @@ mangled-vector-name := "_ZGV" <isa> <mask> <len> <parameters> "_" <func-name>
 
 "v":: Vector parameter, default value for no linear or uniform clause.
 
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch
+    extern int foo (int x) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4v_foo  (vint32m1_t x);  // LMUL=1
+    vint32m2_t _ZGVr2N8v_foo  (vint32m2_t x);  // LMUL=2
+    vint32m4_t _ZGVr4N16v_foo (vint32m4_t x);  // LMUL=4
+    vint32m8_t _ZGVr8N32v_foo (vint32m8_t x);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1Nxv_foo  (vint32m1_t x);  // LMUL=1
+    vint32m2_t _ZGVr2Nxv_foo  (vint32m2_t x);  // LMUL=2
+    vint32m4_t _ZGVr4Nxv_foo  (vint32m4_t x);  // LMUL=4
+    vint32m8_t _ZGVr8Nxv_foo  (vint32m8_t x);  // LMUL=8
+----
+
 "l" | "l" <number>:: This parameter is specified by the linear clause with a
 compile-time constant, and its type must be either an integral type or a pointer
 type. `number` is the value of the compile-time constant step, or it is an empty
 string if the constant step is 1. Additionally, the base type of this parameter
 must be an integral type.
+
+NOTE: In `linear(i:s)`, if the type of `i` is integral type, the compile-time
+constant step is `s`, and if its type is pointer type, the compile-time constant
+step is `s * sizeof(*i)`.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(i)
+    extern int foo (int i) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4l_foo  (int i);  // LMUL=1
+    vint32m2_t _ZGVr2N8l_foo  (int i);  // LMUL=2
+    vint32m4_t _ZGVr4N16l_foo (int i);  // LMUL=4
+    vint32m8_t _ZGVr8N32l_foo (int i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1Nxvl_foo (int i);  // LMUL=1
+    vint32m2_t _ZGVr2Nxvl_foo (int i);  // LMUL=2
+    vint32m4_t _ZGVr4Nxvl_foo (int i);  // LMUL=4
+    vint32m8_t _ZGVr8Nxvl_foo (int i);  // LMUL=8
+----
+
 
 "R" | "R" <number>:: This parameter is specified by the linear clause with a
 compile-time constant. It has a ref modifier and its type must be reference type.
@@ -334,17 +389,101 @@ compile-time constant. It has a ref modifier and its type must be reference type
 string if the constant step is 1. Additionally, the base type of this parameter
 must be an integral type.
 
+NOTE: In `linear(ref(i):s)`, the compile-time constant step is `s * sizeof(*i)`.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(ref(i))
+    extern int foo (int &i) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4R4_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2N8R4_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4N16R4_foo (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8N32R4_foo (int *i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxR4_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2NxR4_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4NxR4_foo  (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8NxR4_foo  (int *i);  // LMUL=8
+----
+
+
 "L" | "L" <number>:: This parameter is specified by the linear clause with a
 compile-time constant. It has either a val modifier or no modifier and its type
 must be reference type. `number` is the value of the compile-time constant step,
 or it is an empty string if the constant step is 1. Additionally, the base type
 of this parameter must be an integral type.
 
+NOTE: In `linear(val(i):s)`, the compile-time constant step is `s`.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(val(i))
+    extern int foo (int &i) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4L_foo  (vint32m1_t i);  // LMUL=1
+    vint32m2_t _ZGVr2N8L_foo  (vint32m2_t i);  // LMUL=2
+    vint32m4_t _ZGVr4N16L_foo (vint32m4_t i);  // LMUL=4
+    vint32m8_t _ZGVr8N32L_foo (vint32m8_t i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxL_foo  (vint32m1_t i);  // LMUL=1
+    vint32m2_t _ZGVr2NxL_foo  (vint32m1_t i);  // LMUL=2
+    vint32m4_t _ZGVr4NxL_foo  (vint32m1_t i);  // LMUL=4
+    vint32m8_t _ZGVr8NxL_foo  (vint32m1_t i);  // LMUL=8
+----
+
+
 "U" | "U" <number>:: This parameter is specified by the linear clause with a
 compile-time constant. It has a uval modifier and its type must be reference type.
 `number` is the value of the compile-time constant step, or it is an empty
 string if the constant step is 1. Additionally, the base type of this parameter
 must be an integral type.
+
+NOTE: In `linear(uval(i):s)`, the compile-time constant step is `s`.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(uval(i))
+    extern int foo (int &i) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4U_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2N8U_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4N16U_foo (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8N32U_foo (int *i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxU_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2NxU_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4NxU_foo  (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8NxU_foo  (int *i);  // LMUL=8
+----
+
 
 "ls" <pos>:: This parameter is specified by the linear clause with a
 loop-independent, runtime-invariant step parameter specified in the uniform clause.
@@ -353,12 +492,63 @@ Its type must be either an integral type or a pointer type. `pos' is the positio
 Additionally, both the base type of this parameter and the step parameter must be
 integral types.
 
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(i:c) uniform(c)
+    extern int foo (int i, int c) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4ls1_foo  (int i, int c);  // LMUL=1
+    vint32m2_t _ZGVr2N8ls1_foo  (int i, int c);  // LMUL=2
+    vint32m4_t _ZGVr4N16ls1_foo (int i, int c);  // LMUL=4
+    vint32m8_t _ZGVr8N32ls1_foo (int i, int c);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1Nxls1_foo  (int i, int c);  // LMUL=1
+    vint32m2_t _ZGVr2Nxls1_foo  (int i, int c);  // LMUL=2
+    vint32m4_t _ZGVr4Nxls1_foo  (int i, int c);  // LMUL=4
+    vint32m8_t _ZGVr8Nxls1_foo  (int i, int c);  // LMUL=8
+----
+
+
 "Rs" <pos>:: This parameter is specified by the linear clause with a
 loop-independent, runtime-invariant step parameter specified in the uniform clause.
 It has a ref modifier and its type must be reference type. `pos' is the position
 (starting from 0) of the step parameter in the function parameter list.
 Additionally, both the base type of this parameter and the step parameter must be
 integral types.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(ref(i):c) uniform(c)
+    extern int foo (int &i, int c) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4Rs1_foo  (int *i, int c);  // LMUL=1
+    vint32m2_t _ZGVr2N8Rs1_foo  (int *i, int c);  // LMUL=2
+    vint32m4_t _ZGVr4N16Rs1_foo (int *i, int c);  // LMUL=4
+    vint32m8_t _ZGVr8N32Rs1_foo (int *i, int c);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxRs1_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2NxRs1_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4NxRs1_foo  (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8NxRs1_foo  (int *i);  // LMUL=8
+----
 
 "Ls" <pos>:: This parameter is specified by the linear clause with a
 loop-independent, runtime-invariant step parameter specified in the uniform clause.
@@ -367,6 +557,32 @@ It has either a val modifier or no modifier and its type must be reference type.
 parameter list. Additionally, both the base type of this parameter and the step
 parameter must be integral types.
 
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(val(i):c) uniform(c)
+    extern int foo (int &i, int c) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4Ls1_foo  (vint32m1_t i);  // LMUL=1
+    vint32m2_t _ZGVr2N8Ls1_foo  (vint32m2_t i);  // LMUL=2
+    vint32m4_t _ZGVr4N16Ls1_foo (vint32m4_t i);  // LMUL=4
+    vint32m8_t _ZGVr8N32Ls1_foo (vint32m8_t i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxLs1_foo  (vint32m1_t i);  // LMUL=1
+    vint32m2_t _ZGVr2NxLs1_foo  (vint32m1_t i);  // LMUL=2
+    vint32m4_t _ZGVr4NxLs1_foo  (vint32m1_t i);  // LMUL=4
+    vint32m8_t _ZGVr8NxLs1_foo  (vint32m1_t i);  // LMUL=8
+----
+
+
 "Us" <pos>:: This parameter is specified by the linear clause with a
 loop-independent, runtime-invariant step parameter specified in the uniform clause.
 It has a uval modifier and its type must be reference type. `pos' is the position
@@ -374,7 +590,89 @@ It has a uval modifier and its type must be reference type. `pos' is the positio
 Additionally, both the base type of this parameter and the step parameter must be
 integral types.
 
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch linear(uval(i)) uniform(c)
+    extern int foo (int &i, int c) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4Us1_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2N8Us1_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4N16Us1_foo (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8N32Us1_foo (int *i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1NxUs1_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2NxUs1_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4NxUs1_foo  (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8NxUs1_foo  (int *i);  // LMUL=8
+----
+
 "u":: Uniform parameter, specified by uniform clause.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch uniform(i)
+    extern int foo (int i) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1N4u_foo  (int i);  // LMUL=1
+    vint32m2_t _ZGVr2N8u_foo  (int i);  // LMUL=2
+    vint32m4_t _ZGVr4N16u_foo (int i);  // LMUL=4
+    vint32m8_t _ZGVr8N32u_foo (int i);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1Nxu_foo  (int i);  // LMUL=1
+    vint32m2_t _ZGVr2Nxu_foo  (int i);  // LMUL=2
+    vint32m4_t _ZGVr4Nxu_foo  (int i);  // LMUL=4
+    vint32m8_t _ZGVr8Nxu_foo  (int i);  // LMUL=8
+----
+
+=== Masking Variants
+
+The inbranch clauses define whether a vector function should accept a masking
+parameter which need to be added to the vector function signature as the first
+parameter.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd inbranch
+    extern int foo (int x) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vint32m1_t _ZGVr1M4v_foo  (vbool32_t mask, vint32m1_t x);  // LMUL=1
+    vint32m2_t _ZGVr2M8v_foo  (vbool16_t mask, vint32m2_t x);  // LMUL=2
+    vint32m4_t _ZGVr4M16v_foo (vbool8_t  mask, vint32m4_t x);  // LMUL=4
+    vint32m8_t _ZGVr8M32v_foo (vbool4_t  mask, vint32m8_t x);  // LMUL=8
+
+    // VLA Mode
+    vint32m1_t _ZGVr1Mxv_foo  (vbool32_t mask, vint32m1_t x);  // LMUL=1
+    vint32m2_t _ZGVr2Mxv_foo  (vbool16_t mask, vint32m2_t x);  // LMUL=2
+    vint32m4_t _ZGVr4Mxv_foo  (vbool8_t  mask, vint32m4_t x);  // LMUL=4
+    vint32m8_t _ZGVr8Mxv_foo  (vbool4_t  mask, vint32m8_t x);  // LMUL=8
+----
+
 
 == ELF Object Files
 
