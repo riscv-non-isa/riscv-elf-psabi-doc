@@ -93,9 +93,15 @@ calls if they are no larger than the width of a floating-point register in the
 targeted ABI. Therefore, these registers can always be considered temporaries
 if targeting the base integer calling convention.
 
-The Floating-Point Control and Status Register (fcsr) must have thread storage
-duration in accordance with C11 section 7.6 "Floating-point environment
-<fenv.h>".
+Floating-point control and status register is a special global register,
+different bit fields has its own properties:
+
+- Accrued exception flags field (bit 0 to bit 4 / `fflags`) are not preserved
+across calls and could be any value upon entry.
+- Rounding mode field (bit 5 to bit 7 / `frm`) might be modified by calls to
+function which is documented as might change the floating point environment.
+- All other bits are reserved for other standard extensions, procedures should
+not modify the contents of those bits.
 
 === Vector Register Convention
 
