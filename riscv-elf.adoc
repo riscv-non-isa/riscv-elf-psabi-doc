@@ -727,9 +727,9 @@ The PLT (Procedure Linkage Table) exists to allow function calls between
 dynamically linked shared objects. Each dynamic object has its own
 GOT (Global Offset Table) and PLT (Procedure Linkage Table).
 
-RISC-V has defined several PLT styles, which used for different situation,
-the default PLT sytle should be used if the program is not met the condition for
-using all other PLT sytle.
+RISC-V defines several PLT styles, which are used in different situations.
+The default PLT style should be used if the program does not meet the conditions
+for using all other PLT sytles.
 
 [[plt-style]]
 .PLT styles
@@ -763,11 +763,11 @@ The first entry in the PLT occupies two 16 byte entries for the default PLT styl
     jr     t3
 ----
 
-And occupies three 16 byte entries for the simple landing pad PLT style:
+And occupies three 16 byte entries for the unlabeled landing pad PLT style:
 [,asm]
 ----
-1:  lpad 0
-    auipc  t2, %pcrel_hi(.got.plt)
+    lpad 0
+1:  auipc  t2, %pcrel_hi(.got.plt)
     sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 16
     l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
     addi   t1, t1, -(hdr size + 16) # shifted .got.plt offset
@@ -794,11 +794,11 @@ The code sequences of the PLT entry for the default PLT style:
     nop
 ----
 
-The code sequences of the PLT entry for the the simple landing pad PLT style:
+The code sequences of the PLT entry for the unlabeled landing pad PLT style:
 [,asm]
 ----
-1:  lpad 0
-    auipc   t3, %pcrel_hi(function@.got.plt)
+    lpad 0
+1:  auipc   t3, %pcrel_hi(function@.got.plt)
     l[w|d]  t3, %pcrel_lo(1b)(t3)
     jalr    t1, t3
 ----
@@ -1492,9 +1492,10 @@ meaning of each column is given below:
 
 Name:: The name of the program property type, omitting the prefix of `GNU_PROPERTY_RISCV_`.
 
-Value:: The type value for the program property type.
+Value:: The `pr_type` value for the program property type.
 
-Size:: The data type size hold within this program property type.
+Size:: The size (`pr_datasz`) of data type held within this program property
+       type.
 
 Description:: Additional information about the program property type.
 
@@ -1511,7 +1512,6 @@ Description:: Additional information about the program property type.
 
 ==== GNU_PROPERTY_RISCV_FEATURE_1_AND
 
-
 `GNU_PROPERTY_RISCV_FEATURE_1_AND` describes a set of features, where each bit
 represents a different feature. The linker should perform a bitwise AND
 operation when merging different objects.
@@ -1523,20 +1523,20 @@ operation when merging different objects.
 |   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
 |===
 
-`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` This bit indicate that all
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`: This bit indicates that all
 executable sections are built to be compatible with the landing pad mechanism
-provided by the `Zicfilp` extension. An executable or shared library with this
-bit set is required to generate PLTs with the landing pad (`lpad`) instruction,
-and all label are set to `0`.
+provided by the Zicfilp extension in the unlabeled scheme: Executables and
+shared libraries with this bit set are required to generate PLTs in the
+unlabeled landing pad PLT style, and all of the labels of lpad instructions are
+set to 0, i.e. unlabeled.
 
-`GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicate that all executable
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicates that all executable
 sections are built to be compatible with the shadow stack mechanism provided by
 the `Zicfiss` extension. Loading an executable or shared library with this bit
 set requires the execution environment to provide either the `Zicfiss` extension
 or the `Zimop` extension. When the executable or shared library is compiled with
-compressed instructions then loading an executable with this bit set requires
-the execution environment to provide the `Zicfiss` extension or to provide both
-the `Zcmop` and `Zimop` extensions.
+compressed instructions then loading it with this bit set requires the execution
+environment to provide the `Zicfiss` extension or the `Zimop` extensions.
 
 === Mapping Symbol
 
