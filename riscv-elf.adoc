@@ -566,15 +566,6 @@ Description:: Additional information about the relocation
                                             <|
 |===
 
-Nonstandard extensions are free to use relocation numbers 192-255 for any
-purpose. These vendor-specific relocations must be preceded by a
-`R_RISCV_VENDOR` relocation against a vendor ID symbol.
-
-Where possible, tools should present relocation as their vendor-specific
-relocation types, otherwise a generic name of `R_RISCV_CUSTOM<enum value>` must
-be shown. Data contained in paired `RISCV_VENDOR` can be used to select the
-appropriate vendor when performing relocations.
-
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 _RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
@@ -586,15 +577,27 @@ and fill the space with a single ULEB128-encoded value.
 This is achieved by prepending the redundant `0x80` byte as necessary.
 The linker must not alter the length of the ULEB128-encoded value.
 
-==== Vendor identifiers
+==== Nonstandard Relocations (a.k.a. Vendor-Specific Relocations)
 
-Vendor identifiers are dummy symbols used in the corresponding `R_RISCV_VENDOR`
-relocation (irrespective of ELF class/XLEN) and must be unique amongst all
-vendors providing custom relocations. Vendor identifiers may be suffixed with a
-tag to provide extra relocations for a given vendor.
+Nonstandard extensions are free to use relocation numbers 192-255 for any
+purpose. These vendor-specific relocations must be preceded by a
+`R_RISCV_VENDOR` relocation against a vendor identifier symbol. The preceding
+`R_RISCV_VENDOR` relocation is used by the linker to choose the correct
+implementation for the associated nonstandard relocation.
+
+The vendor identifier symbol should be a defined symbol and should set the type
+to `STT_NOTYPE`, binding to `STB_LOCAL`, and the size of symbol to zero.
+
+Vendor identifiers must be unique amongst all vendors providing custom
+relocations. Vendor identifiers may be suffixed with a tag to provide extra
+relocations for a given vendor.
 
 NOTE: Please refer to the _RISC-V Toolchain Conventions_
-<<rv-toolchain-conventions>> for the full list.
+<<rv-toolchain-conventions>> for the full list of vendor identifiers.
+
+Where possible, tools should present relocation as their vendor-specific
+relocation types, otherwise a generic name of `R_RISCV_CUSTOM<enum value>` must
+be shown.
 
 ==== Calculation Symbols
 
