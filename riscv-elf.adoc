@@ -1533,7 +1533,7 @@ the `Zicfiss` extension. Loading an executable or shared library with this bit
 set requires the execution environment to provide either the `Zicfiss` extension
 or the `Zimop` extension. When the executable or shared library is compiled with
 compressed instructions then loading it with this bit set requires the execution
-environment to provide the `Zicfiss` extension or the `Zimop` extensions.
+environment to provide the `Zicfiss` extension or the `Zcmop` extensions.
 
 === Mapping Symbol
 
