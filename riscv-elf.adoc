@@ -528,7 +528,7 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 46-50   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
                                             <|
-.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address
+.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, associated with a normal relocation at the same address
                                             <|
 .2+| 52      .2+| SUB6          .2+| Static  | _word6_           .2+| Local label subtraction
                                             <| V - S - A
@@ -560,7 +560,7 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 66-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
-.2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
+.2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Associated with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
 .2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
                                             <|
@@ -577,6 +577,20 @@ and fill the space with a single ULEB128-encoded value.
 This is achieved by prepending the redundant `0x80` byte as necessary.
 The linker must not alter the length of the ULEB128-encoded value.
 
+[NOTE]
+--
+At a single offset in a section, there could be as many as four relocations,
+in the following sequence:
+
+[,asm]
+----
+R_RISCV_VENDOR <vendor identifier> // Only if X and Y are both in 192-255
+R_RISCV_<X> <symbol>, <addend>     // Relocation
+R_RISCV_<Y> <symbol>, <addend>     // Only if paired relocation for X (e.g. uleb128 set/sub pair)
+R_RISCV_RELAX                      // Only if relaxations wanted
+----
+--
+
 ==== Nonstandard Relocations (a.k.a. Vendor-Specific Relocations)
 
 Nonstandard extensions are free to use relocation numbers 192-255 for any
@@ -584,6 +598,12 @@ purpose. These vendor-specific relocations must be preceded by a
 `R_RISCV_VENDOR` relocation against a vendor identifier symbol. The preceding
 `R_RISCV_VENDOR` relocation is used by the linker to choose the correct
 implementation for the associated nonstandard relocation.
+
+If the vendor relocation is paired (in the same way that `R_RISCV_SET_ULEB128`
+and `R_RISCV_SET_ULEB128` need to be paired) then both relocations in the pair
+must be vendor relocations and must use the same vendor identifier symbol. Only
+a single `R_RISCV_VENDOR` marker is needed at the offset, and applies to both
+relocations in the pair.
 
 The vendor identifier symbol should be a defined symbol and should set the type
 to `STT_NOTYPE`, binding to `STB_LOCAL`, and the size of symbol to zero.
