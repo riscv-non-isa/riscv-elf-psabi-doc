@@ -558,7 +558,7 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66      .2+| LPAD              .2+| Static  |                   .2+| Annotates the landing pad instruction inserted at the beginning of the function.
+.2+| 66      .2+| LPAD              .2+| Static  |                   .2+| Annotates the landing pad instruction inserted at this point.
                                             <|
 .2+| 67-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
@@ -1593,9 +1593,9 @@ type (`sh_type`) is `SHT_RISCV_LANDING_PAD_INFO`, and the section flags
 
 The landing pad information section is a section that contains the information
 to generate PLT with landing pads. The static linker is required to use the
-landing pad values provided by this section when generating lpad instructions
-for functions listed in this section, unless otherwise specified by the user
-(e.g. through command line options) or the unlabeled CFI scheme is selected.
+landing pad values provided by this section when generating PLT entries, unless
+otherwise specified by the user (e.g. through command line options) or the
+unlabeled CFI scheme is selected.
 
 This section is consist by the entries of the following structure:
 
@@ -1613,8 +1613,9 @@ typedef struct
 } Elf64_Lpadinfo;
 ```
 
-The `lpi_name` field is the index into the string table for the symbol name,
-and the `lpi_value` field is the landing pad value for the symbol.
+The `lpi_sym` field refers to a symbol by indexing into in the symbol table.
+The indexed symbol table is `.dynsym` for shared libraries, and `.symtab` for
+other ELF files.
 
 Every global or weak function symbol, as well as undefined global or weak
 symbols expected to be functions, must have an entry in `.riscv.lpadinfo`.
@@ -1637,12 +1638,7 @@ logic:
     provided by these objects are termed "referencing landing pad values."
   - Static linkers should emit an error if the referencing landing pad values
     for a symbol conflict with each other, i.e., they are different.
-3. Merging Rules for Zero and Non-Zero Values:
-  - The merging logic between zero and non-zero landing pad values does not
-    apply to referencing landing pad values, as these are expected to be
-    generated through C declarations, where only non-zero landing pad values
-    are expected.
-4. Final Landing Pad Value Determination:
+3. Final Landing Pad Value Determination:
   - The final landing pad value is determined by merging definitive and
     referencing landing pad values as follows:
     - If the definitive landing pad value exists and is non-zero, the final
@@ -1705,7 +1701,7 @@ mapping symbols helps the disassembler to disassemble instructions correctly.
 
 The mapping symbol for the landing pad (`$s`) provides additional information
 for the labeled landing pad scheme. This mapping symbol may be generated when
-setting up a landing pad value (e.g., `auipc t2, %lpad_hash("FvvE")` will
+setting up a landing pad value (e.g., `lpad t2, %lpad_hash("FvvE")` will
 generate `$sFvvE`) or when emitting a landing pad instruction (e.g.,
 `lpad %lpad_hash("FvvE")` will generate `$sFvvE`).
 
