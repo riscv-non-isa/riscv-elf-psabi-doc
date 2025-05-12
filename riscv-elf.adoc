@@ -558,7 +558,9 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 66      .2+| LPAD              .2+| Static  |                   .2+| Annotates the landing pad instruction inserted at this point.
+                                            <|
+.2+| 67-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
@@ -1220,6 +1222,7 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                  | Value       | Attributes
 
 | SHT_RISCV_ATTRIBUTES  | 0x70000003  | none
+| SHT_RISCV_LADING_PAD_INFO  | 0x70000004  | none
 |===
 
 ==== Special Sections
@@ -1234,11 +1237,15 @@ The defined processor-specific section types are listed in <<rv-section-type>>.
 | Name                       | Type                 | Attributes
 
 | .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
+| .riscv.lpadinfo            | SHT_RISCV_LADING_PAD_INFO | none
 | .riscv.jvt                 | SHT_PROGBITS         | SHF_ALLOC + SHF_EXECINSTR
 | .note.gnu.property         | SHT_NOTE             | SHF_ALLOC
 |===
 
 +++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
+
++++.riscv.lpadinfo+++ names a section that contains RISC-V landing pad
+information, which used for generating PLT and also can be used for debugging.
 
 +++.riscv.jvt+++ is a linker-created section to store table jump
 target addresses. The minimum alignment of this section is 64 bytes.
@@ -1578,6 +1585,75 @@ the `Zicfilp` extension. An executable or shared library with this bit set is
 required to generate PLTs with the landing pad (`lpad`) instruction, and all
 label are set to a value which hashed from its function signature.
 
+=== Landing Pad Information Section (`.riscv.lpadinfo`)
+
+The landing pad information section is named `.riscv.lpadinfo`. The section
+type (`sh_type`) is `SHT_RISCV_LANDING_PAD_INFO`, and the section flags
+(`sh_flags`) should be 0.
+
+The landing pad information section is a section that contains the information
+to generate PLT with landing pads. The static linker is required to use the
+landing pad values provided by this section when generating PLT entries, unless
+otherwise specified by the user (e.g. through command line options) or the
+unlabeled CFI scheme is selected.
+
+This section is consist by the entries of the following structure:
+
+```
+typedef struct
+{
+  Elf32_Word    lpi_sym;                 /* Symbol index */
+  Elf32_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf32_Lpadinfo;
+
+typedef struct
+{
+  Elf64_Word    lpi_sym;                 /* Symbol index */
+  Elf64_Word    lpi_value;               /* Landing pad value for the symbol */
+} Elf64_Lpadinfo;
+```
+
+The `lpi_sym` field refers to a symbol by indexing into in the symbol table.
+The indexed symbol table is `.dynsym` for shared libraries, and `.symtab` for
+other ELF files.
+
+Every global or weak function symbol, as well as undefined global or weak
+symbols expected to be functions, must have an entry in `.riscv.lpadinfo`.
+
+This section can be discard after static linking stage.
+
+Static linkers should merge landing pad values from objects using the following
+logic:
+1. Definitive Landing Pad Value Determination:
+  - If a resolved symbol has both a zero and a non-zero landing pad value coming
+    from objects that define the symbol (globally or weakly), the non-zero
+    landing pad value is adopted as the "definitive landing pad value" for the
+    symbol.
+  - If all landing pad values for the symbol are zero, the definitive lpad value
+    for the symbol is 0.
+  - If the symbol-defining objects provide more than one non-zero landing pad
+    value for a resolved symbol, an error should be emitted.
+2. Referencing Landing Pad Values:
+  - For symbols referenced (but not defined) by objects, the landing pad values
+    provided by these objects are termed "referencing landing pad values."
+  - Static linkers should emit an error if the referencing landing pad values
+    for a symbol conflict with each other, i.e., they are different.
+3. Final Landing Pad Value Determination:
+  - The final landing pad value is determined by merging definitive and
+    referencing landing pad values as follows:
+    - If the definitive landing pad value exists and is non-zero, the final
+      landing pad value is the definitive landing pad value.
+    - If the referencing landing pad value exists, the final landing pad value
+      is the referencing landing pad value.
+    - If the definitive landing pad value exists but is 0, the final landing
+      pad value is 0.
+    - If neither definitive nor referencing landing pad values exist, the final
+      landing pad value is unknown. If the linker needs to generate a PLT entry
+      for the symbol in this case, it must emit an error.
+
+NOTE: Dynamic linker may also check with same symbol has the same landing pad
+      value when loading shared object.
+
 === Mapping Symbol
 
 The section can have a mixture of code and data or code with different ISAs.
@@ -1592,6 +1668,7 @@ A number of symbols, named mapping symbols, describe the boundaries.
 | $x.<any>
 | $x<ISA>  .2+| Start of a sequence of instructions with <ISA> extension.
 | $x<ISA>.<any>
+| $s<function-signature-string> | Marker for the landing pad or landing pad value setup instruction.
 |===
 
 The mapping symbol should set the type to `STT_NOTYPE`, binding to `STB_LOCAL`,
@@ -1621,6 +1698,12 @@ execution environment requirements, so the ISA information from arch attribute
 is not enough for the disassembler to disassemble the `rv64gcv` version
 correctly. Specifying ISA string appropriately with the two memcpy instruction
 mapping symbols helps the disassembler to disassemble instructions correctly.
+
+The mapping symbol for the landing pad (`$s`) provides additional information
+for the labeled landing pad scheme. This mapping symbol may be generated when
+setting up a landing pad value (e.g., `lpad t2, %lpad_hash("FvvE")` will
+generate `$sFvvE`) or when emitting a landing pad instruction (e.g.,
+`lpad %lpad_hash("FvvE")` will generate `$sFvvE`).
 
 == Label Value Compuatation for Function Signature based Scheme Landing Pad
 
@@ -2326,6 +2409,96 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
     addi  a0, a0, %pcrel_lo(1b)
     csrw  jvt, a0
 ----
+
+==== Landing Pad Relaxation
+
+  Target Relocation::: R_RISCV_LPAD
+
+  Description:: This relaxation type allows the `lpad` instruction to be removed.
+  However, if `R_RISCV_RELAX` is not present, the `lpad` instruction can only be
+  replaced with a sequence of `nop` instructions of the same length as the
+  original instruction.
+
+  Description:: This relaxation type can relax lpad instruction into a none,
+  which removed the lpad instruction.
+  This relaxation type can be performed even without `R_RISCV_RELAX`,
+  but the linker should pad nop instruction to the same length of the original
+  instruction sequence.
+
+  Condition:: This relaxation can only be applied if the symbol is **NOT**
+  exported to the dynamic symbol table and is only referenced by `R_RISCV_CALL`
+  or `R_RISCV_CALL_PLT` relocations. If the symbol is exported or referenced by
+  other relocations, relaxation cannot be performed.
+
+  Relaxation::
+  - Lpad instruction associated with `R_RISCV_LPAD` can be removed.
+  - Lpad instruction associated with `R_RISCV_LPAD` can be replaced with nop
+    instruction if the relacation isn't paired with `R_RISCV_RELAX`.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lpad  0x123           # R_RISCV_LPAD, R_RISCV_RELAX
+----
+
+Relaxation result:
+[,asm]
+----
+    # No instruction
+----
+Can be relaxed into `nop` if no `R_RISCV_RELAX` is paired with `R_RISCV_LPAD`.
+[,asm]
+----
+    nop
+----
+--
+
+==== Landing Pad Scheme Relaxation
+
+  Target Relocation::: R_RISCV_LPAD
+
+  Description:: This relaxation type allows an `lpad` instruction to be relaxed
+  into `lpad 0`, which is a universal landing pad that ignores the label value
+  comparison. This relaxation is used when the label value is not computed
+  correctly.
+
+  Condition:: This relaxation can be performed without `R_RISCV_RELAX`, and
+  should not be enabled by default. The user must explicitly enable this
+  relaxation. Additionally, if this relaxation is applied, it must be applied
+  consistently to all `R_RISCV_LPAD` relocations in the entire binary.
+
+  Relaxation::
+  - Lpad instruction associated with `R_RISCV_LPAD` will be replaced with
+    `lpad 0`.
+  - The GNU property must be adjusted to reflect the use of this relaxation.
+  - The format of the PLT entries must also be adjusted accordingly.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    lpad  0x123           # R_RISCV_LPAD
+----
+
+Relaxation result:
+[,asm]
+----
+    lpad 0
+----
+--
+
+NOTE: This relaxation is designed to be compatible with legacy programs that
+      may not declare the function signature correctly.
+
+NOTE: Dependent shared libraries will not undergo the corresponding
+transformation. Therefore, if this Landing Pad Scheme Relaxation is used in a
+dynamically linked environment, ensure that all dependent shared libraries are
+rebuilt with the corresponding version.
 
 [bibliography]
 == References
