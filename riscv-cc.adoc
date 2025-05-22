@@ -283,7 +283,7 @@ floating-point registers than the ABI.
 For the purposes of this section, "struct" refers to a C struct with its
 hierarchy flattened, including any array fields.  That is, `struct { struct
 { float f[1]; } a[2]; }` and `struct { float f0; float f1; }` are
-treated the same.  Fields containing empty structs or unions are ignored while
+treated the same.  Fields containing empty structs are ignored while
 flattening, even in {Cpp}, unless they have nontrivial copy constructors or
 destructors.  Fields containing zero-length bit-fields or zero-length arrays are
 ignored while flattening.  Attributes such as `aligned` or `packed` do not
@@ -293,18 +293,20 @@ __attribute__((__packed__)) { int i; double d }+` are treated the same, as are
 `struct { float f; float g; }` and `+struct { float f; float g __attribute__
 ((aligned (8))); }+`.
 
-NOTE: One exceptional case for the flattening rule is an array of empty
-structs or unions; C treats it as an empty field, but {Cpp}
-treats it as a non-empty field since {Cpp} defines the size of an empty struct
-or union as 1. i.e. for `struct { struct {} e[1]; float f; }` as the first
-argument, C will treat it like `struct { float f; }` and pass `f` in `fa0` as
-described below, whereas {Cpp} will pass the pass the entire aggregate in `a0` 
-(XLEN = 64) or `a0` and `a1` (XLEN = 32), as described in the integer calling
-convention.
-Zero-length arrays of empty structs or union will be
-ignored for both C and {Cpp}. i.e. For `struct { struct {} e[0]; float f; };`,
-as the first argument, C and {Cpp} will treat it like `struct { float f; }`
-and pass `f` in `fa0` as described below.
+NOTE: One exceptional case for the flattening rule is an empty union, or an
+array or a union of empty structs or unions; C treats all of such fields in an
+aggregate as an empty field (no register is assigned but counts as one field),
+but {Cpp} treats them as a non-empty field since {Cpp} defines the size of an
+empty struct or union as 1. i.e. for `struct { struct {} e1[1], e2[1]; float f;
+ }` as the first argument, C will treat them like `struct { float f; }` and
+pass `f` in `fa0` as described below, whereas {Cpp} will pass the entire
+aggregate in `a0`(XLEN = 64) or `a0` and `a1` (XLEN = 32), as described in the
+integer calling convention; `struct { struct {} e[1]; float f0; float f1; }` is
+passed according to integer calling convention for both C and {Cpp}.
+All zero-length arrays of empty structs or unions in an aggregate will be
+treated as an empty field for both C and {Cpp}. i.e. for `struct { struct {}
+e1[0], e2[0]; float f; };`, as the first argument, C and {Cpp} will treat it
+like `struct { float f; }` and pass `f` in `fa0` as described below.
 
 A real floating-point argument is passed in a floating-point argument
 register if it is no more than ABI_FLEN bits wide and at least one floating-point
@@ -335,8 +337,8 @@ bits, the remaining bits are unspecified.
 If the struct is not passed in this manner, then it is passed according to the
 integer calling convention.
 
-Unions are never flattened and are always passed according to the integer
-calling convention.
+Unions of one or more non-empty fields are never flattened and are always
+passed according to the integer calling convention.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.
