@@ -1,5 +1,7 @@
 = Introduction
 
+:sectnums!:
+
 This specification provides the processor-specific application binary interface
 document for RISC-V.
 
@@ -12,7 +14,7 @@ This specification consists of the following three parts:
 A future revision of this ABI will include a canonical set of mappings for
 memory model synchronization primitives.
 
-= Terms and Abbreviations
+== Terms and Abbreviations
 
 This specification uses the following terms and abbreviations:
 
@@ -36,7 +38,7 @@ This specification uses the following terms and abbreviations:
 | RVWMO             | RISC-V Weak Memory Order, as defined in the RISC-V specification.
 |===
 
-= Status of ABI
+== Status of ABI
 
 [width=80%]
 |===
@@ -58,3 +60,5 @@ This specification uses the following terms and abbreviations:
 
 NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
 define that in future version of this specification.
+
+:sectnums:
