@@ -18,7 +18,7 @@ endif
 
 .PHONY: clean
 clean:
-	rm -f $(NAME).pdf
+	rm -f $(NAME).pdf $(NAME).html
 
 $(NAME).pdf: $(NAME).adoc $(ADOCS) resources/themes/risc-v_spec-pdf.yml
 	asciidoctor-pdf \
