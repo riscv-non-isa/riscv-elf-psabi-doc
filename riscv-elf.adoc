@@ -726,7 +726,7 @@ GOT (Global Offset Table) and PLT (Procedure Linkage Table).
 
 RISC-V defines several PLT styles, which are used in different situations.
 The default PLT style should be used if the program does not meet the conditions
-for using all other PLT sytles.
+for using any of the other PLT sytles.
 
 [[plt-style]]
 .PLT styles
