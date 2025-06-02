@@ -2102,8 +2102,5 @@ RISC-V International.
 * [[[riscv-zc-extension-group]]] "ZC* extension specification"
 https://github.com/riscv/riscv-code-size-reduction
 
-* [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
-https://github.com/riscv-non-isa/rvv-intrinsic-doc
-
 * [[[rv-toolchain-conventions]]] "RISC-V Toolchain Conventions"
 https://github.com/riscv-non-isa/riscv-toolchain-conventions
