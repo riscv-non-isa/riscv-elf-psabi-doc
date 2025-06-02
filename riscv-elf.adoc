@@ -1509,9 +1509,9 @@ Description:: Additional information about the program property type.
 
 ==== GNU_PROPERTY_RISCV_FEATURE_1_AND
 
-`GNU_PROPERTY_RISCV_FEATURE_1_AND` describes a set of features, where each bit
-represents a different feature. The linker should perform a bitwise AND
-operation when merging different objects.
+`GNU_PROPERTY_RISCV_FEATURE_1_AND` describe a set of processor features with
+each bit indicating a feature that the object file is compatible with. The
+linker should perform a bitwise AND operation when merging different objects.
 
 [%autowidth]
 |===
