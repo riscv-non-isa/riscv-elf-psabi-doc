@@ -733,8 +733,9 @@ for using any of the other PLT sytles.
 [cols="1,2"]
 [width=70%]
 |===
-| Default PLT               | -
+| Default PLT                  | -
 | Unlabeled landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
+| Function signature based landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG` is set.
 |===
 
 The first entry of a shared object PLT is a special entry that calls
@@ -745,6 +746,9 @@ GOT offsets lazily on the first call to any function, except when
 dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
 resolution to the first time the function is called.
+
+The PLT entry is 16 bytes for the default PLT style and the simple landing pad
+PLT style, and 32 bytes for the function signature based landing pad PLT style.
 
 The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
@@ -777,7 +781,26 @@ And occupies three 16 byte entries for the unlabeled landing pad PLT style:
     nop
 ----
 
-Subsequent function entry stubs in the PLT take up 16 bytes.
+The function signature based landing pad PLT style occupies 48 byte entries:
+
+[,asm]
+----
+1:  lpad 0
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 20
+    auipc  t3, %pcrel_hi(.got.plt)
+    addi   t0, t3, %pcrel_lo(1b)    # &.got.plt
+    l[w|d] t3, %pcrel_lo(1b)(t3)    # _dl_runtime_resolve
+    addi   t1, t1, -(hdr size + 20) # shifted .got.plt offset
+    srli   t1, t1, log2(32/PTRSIZE) # .got.plt offset
+    l[w|d] t0, PTRSIZE(t0)          # link map
+    jr     t3
+    nop
+    nop
+    nop
+----
+
+Subsequent function entry stubs in the PLT take up 16 bytes or 32 bytes depends
+on the style.
 On the first call to a function, the entry redirects to the first PLT entry
 which calls `_dl_runtime_resolve` and fills in the GOT entry for subsequent
 calls to the function.
@@ -798,6 +821,19 @@ The code sequences of the PLT entry for the unlabeled landing pad PLT style:
 1:  auipc   t3, %pcrel_hi(function@.got.plt)
     l[w|d]  t3, %pcrel_lo(1b)(t3)
     jalr    t1, t3
+----
+
+The code sequences of the PLT entry for the the function signature based landing pad PLT style:
+[,asm]
+----
+1:  lpad    <hash-value-for-function>
+    auipc   t3, %pcrel_hi(function@.got.plt)
+    l[w|d]  t3, %pcrel_lo(1b)(t3)
+    lui     t2, <hash-value-for-function>
+    jalr    t1, t3
+    nop
+    nop
+    nop
 ----
 
 ==== Procedure Calls
@@ -1520,6 +1556,7 @@ The value of `GNU_PROPERTY_RISCV_FEATURE_1_AND` is defined in <<rv-prog-prop-typ
 | Bit | Bit Name
 |   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED
 |   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
+|   2 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG
 |===
 
 `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`: This bit indicates that all
@@ -1571,6 +1608,12 @@ instructions. During linker relaxation, a static linker may remove unnecessary
 landing pad instructions if it can prove that there are no indirect branches
 targeting the corresponding location.
 
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_FUNC_SIG` This bit indicate that all executable
+sections are built to be compatible with the landing pad mechanism provided by
+the `Zicfilp` extension. An executable or shared library with this bit set is
+required to generate PLTs with the landing pad (`lpad`) instruction, and all
+label are set to a value which hashed from its function signature.
+
 === Mapping Symbol
 
 The section can have a mixture of code and data or code with different ISAs.
@@ -1614,6 +1657,124 @@ execution environment requirements, so the ISA information from arch attribute
 is not enough for the disassembler to disassemble the `rv64gcv` version
 correctly. Specifying ISA string appropriately with the two memcpy instruction
 mapping symbols helps the disassembler to disassemble instructions correctly.
+
+== Label Value Compuatation for Function Signature based Scheme Landing Pad
+
+The label value for the function signature-based labeling scheme landing pad is
+computed from the hash of the function signature string, which follows the same
+scheme as the "Function types" mangling rule defined in the _Itanium {Cpp} ABI_
+<<itanium-cxx-abi>>. The function signature will also use the "Compression" rule
+defined in the _Itanium {Cpp} ABI_.
+
+The label value is derived from the lower 20 bits of the MD5 hash result of the
+function signature string. If the lower 20 bits are all zeros, use the next
+20 bits, and continue using the next 20 bits until a non-zero value is obtained.
+If less than 20 bits are available in the final segment, the remaining bits
+will be zero-filled to make up 20 bits. If all 128 bits are zeros, the lower
+20 bits of the MD5 hash result of the string "RISC-V" are used.
+
+Additionally, here are a few specific rules:
+
+- `main` function uses the signature of
+   `(int, pointer to pointer to char) returning int` (`FiiPPcE`).
+- `_dl_runtime_resolve` uses zero for the landing pad.
+- The 'Y' component in the `<function-type>` should be ignored.
+- `<exception-sepc>` should be ignored.
+- {Cpp} member functions should use the "Pointer-to-member types" mangling rule
+  defined in the Itanium C++ ABI <<itanium-cxx-abi>> with the following
+  additional rules:
+  - Member functions should use `v` for `<class type>` rather than the actual
+    class name. For example, use `1v` instead of `3foo` for the `<class type>`
+    in `class foo`. This rule only applies to the `<class type>` at the top level
+    of `<pointer-to-member-type>`, and does not affect cases where an argument
+    contains a pointer to a member type.
+  - The return type of a virtual class member function, if it is a pointer or
+    reference to a class type, should have its class type mangled as `class v`
+    rather than the declared class type. Const and volatile type qualifiers
+    should be ignored if this rule applies. Multi-level pointers or references
+    are exempted from this rule.
+  - Class destructors should use the signature `void (*)(void*)` (`FvPvE`).
+  - Static functions should follow the rules of non-member functions.
+- `wchar_t` should match the type of the target platform. For example, on
+   Linux, it uses `int`, so it mangles to `i` rather than `w` for {Cpp}.
+- Functions with an empty parameter list are treated as explicitly declaring
+  that they take no parameters (having `void` as the parameter list).
+
+
+NOTE: The special rule for the return type of virtual class member functions is
+      defined to handle covariant return types.
+
+NOTE: Class destructors generally should not be called via indirect call, but
+      they may be registered as program destructors via `__cxa_atexit`.
+      Therefore, they must match the signature of the argument of
+      `__cxa_atexit`, which is `void (*)(void*)`.
+
+NOTE: `<exception-spec>` is ignored due to C++ standard backward compatibility,
+      as it was introduced after {Cpp}17.
+
+Example:
+
+[,cxx]
+----
+
+double foo(int, float *);
+
+class Base
+{
+public:
+  virtual void memfunc1();
+  virtual void memfunc2(int);
+  virtual Base *memfunc3(int);
+};
+
+class Derived : public Base
+{
+public:
+  virtual void memfunc1() override;
+  virtual Derived *memfunc3(int) override;
+  virtual void memfunc4(double);
+  void memfunc5();
+};
+
+class OtherBase
+{
+public:
+  virtual void memfunc2(int);
+};
+
+class OtherClass;
+
+class DerivedDerived : public Derived, OtherBase
+{
+public:
+  virtual void memfunc2(int) override;
+  virtual DerivedDerived *memfunc3(int) override;
+  virtual void memfunc4(double) override;
+  DerivedDerived *memfunc6();
+  OtherClass *memfunc7(float);
+  OtherClass &memfunc8();
+  OtherClass memfunc9(float);
+  int *memfunc10();
+};
+
+----
+
+The function signatures for the above functions are described below:
+
+- `foo` is encoded as `FdiPfE`.
+- `Base::memfunc1` and `Derived::memfunc1` are both encoded as `M1vFvvE`.
+- `Base::memfunc2`, `OtherBase::memfunc2`, and `DerivedDerived::memfunc2`
+   is all encoded as `M1vFviE`.
+- `Base::memfunc3`, `Derived::memfunc3`, and `DerivedDerived::memfunc3` are
+   encoded as `M1vFPviE`.
+- `Derived::memfunc4` and `DerivedDerived::memfunc4` are both encoded as
+  `M1vFvdE`.
+- `Derived::memfunc5` is encoded as `M1vFvvE`.
+- `DerivedDerived::memfunc6` and `DerivedDerived::memfunc7` are encoded as
+  `M1vFPviE`.
+- `DerivedDerived::memfunc8` is encoded as `M1vFRvvE`.
+- `DerivedDerived::memfunc9` is encoded as `M1vF10OtherClassvE`.
+- `DerivedDerived::memfunc10` is encoded as `M1vFPivE`.
 
 == Linker Relaxation
 
