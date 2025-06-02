@@ -1516,6 +1516,8 @@ Description:: Additional information about the program property type.
 each bit indicating a feature that the object file is compatible with. The
 linker should perform a bitwise AND operation when merging different objects.
 
+The value of `GNU_PROPERTY_RISCV_FEATURE_1_AND` is defined in <<rv-prog-prop-type>>.
+
 [%autowidth]
 |===
 | Bit | Bit Name
