@@ -11,6 +11,8 @@ This document includes the following items:
 
 The AsciiDoc sources can be rendered by GitHub, and pre-built PDFs can be downloaded from the repository's [releases](https://github.com/riscv/riscv-elf-psabi-doc/releases).
 
+The latest snapshot can be viewed on GitHub Pages at https://riscv-non-isa.github.io/riscv-elf-psabi-doc/.
+
 # Navigation
 ----------------------------------------------------------------------------------------------------------
 Name                                | URL                                                   | Description

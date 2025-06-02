@@ -22,13 +22,23 @@ jobs:
         run: sudo gem install asciidoctor asciidoctor-pdf
 
       - name: Build
-        run: make
+        run: make HTML=1
+
+      - name: Make GitHub pages directory
+        run: |
+          mkdir github-pages
+          cp riscv-abi.html github-pages/index.html
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: riscv-abi.pdf
           path: riscv-abi.pdf
+
+      - name: Upload pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: github-pages
 
   draft-release:
     if: github.event_name == 'push' && github.ref == 'refs/heads/master'
@@ -88,3 +98,18 @@ jobs:
           asset_path: riscv-abi.pdf
           asset_name: riscv-abi.pdf
           asset_content_type: application/pdf
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
