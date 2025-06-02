@@ -1,4 +1,4 @@
-[[riscv-dwarf]]
+[[riscv-rtabi]]
 = RISC-V Run-time ABI Specification
 ifeval::["{docname}" == "riscv-rtabi"]
 include::prelude.adoc[]
