@@ -1531,6 +1531,7 @@ provided by the Zicfilp extension in the unlabeled scheme: Executables and
 shared libraries with this bit set are required to generate PLTs in the
 unlabeled landing pad PLT style, and all of the labels of lpad instructions are
 set to 0, i.e. unlabeled.
+See <<Tool Requirements for Generating Landing Pad Instruction>> for more details.
 
 `GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicates that all executable
 sections are built to be compatible with the shadow stack mechanism provided by
@@ -1539,6 +1540,39 @@ set requires the execution environment to provide either the `Zicfiss` extension
 or the `Zimop` extension. When the executable or shared library is compiled with
 compressed instructions then loading it with this bit set requires the execution
 environment to provide the `Zicfiss` extension or the `Zcmop` extensions.
+
+=== Tool Requirements for Generating Landing Pad Instructions
+
+For an executable or shared library to set the GNU property
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`, every indirect branch targeting
+a location guarded by landing pads must point to a landing pad (`lpad`)
+instruction with a compatible label value. Indirect branches may originate from:
+
+* Relocatable object producers, such as a compiler or assembler.
+
+* Static linkers when generating PLT entries.
+
+* Other executables and shared libraries via calls through PLT entries or
+  function pointers.
+
+It is desirable to minimize the number of landing pad instructions to limit the
+number of indirect branch destinations within the program. The following tool
+requirements determine which tool is responsible for inserting landing pad
+instructions, allowing tools to omit landing pad instructions if it can be
+proven that there are no indirect branches targeting the location.
+
+A relocatable object producer is required to insert a landing pad instruction at
+the target of an indirect branch originating from within the same relocatable
+object.
+
+A relocatable object producer must insert a landing pad instruction at any
+location whose address escapes the relocatable object. This includes all symbols
+that can be exported into the dynamic symbol table by a static linker.
+
+A static linker is required to generate PLT entries with appropriate landing pad
+instructions. During linker relaxation, a static linker may remove unnecessary
+landing pad instructions if it can prove that there are no indirect branches
+targeting the corresponding location.
 
 === Mapping Symbol
 
