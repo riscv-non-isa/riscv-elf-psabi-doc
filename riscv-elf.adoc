@@ -1387,8 +1387,8 @@ file. Its values are defined as follows:
 
 | 0     | UNKNOWN  | This object uses unknown atomic ABI.
 | 1     | A6C      | This object uses the A6 classical atomic ABI, which is defined in table A.6 in <<riscv-unpriv-20191213>>.
-| 2     | A6S      | This object uses the strengthened A6 ABI, which uses the atomic mapping defined by <<Mappings from C/C++ primitives to RISC-V primitives>> and does not rely on any note 3 annotated mappings.
-| 3     | A7       | This object uses the A7 atomic ABI, which uses the atomic mapping defined by <<Mappings from C/C++ primitives to RISC-V primitives>> and may rely on note 3 annotated mappings.
+| 2     | A6S      | This object uses the strengthened A6 ABI, which uses the atomic mapping defined by <<Mappings from C/{Cpp} primitives to RISC-V primitives>> and does not rely on any note 3 annotated mappings.
+| 3     | A7       | This object uses the A7 atomic ABI, which uses the atomic mapping defined by <<Mappings from C/{Cpp} primitives to RISC-V primitives>> and may rely on note 3 annotated mappings.
 |===
 
 Merge policy:::
