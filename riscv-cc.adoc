@@ -318,7 +318,8 @@ a standalone floating-point real.
 
 A struct containing two floating-point reals is passed in two floating-point
 registers, if neither real is more than ABI_FLEN bits wide and at least two floating-point
-argument registers are available.  (The registers need not be an aligned pair.)
+argument registers are available.  (The registers need not be an aligned pair
+and are assigned to the two reals in memory order.)
 Otherwise, it is passed according to the integer calling convention.
 
 A complex floating-point number, or a struct containing just one complex
