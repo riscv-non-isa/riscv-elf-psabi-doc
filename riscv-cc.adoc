@@ -166,9 +166,10 @@ the calling convention are unspecified upon exit, the contents of all
 callee-saved registers must be restored to what was set on entry, and the
 contents of any fixed registers like `gp` and `tp` never change.
 
-
-NOTE: Calling convention for big-endian is *NOT* included in this specification
-yet, we intend to define that in future version of this specification.
+NOTE: Big-endian calling conventions follow the same rules as little-endian
+calling conventions. The only difference is in the byte ordering of multi-byte
+values in memory and registers. Register usage, argument passing, and return
+value conventions remain the same.
 
 [#integer-cc]
 === Integer Calling Convention
@@ -191,6 +192,16 @@ available, the scalar is passed on the stack by value.  If exactly one
 register is available, the low-order XLEN bits are passed in the register and
 the high-order XLEN bits are passed on the stack.
 
+This register-pair ordering is defined in terms of value significance and is
+independent of endianness.  For example, on RV32BE a 64-bit scalar returned
+in a0/a1 places bits [31:0] (the least-significant XLEN bits) in a0 and
+bits [63:32] in a1; memory layout remains big-endian.
+
+NOTE: Defining the register-pair ordering independent of endianness allows
+RV32_Zdinx and Zilsd paired load/store paths to be used directly for argument
+passing and return without extra swaps.  Memory layout remains governed by the
+target endianness.
+
 Scalars wider than 2×XLEN bits are passed by reference and are replaced in the
 argument list with the address.
 
@@ -198,7 +209,10 @@ Aggregates whose total size is no more than XLEN bits are passed in
 a register, with the fields laid out as though they were passed in memory. If
 no register is available, the aggregate is passed on the stack.
 Aggregates whose total size is no more than 2×XLEN bits are passed in a pair
-of registers; if only one register is available, the first XLEN bits are passed
+of registers with the fields laid out as though they were passed in memory:
+the lower-numbered register holds the lower-addressed XLEN-sized chunk of
+the aggregate and the higher-numbered register holds the next chunk;
+if only one register is available, the first XLEN bits are passed
 in a register and the remaining bits are passed on the stack. If no registers are
 available, the aggregate is passed on the stack. Bits unused due to
 padding, and bits past the end of an aggregate whose size in bits is not
@@ -231,7 +245,10 @@ same manner as named arguments, with one exception.  Variadic arguments with
 even-numbered), or on the stack by value if none is available. After a
 variadic argument has been passed on the stack, all future arguments will also
 be passed on the stack (i.e. the last argument register may be left unused due
-to the aligned register pair rule).
+to the aligned register pair rule).  For 2×XLEN scalars placed in an aligned
+register pair, the lower-numbered register holds the least-significant XLEN bits
+and the higher-numbered register holds the most-significant XLEN bits,
+regardless of endianness.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.  If such an argument would have been passed by

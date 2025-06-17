@@ -236,6 +236,56 @@ type-name = identifier-nondigit *identifier-char
 identifier-nondigit = ALPHA / "_"
 identifier-char = identifier-nondigit / "_"
 ----
+
+== Data Representation
+
+The data representation for RISC-V follows the conventions of the target endianness.
+RISC-V supports both little-endian and big-endian byte ordering.
+
+=== Byte Ordering
+
+RISC-V implementations can support either little-endian or big-endian byte ordering:
+
+* **Little-endian**: The least significant byte is stored at the lowest memory address.
+  This is the default and most common byte ordering for RISC-V.
+* **Big-endian**: The most significant byte is stored at the lowest memory address.
+
+The endianness is fixed at the system level and cannot be changed dynamically.
+All data types follow the byte ordering of the target system.
+
+IMPORTANT: RISC-V instructions are always stored in little-endian format,
+regardless of the data endianness. This means that in big-endian systems,
+data is big-endian but instructions remain little-endian.
+
+=== Relocations and Byte Ordering
+
+When generating big-endian output, the following relocations write their
+data values in big-endian byte order:
+
+* `R_RISCV_32`
+* `R_RISCV_64`
+* `R_RISCV_ADD16`
+* `R_RISCV_ADD32`
+* `R_RISCV_ADD64`
+* `R_RISCV_SUB16`
+* `R_RISCV_SUB32`
+* `R_RISCV_SUB64`
+* `R_RISCV_SET16`
+* `R_RISCV_SET32`
+* `R_RISCV_SET64`
+* `R_RISCV_32_PCREL`
+* `R_RISCV_PLT32`
+* `R_RISCV_JUMP_SLOT`
+* `R_RISCV_TLS_DTPMOD32`
+* `R_RISCV_TLS_DTPMOD64`
+* `R_RISCV_TLS_DTPREL64`
+* `R_RISCV_TLS_DTPREL32`
+* `R_RISCV_TLS_TPREL64`
+* `R_RISCV_TLS_TPREL32`
+
+All other relocations that modify instruction fields continue to use
+little-endian byte order, as RISC-V instructions are always little-endian.
+
 == ELF Object Files
 
 The ELF object file format for RISC-V follows the
