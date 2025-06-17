@@ -498,25 +498,28 @@ the calling convention.
 ===
 
 A fixed-length vector argument is passed in two vector argument registers,
-similar to vector data arguments with LMUL=2, if the size of the vector is
-greater than ABI_VLEN bit and less than or equal to 2×ABI_VLEN bit.
+similar to vector data arguments with LMUL=2 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 2×ABI_VLEN bits.
 
 A fixed-length vector argument is passed in four vector argument registers,
-similar to vector data arguments with LMUL=4, if the size of the vector is
-greater than 2×ABI_VLEN bit and less than or equal to 4×ABI_VLEN bit.
+similar to vector data arguments with LMUL=4 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 4×ABI_VLEN bits.
 
 A fixed-length vector argument is passed in eight vector argument registers,
-similar to vector data arguments with LMUL=8, if the size of the vector is
-greater than 4×ABI_VLEN bit and less than or equal to 8×ABI_VLEN bit.
+similar to vector data arguments with LMUL=4 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 8×ABI_VLEN bits.
 
 [NOTE]
 ===
 Fixed-length vectors that are not a power-of-2 in size will be rounded up to
 the next power-of-2 length for the purpose of register allocation and handling.
 For instance, a vector type like `int32x3_t` (which contains three 32-bit
-integers) will be treated as an `int32x4_t` (a 128-bit vector, as LMUL=1) in
-the ABI, and passed accordingly. This ensures consistency in how vectors are
-handled and simplifies the process of argument passing.
+integers) will be treated as an `int32x4_t` (a 128-bit vector, as LMUL=1 for
+ABI_VLEN=128) in the ABI, and passed accordingly. This ensures consistency in
+how vectors are handled and simplifies the process of argument passing.
 
 Example: Consider an `int32x3_t` vector (three 32-bit integers):
 - The vector's total size is 96 bits, which is not a power of 2.

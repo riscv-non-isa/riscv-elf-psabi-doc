@@ -207,7 +207,7 @@ same way as `std::bfloat16_t`.
 === Name Mangling for Standard Calling Convention Variant
 
 Functions using the standard calling convention variant have to append extra ABI tag to
-the function name mangling, the rule are same as the "ABI tags" section in
+the function name mangling, the rule is the same as the "ABI tags" section in
 _Itanium {Cpp} ABI_.
 
 .ABI Tag name for calling convention variants
