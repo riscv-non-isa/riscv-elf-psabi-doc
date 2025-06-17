@@ -437,7 +437,7 @@ For more details, see <<Name Mangling for Standard Calling Convention Variant>>.
 
 This section defines the calling convention variant for fixed-length vectors.
 The intention of this variant is to pass fixed-length vectors via the vector
-register. For the definition of a fixed-length vector, see
+registers. For the definition of a fixed-length vector, see
 <<Fixed-length vector>>.
 
 This variant is based on the standard vector calling convention variant:
@@ -456,14 +456,14 @@ The ABI_VLEN must be no wider than the ISA's VLEN, meaning that the ISA may
 support wider vector registers than the ABI, but the ABI's VLEN cannot exceed
 the ISA's VLEN.
 
-ABI_VLEN represents the width (in bits) of the vector register available in the
+ABI_VLEN represents the width (in bits) of the vector registers available in the
 calling convention for fixed-length vectors. ABI_VLEN can vary from 32 bits
 (as in `Zve32x`) up to the maximum supported by the ISA. The flexibility of
 ABI_VLEN enables the convention to adapt to both low-end embedded systems and
 high-performance processors that utilize wider vector registers.
 
 The ABI_VLEN is a parameter of this calling convention variant. It could be set
-by the command line option for the compiler or specified by the function
+by a command line option for the compiler or specified by a function
 attribute in the source code.
 
 NOTE: We suggest the toolchain implementation set the default value of ABI_VLEN
@@ -473,7 +473,7 @@ also enables the utilization of the capacity of longer VLEN. Users can build
 with an optimized library with larger ABI_VLEN for better utilization of those
 cores with longer VLEN.
 
-A fixed-length vector argument is passed in a vector argument register if the
+A fixed-length vector argument is passed in one vector argument register if the
 size of the vector is less than or equal to ABI_VLEN bit.
 
 [NOTE]
@@ -542,17 +542,17 @@ Otherwise, it will use the rule defined in the hardware floating-point calling
 convention.
 
 A struct containing just one fixed-length vector or a fixed-length vector
-array of length one, it will be flattened as a single fixed-length vector argument
+array of length one, will be flattened as a single fixed-length vector argument
 if the size of the vector is less than or equal to 8×ABI_VLEN bit.
 
-Struct with zero-length fixed-length arrays use the rule defined in the hardware
+Structs with zero-length fixed-length arrays use the rule defined in the hardware
 floating-point calling convention, which means it won't consume vector argument
-register eitehr in C or {Cpp}.
+register either in C or {Cpp}.
 
 A struct containing just one fixed-length vector array is passed as though it
 were a vector tuple type if the size of the base element for the array is less than
 or equal to 8×ABI_VLEN bit, and the size of the array is less than 8×ABI_VLEN
-bit.
+bits.
 If there are not enough vector argument registers to pass the entire struct,
 it will pass by reference and is replaced in the argument list with the address.
 Otherwise, it will use the rule defined in the hardware floating-point
