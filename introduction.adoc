@@ -61,4 +61,10 @@ This specification uses the following terms and abbreviations:
 NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
 define that in future version of this specification.
 
+Any encodings that are marked as reserved for a specific extension should be
+treated by standard tools identically to any other encodings reserved for
+future standard extensions. Such reservations are solely declarations of intent
+to reduce conflicts between in-flight extensions, and may be retracted at any
+point for any reason.
+
 :sectnums:

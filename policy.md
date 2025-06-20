@@ -51,6 +51,22 @@ Each type of modification has a different policy, based on the following rules:
     needed for reviews, but in case you want to reach out yourself you can find
     an incomplete list from [RISC-V International's wiki page].
 
+# Reserving Encodings
+
+- Relocations within the standard encoding space, or program header types etc.,
+  may be reserved for in-development standard extensions
+  - Such extensions must be under development by an existing TG and be well on
+    the way to ratification (such as, but not strictly required, be in the
+    stable state)
+  - A proof-of-concept toolchain ideally should exist
+  - A specification for the ABI additions ideally should exist
+  - The nature of extensions can vary, and so the policy here is intentionally
+    vague and incomplete; each request will be evaluated on a case-by-case
+    basis by the psABI community
+  - Encoding reservations are voluntary and non-binding; whilst the psABI
+    community intends to honour reasonable requests, it reserves the right to
+    stop reserving such encodings for any reason
+
 [@kito-cheng]: https://github.com/kito-cheng
 [@jrtc27]: https://github.com/jrtc27
 [RISC-V International's wiki page]: https://wiki.riscv.org/display/TECH/Toolchain+Projects
