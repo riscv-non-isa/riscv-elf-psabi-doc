@@ -74,7 +74,7 @@ convention. A platform may choose:
 - to use the frame pointer to address a valid frame record at all times, except
   leaf functions, who may elect to forgo creating a frame record.
 
-=== Floating-point Register Convention
+=== Floating-Point Register Convention
 
 .Floating-point register convention
 [cols="1,1,2,2"]
@@ -99,7 +99,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 
 === Vector Register Convention
 
-==== Standard calling convention
+==== Standard Calling Convention
 .Standard vector register calling convention
 [%autowidth]
 |===
@@ -126,7 +126,7 @@ NOTE: Application software should normally not write `vstart` explicitly.
 Any procedure that does explicitly write `vstart` to a nonzero value must zero
 `vstart` before either returning or calling another procedure.
 
-==== Calling convention variant
+==== Calling Convention Variant
 .Variant vector register calling convention*
 [%autowidth]
 |===
@@ -266,7 +266,7 @@ No floating-point registers, if present, are preserved across calls. (This
 property changes when the integer calling convention is augmented by the
 hardware floating-point calling convention.)
 
-=== Hardware Floating-point Calling Convention
+=== Hardware Floating-Point Calling Convention
 
 The hardware floating-point calling convention adds eight floating-point
 argument registers, fa0-fa7, the first two of which are also used to return
@@ -556,9 +556,9 @@ document.
 Please refer to the documentation of the RISC-V execution environment interface
 (e.g OS kernel ABI, SBI).
 
-== C/{Cpp} type details
+== C/{Cpp} Type Details
 
-=== C/{Cpp} type sizes and alignments
+=== C/{Cpp} Type Sizes and Alignments
 
 There are two conventions for C/{Cpp} type sizes and alignments.
 
@@ -622,7 +622,7 @@ The alignment of `max_align_t` is 16.
 Structs and unions are aligned to the alignment of their most strictly aligned
 member. The size of any object is a multiple of its alignment.
 
-=== Fixed-length vector
+=== Fixed-Length Vector
 
 Various compilers have support for fixed-length vector types, for example GCC
 and Clang both support declaring a type with `\\__attribute__\((vector_size(N))`,
@@ -634,7 +634,7 @@ alignment requirement of its elemental type.
 The size of the fixed length vector is determined by multiplying the size of its
 elemental type by the total number of elements within the vector.
 
-=== C/{Cpp} type representations
+=== C/{Cpp} Type Representations
 
 `char` is unsigned.
 
@@ -655,7 +655,7 @@ The type `size_t` is defined as `unsigned int` for RV32 and `unsigned long` for 
 
 The type `ptrdiff_t` is defined as `int` for RV32 and `long` for RV64.
 
-=== Bit-fields
+=== Bit-Fields
 
 Bit-fields are packed in little-endian fashion. A bit-field that would span the
 alignment boundary of its integer type is padded to begin at the next
@@ -716,7 +716,7 @@ alignment used will be those of a pointer, and the fetched pointer will be used
 as the address of the actual argument. The `va_copy` macro is a single pointer
 copy and the `va_end` macro performs no operation.
 
-=== Vector type sizes and alignments
+=== Vector Type Sizes and Alignments
 
 This section defines the sizes and alignments for the vector types defined in
 the _RISC-V Vector Extension Intrinsic Document_<<rvv-intrinsic-doc>>.
@@ -749,7 +749,7 @@ content may be undefined, both in the register and in memory.
 NOTE: Size must be a positive integer.
 
 [appendix]
-== Linux-specific ABI
+== Linux-Specific ABI
 
 NOTE: This section of the RISC-V calling convention specification only applies
 to Linux-based systems.
@@ -758,7 +758,7 @@ In order to ensure compatibility between different implementations of the C
 library for Linux, we provide some extra definitions which only apply on those
 systems. These are noted in this section.
 
-=== Linux-specific C type sizes and alignments
+=== Linux-Specific C Type Sizes and Alignments
 
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 ABIs.
@@ -773,7 +773,7 @@ there is no differentiation between ILP32 and LP64 ABIs.
 | wint_t  |  4           |  4
 |===
 
-=== Linux-specific C type representations
+=== Linux-Specific C Type Representations
 
 The following definitions apply for all ABIs defined in this document. Here
 there is no differentiation between ILP32 and LP64 ABIs.

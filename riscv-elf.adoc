@@ -4,7 +4,7 @@ ifeval::["{docname}" == "riscv-elf"]
 include::prelude.adoc[]
 endif::[]
 
-== Code models
+== Code Models
 
 The RISC-V architecture constrains the addressing of positions in the
 address space.  There is no single instruction that can refer to an arbitrary
@@ -18,7 +18,7 @@ However, some code models can't access the whole address space. The linker may
 raise an error if it cannot adjust the instructions to access the target address
 in the current code model.
 
-=== Medium low code model
+=== Medium Low Code Model
 
 The medium low code model, or `medlow`, allows the code to address the whole RV32
 address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
@@ -59,7 +59,7 @@ lui a0, 0x80000 # a0 = 0xffffffff80000000
 addi a0, a0, -0x800 # a0 = a0 + -2048 = 0xFFFFFFFF7FFFF800
 ----
 
-=== Medium any code model
+=== Medium Any Code Model
 
 The medium any code model, or `medany`, allows the code to address the range
 between -2 GiB and +2 GiB from its position.  By using `auipc`
@@ -103,7 +103,7 @@ for that, please use the medium position independent code model below.
 
 NOTE: The address space of RV64ILP32* ABIs is not continuous in the middle.
 
-=== Medium position independent code model
+=== Medium Position Independent Code Model
 
 This model is similar to the medium any code model, but uses the
 <<Global Offset Table,global offset table>> (GOT) for non-local symbol addresses.
@@ -127,7 +127,7 @@ This model is similar to the medium any code model, but uses the
          l[w|d] a0, %pcrel_lo(.Ltmp3)(a0)
 ----
 
-=== Large code model
+=== Large Code Model
 
 The `large` code model allows the code to address the whole RV64 address space.
 Thus, this model is only available for RV64. By putting object addresses
@@ -207,7 +207,7 @@ same way as `std::bfloat16_t`.
 === Name Mangling for Vector Data Types, Vector Mask Types and Vector Tuple Types.
 
 The vector data types and vector mask types, as defined in the section
-<<Vector type sizes and alignments>>, are treated as vendor-extended types in
+<<Vector Type Sizes and Alignments>>, are treated as vendor-extended types in
 the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>. These mangled name for
 these types is `"u"<len>"__rvv_"<type-name>`. Specifically,
 prefixing the type name with `__rvv_`, which is prefixed by
@@ -339,7 +339,7 @@ and the operating system, and the ABI differences are so significant they
 cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
 different syscall ABI.
 
-==== Policy for Merge Objects With Different File Headers
+==== Policy for Merge Objects with Different File Headers
 
 This section describe the behavior when the inputs files come with different
 file headers.
@@ -1241,7 +1241,7 @@ In order to improve the compatibility of the tool, the attribute follows below r
 - The tag is optional; If the tool does not recognize this attribute and the tag number
   modulo 128 is greater than or equal to 64 (`(N % 128) >= 64`), the tag can be ignored.
 
-==== Layout of .riscv.attributes section
+==== Layout of .riscv.attributes Section
 
 The attributes section start with a format-version (uint8 = 'A') followed by
 vendor specific sub-section(s). A sub-section starts with sub-section length
@@ -1256,7 +1256,7 @@ A sub-section with name "riscv\0" is mandatory. Vendor specific sub-sections
 are allowed in future. Vendor names starting with "[Aa]non" are reserved for
 non-standard ABI extensions.
 
-==== List of attributes
+==== List of Attributes
 
 .RISC-V attributes
 [cols="4,>2,2,5"]
@@ -1275,7 +1275,7 @@ non-standard ABI extensions.
 | Reserved for non-standard attribute | >= 32768 | -              | -
 |===
 
-==== Detailed attribute description
+==== Detailed Attribute Description
 
 ===== How does this specification describe public attributes?
 
@@ -1647,7 +1647,7 @@ Relaxation result:
 --
 
 [[gp-relax]]
-==== Global-pointer Relaxation
+==== Global-Pointer Relaxation
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S,
   R_RISCV_PCREL_HI20, R_RISCV_PCREL_LO12_I, R_RISCV_PCREL_LO12_S
@@ -1737,7 +1737,7 @@ optimize code size and performance of the symbol accessing.
 
 NOTE: Tag_RISCV_x3_reg_usage is treated as 0 if it is not present.
 
-==== GOT load relaxation
+==== GOT Load Relaxation
 
   Target Relocation:: R_RISCV_GOT_HI20, R_RISCV_PCREL_LO12_I
 
@@ -1811,7 +1811,7 @@ Relaxation result (relative symbol):
 ----
 --
 
-==== Zero-page Relaxation
+==== Zero-Page Relaxation
 
   Target Relocation:: R_RISCV_HI20, R_RISCV_LO12_I, R_RISCV_LO12_S
 
@@ -1880,7 +1880,7 @@ Relaxation result:
 ----
 --
 
-==== Thread-pointer Relaxation
+==== Thread-Pointer Relaxation
 
   Target Relocation:: R_RISCV_TPREL_HI20, R_RISCV_TPREL_ADD,
   R_RISCV_TPREL_LO12_I, R_RISCV_TPREL_LO12_S.

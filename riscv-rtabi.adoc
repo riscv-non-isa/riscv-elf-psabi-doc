@@ -1,10 +1,10 @@
 [[riscv-rtabi]]
-= RISC-V Run-time ABI Specification
+= RISC-V Run-Time ABI Specification
 ifeval::["{docname}" == "riscv-rtabi"]
 include::prelude.adoc[]
 endif::[]
 
-== Run-time ABI
+== Run-Time ABI
 
 This document defines the run-time helper function ABI for RISC-V, which
 includes compiler helper functions, but does not cover the language standard
