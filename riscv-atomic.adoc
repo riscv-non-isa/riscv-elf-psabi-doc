@@ -133,6 +133,7 @@ the `lr` and `sc` instructions.
 |`loop:lr.{w\|d}.aq; <op>; sc.{w\|d}.rl; bnez loop` |3, 4
 |===
 
+[discrete]
 === Meaning of notes in table
 
 1) Depends on a load instruction with an RCsc acquire annotation,
@@ -217,6 +218,7 @@ We present the mappings as a table in 3 sections, as above.
 
 |===
 
+[discrete]
 === Meaning of notes in table
 
 3) Incompatible with the original "Table A.6" mapping. Do not combine these
