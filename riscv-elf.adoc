@@ -144,7 +144,7 @@ is appended in .text section or put into .rodata section.
          # Literal pool
 .LCPI0:
          .8byte symbol
-	 ...
+         ...
 .Ltmp0:  auipc   a0, %pcrel_hi(.LCPI0)
          ld      a0, %pcrel_lo(.Ltmp0)(a0)
 ----
@@ -169,7 +169,7 @@ via the literal pool or not.
          # Literal pool
 .LCPI1:
          .8byte function
-	 ...
+         ...
 .Ltmp1:  auipc   a0, %pcrel_hi(.LCPI1)
          ld      a0, %pcrel_lo(.Ltmp1)(a0)
          jalr    a0
