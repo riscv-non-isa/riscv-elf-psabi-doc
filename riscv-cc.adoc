@@ -209,7 +209,8 @@ type alignment and XLEN bits, but never more than the stack alignment.
 
 Aggregates larger than 2×XLEN bits are passed by reference and are replaced in
 the argument list with the address, as are {Cpp} aggregates with nontrivial copy
-constructors, destructors, or vtables.
+constructors, destructors, or vtables. Aggregates containing C99 flexible array
+members are similarly always passed by reference.
 
 Fixed-length vectors are treated as aggregates.
 
