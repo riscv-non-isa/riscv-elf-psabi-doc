@@ -741,7 +741,8 @@ data types and the vector tuple types.
 | __rvv_vbool64_t            | vbool64_t            |  ceil(VLENB / 64)  |  1
 |===
 
-include::vector_type_infos.adoc[]
+FIXME: Add back vector type info here.  Omitted temporarily for Antora POC.
+//include::vector_type_infos.adoc[]
 
 NOTE: The vector mask types utilize a portion of the space, while the remaining
 content may be undefined, both in the register and in memory.
