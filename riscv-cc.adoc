@@ -1,8 +1,8 @@
 [[riscv-cc]]
 = RISC-V Calling Conventions
-ifeval::["{docname}" == "riscv-cc"]
-include::prelude.adoc[]
-endif::[]
+//ifeval::["{docname}" == "riscv-cc"]
+//include::prelude.adoc[]
+//endif::[]
 
 == Register Convention
 
@@ -112,8 +112,8 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
 
-NOTE: Vector registers are not used for passing arguments or return values in this 
-calling convention. Use the calling convention variant to pass arguments and return 
+NOTE: Vector registers are not used for passing arguments or return values in this
+calling convention. Use the calling convention variant to pass arguments and return
 values in vector registers.
 
 The `vxrm` and `vxsat` fields of `vcsr` are not preserved across calls and their
@@ -298,7 +298,7 @@ structs or unions; C treats it as an empty field, but {Cpp}
 treats it as a non-empty field since {Cpp} defines the size of an empty struct
 or union as 1. i.e. for `struct { struct {} e[1]; float f; }` as the first
 argument, C will treat it like `struct { float f; }` and pass `f` in `fa0` as
-described below, whereas {Cpp} will pass the pass the entire aggregate in `a0` 
+described below, whereas {Cpp} will pass the pass the entire aggregate in `a0`
 (XLEN = 64) or `a0` and `a1` (XLEN = 32), as described in the integer calling
 convention.
 Zero-length arrays of empty structs or union will be
@@ -788,4 +788,3 @@ https://github.com/riscv/riscv-v-spec
 
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
-
