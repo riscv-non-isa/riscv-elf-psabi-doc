@@ -1,8 +1,8 @@
 [[riscv-dwarf]]
 = RISC-V DWARF Specification
-ifeval::["{docname}" == "riscv-dwarf"]
-include::prelude.adoc[]
-endif::[]
+//ifeval::["{docname}" == "riscv-dwarf"]
+//include::prelude.adoc[]
+//endif::[]
 
 == DWARF Debugging Format
 
