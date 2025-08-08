@@ -736,8 +736,8 @@ for using any of the other PLT sytles.
 [cols="1,2"]
 [width=70%]
 |===
-| Default PLT               | -
-| Unlabeled landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
+| Default PLT     | -
+| Landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
 |===
 
 The first entry of a shared object PLT is a special entry that calls
@@ -749,12 +749,20 @@ dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
 resolution to the first time the function is called.
 
+Landing pad PLT can't be used with lazy binding.
+
+NOTE: Landing pads are designed for use with Control-Flow Integrity (CFI).
+Lazy binding may delay resolution of indirect branches until runtime, potentially
+allowing attackers to hijack control flow before CFI protections are fully
+enforced. Therefore, lazy binding is considered unsafe in conjunction with
+landing pad-based PLTs.
+
 The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
 [,asm]
 ----
 1:  auipc  t2, %pcrel_hi(.got.plt)
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12 
     l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
     addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
     addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
@@ -763,22 +771,23 @@ The first entry in the PLT occupies two 16 byte entries for the default PLT styl
     jr     t3
 ----
 
-And occupies three 16 byte entries for the unlabeled landing pad PLT style:
+And occupies two 16 byte entries for the unlabeled landing pad PLT style:
+
 [,asm]
 ----
-    lpad 0
-1:  auipc  t2, %pcrel_hi(.got.plt)
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 16
-    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+1:  auipc  t3, %pcrel_hi(.got.plt)
+    sub    t1, t1, t2               # shifted .got.plt offset + hdr size + 16
+    l[w|d] t2, %pcrel_lo(1b)(t3)    # _dl_runtime_resolve
     addi   t1, t1, -(hdr size + 16) # shifted .got.plt offset
-    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
+    addi   t0, t3, %pcrel_lo(1b)    # &.got.plt
     srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
     l[w|d] t0, PTRSIZE(t0)          # link map
-    jr     t3
-    nop
-    nop
-    nop
+    jr     t2
 ----
+
+NOTE: Although lazy binding is prohibited for landing pad PLTs, the PLT
+header is still retained so that features implemented by the C library, such
+as LD_AUDIT and LD_PROFILE in glibc, continue to function as intended.
 
 Subsequent function entry stubs in the PLT take up 16 bytes.
 On the first call to a function, the entry redirects to the first PLT entry
@@ -794,13 +803,13 @@ The code sequences of the PLT entry for the default PLT style:
     nop
 ----
 
-The code sequences of the PLT entry for the unlabeled landing pad PLT style:
+The code sequences of the PLT entry for the landing pad PLT style:
 [,asm]
 ----
     lpad 0
-1:  auipc   t3, %pcrel_hi(function@.got.plt)
-    l[w|d]  t3, %pcrel_lo(1b)(t3)
-    jalr    t1, t3
+1:  auipc   t2, %pcrel_hi(function@.got.plt)
+    l[w|d]  t2, %pcrel_lo(1b)(t2)
+    jalr    t1, t2
 ----
 
 ==== Procedure Calls
