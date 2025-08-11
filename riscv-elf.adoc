@@ -1272,6 +1272,7 @@ non-standard ABI extensions.
 | Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
 | Tag_RISCV_atomic_abi                |       14 | uleb128        | Indicates which version of the atomics ABI is being used.
 | Tag_RISCV_x3_reg_usage              |       16 | uleb128        | Indicates the usage definition of the X3 register.
+| Tag_RISCV_mop_and_hint_encoding     |       18 | uleb128        | Indicates the reinterpretation of MOP and hint instruction encodings.
 | Reserved for non-standard attribute | >= 32768 | -              | -
 |===
 
@@ -1436,6 +1437,34 @@ combined. However, an exception exists: the value `0` can merge with `1` or `2`
 value. After the merge, the resulting value will be the non-zero one.
 
 --
+
+===== Tag_RISCV_mop_and_hint_encoding, 18, uleb128=value
+
+Tag_RISCV_mop_and_hint_encoding indicates the reinterpretation of MOP (Maybe Operation) 
+and hint instruction encodings within this object. The value is a bitmap where each bit 
+indicates whether specific instruction encodings should be reinterpreted:
+
+[horizontal]
+Bit 0 (Zicfilp):: When set, `auipc x0, <value>` instructions are interpreted as `lpad <value>`.
+Bit 1 (Zicfiss):: When set, Zimop encoding space instructions are interpreted as Zicfiss instructions.
+Bit 2 (Zihintpause):: When set, `fence w,0` instructions are interpreted as `pause` hints.
+Bit 3 (Zihintntl):: When set, specific instruction encodings are interpreted as non-temporal locality hints.
+
+--
+
+Merge policy:::
+Values are merged using bitwise OR operation.
+
+NOTE: The bitwise OR merge policy may cause disassembler confusion when the same encoding 
+space is redefined by multiple bits. Toolchains may report warnings to alert users 
+when such conflicts occur.
+
+--
+
+NOTE: When specific bits are set, toolchains must disassemble instructions according to 
+the corresponding extensions regardless of whether these extensions are enabled. For example, 
+if bit 0 is set, `auipc x0, <value>` must be disassembled as `lpad <value>`; if bit 1 is 
+set, Zimop encodings must be disassembled as Zicfiss instructions.
 
 === Program Property
 
