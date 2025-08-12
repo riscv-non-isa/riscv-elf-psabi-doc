@@ -791,7 +791,7 @@ expands to the following assembly and relocation:
 
 [,asm]
 ----
-    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX
+    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
     jalr  ra, ra, 0
 ----
 
@@ -799,7 +799,7 @@ and when symbol has an `@plt` suffix it expands to:
 
 [,asm]
 ----
-    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
     jalr  ra, ra, 0
 ----
 
@@ -2034,15 +2034,15 @@ Relaxation result (short form):
 Relaxation candidate:
 [,asm]
 ----
-    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX
+    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
     jalr  ra, ra, 0
 
-    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
     jalr  x0, ra, 0
 
-    jal ra, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX
+    jal ra, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX (symbol)
 
-    jal x0, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX
+    jal x0, 0             # R_RISCV_JAL (symbol), R_RISCV_RELAX (symbol)
 ----
 
 Relaxation result:
