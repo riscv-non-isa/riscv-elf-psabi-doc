@@ -1,4 +1,4 @@
-.psABI Specifications
+.RISC-V ABI Specifications
 * xref:introduction.adoc[Introduction]
 * xref:riscv-cc.adoc[Calling Conventions]
 * xref:riscv-elf.adoc[ELF Specification]
