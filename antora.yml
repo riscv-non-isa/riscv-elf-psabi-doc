@@ -1,5 +1,6 @@
 name: psabi
 title: ELF psABI Specification
 version: v1.0
+pdf-url: https://github.com/riscv/docs.riscv.org/blob/main/static/pdf/riscv-abi.pdf
 nav:
 - modules/ROOT/nav.adoc
