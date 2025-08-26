@@ -6,4 +6,4 @@ nav:
 
 asciidoc:
   attributes:
-    pdf-url: https://github.com/riscv/docs.riscv.org/blob/main/static/pdf/riscv-abi.pdf
+    page-pdf_url: https://github.com/riscv/docs.riscv.org/blob/main/static/pdf/riscv-abi.pdf
