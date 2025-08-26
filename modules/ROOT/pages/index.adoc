@@ -1,4 +1,4 @@
-image:risc-v_logo.svg[]
+image::risc-v_logo.svg[]
 
 == RISC-V ABIs Specification
 
