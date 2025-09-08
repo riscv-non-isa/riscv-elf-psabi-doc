@@ -666,8 +666,12 @@ elemental type by the total number of elements within the vector.
 `_BitInt (N)` is the type defined in C23, allow user to define an
 arbitrary-sized integer type, where N is a postive integer larger than zero.
 
-`_BitInt(N)` types are stored in little-endian order in memory. Bits in each
-byte are allocated from low to high.
+`_BitInt(N)` types are stored in memory as follows:
+- For N ≤ 2×XLEN: Types follow the standard scalar endianness rules.
+- For N > 2×XLEN: Types are divided into 2×XLEN-bit chunks. Each chunk follows
+  the standard scalar endianness rules. Chunks are always stored in memory with
+  lower-addressed chunks containing less significant bits, regardless of the
+  system endianness.
 
 Unused bits of the `_BitInt(N)` are extended based on the signedness of the
 type when stored in memory or register. For signed `_BitInt(N)`, unused bits
