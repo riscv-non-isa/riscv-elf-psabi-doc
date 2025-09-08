@@ -185,9 +185,20 @@ sign-extended to XLEN bits.
 When passed in registers or on the stack, floating-point types narrower than
 XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
-When passed in registers or on the stack, `__BitInt(N)`, unused bits are
-undefined, types narrower than XLEN bits are widened to XLEN bits, with the
-upper bits undefined.
+When passed in registers or on the stack, `_BitInt(N)` types are handled as
+follows:
+- For N < XLEN: Types are widened to XLEN bits, with upper bits sign-extended
+  for signed `_BitInt(N)` or zero-extended for unsigned `_BitInt(N)`.
+- For N = XLEN: Types are passed using the same rules as scalars that are XLEN
+  bits wide.
+- For XLEN < N ≤ 2×XLEN: Types are passed using the same rules as scalars that
+  are 2×XLEN bits wide.
+  Any unused bits in the most significant chunk are sign-extended for signed
+  types or zero-extended for unsigned types.
+- For N > 2×XLEN: Types are passed by reference (replaced in the argument list
+  with the address). When stored in memory, any unused bits in the most
+  significant chunk are sign-extended for signed types or zero-extended for
+  unsigned types.
 
 Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -659,8 +670,15 @@ arbitrary-sized integer type, where N is a postive integer larger than zero.
 `_BitInt(N)` types are stored in little-endian order in memory. Bits in each
 byte are allocated from low to high.
 
-Unused bits of the `_BitInt (N)` are unspecified when stored in memory or
-register.
+Unused bits of the `_BitInt(N)` are extended based on the signedness of the
+type when stored in memory or register. For signed `_BitInt(N)`, unused bits
+are sign-extended from the most significant bit of the N-bit value. For
+unsigned `_BitInt(N)`, unused bits are zero-extended.
+
+NOTE: According to the C language specification, `_BitInt(N)` without an
+explicit `unsigned` qualifier is treated as signed. For example, `_BitInt(66)`
+is signed and will use sign-extension for unused bits, while
+`unsigned _BitInt(66)` will use zero-extension.
 
 === C/{Cpp} Type Representations
 
