@@ -606,8 +606,7 @@ alignments (based on the ILP32 convention):
 | _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
 | _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
 | _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
-| _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
-| _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
+| _BitInt(N > 64)      | RoundUp(N / 64) * 8 | 8           |
 |===
 
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
