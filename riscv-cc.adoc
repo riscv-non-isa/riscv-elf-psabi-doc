@@ -669,13 +669,12 @@ arbitrary-sized integer type, where N is a postive integer larger than zero.
 `_BitInt(N)` types are stored in memory as follows:
 - For N ≤ 2×XLEN: Types follow the standard scalar endianness rules.
 - For N > 2×XLEN: Types are divided into 2×XLEN-bit chunks. Each chunk follows
-  the standard scalar endianness rules. On little-endian systems, chunks are
-  stored in memory with lower-addressed chunks containing less significant bits.
+  the standard scalar endianness rules. The chunk ordering in memory follows
+  the system endianness: on little-endian systems, lower-addressed chunks contain
+  less significant bits; on big-endian systems, lower-addressed chunks contain
+  more significant bits.
 
-NOTE: For big-endian systems with N > 2×XLEN, chunks are currently also stored
-with lower-addressed chunks containing less significant bits (same as little-endian).
-However, the big-endian ABI is still experimental and this behavior may change
-in the future.
+NOTE: The big-endian ABI is still experimental and may change in the future.
 
 Unused bits of the `_BitInt(N)` are extended based on the signedness of the
 type when stored in memory or register. For signed `_BitInt(N)`, unused bits
