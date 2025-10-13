@@ -1920,7 +1920,10 @@ Relaxation result:
 
 Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12, R_RISCV_TLSDESC_ADD_LO12, R_RISCV_TLSDESC_CALL
 
-Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a GOT load instruction.
+Description::
+
+This relaxation can relax a sequence loading the address of a thread-local symbol reference into a GOT load instruction.
+Unlike most other relaxations, this only requires a `R_RISCV_RELAX` relocation at the same location as the `R_RISCV_TLSDESC_HI20` relocation.
 
 Condition::
 - Linker output is an executable.
@@ -1957,7 +1960,10 @@ Relaxation result:
 
 Target Relocation:: R_RISCV_TLSDESC_HI20, R_RISCV_TLSDESC_LOAD_LO12, R_RISCV_TLSDESC_ADD_LO12, R_RISCV_TLSDESC_CALL
 
-Description:: This relaxation can relax a sequence loading the address of a thread-local symbol reference into a thread-pointer-relative instruction sequence.
+Description::
+
+This relaxation can relax a sequence loading the address of a thread-local symbol reference into a thread-pointer-relative instruction sequence.
+Unlike most other relaxations, this only requires a `R_RISCV_RELAX` relocation at the same location as the `R_RISCV_TLSDESC_HI20` relocation.
 
 Condition::
 
