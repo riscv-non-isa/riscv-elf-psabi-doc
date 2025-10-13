@@ -438,7 +438,7 @@ For more details, see <<Name Mangling for Standard Calling Convention Variant>>.
 This section defines the calling convention variant for fixed-length vectors.
 The intention of this variant is to pass fixed-length vectors via the vector
 registers. For the definition of a fixed-length vector, see
-<<Fixed-length vector>>.
+<<Fixed-Length Vector>>.
 
 This variant is based on the standard vector calling convention variant:
 the register convention and the rules for passing arguments and return values
