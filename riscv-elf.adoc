@@ -216,20 +216,20 @@ _Itanium {Cpp} ABI_.
 |===
 | Name                                       | ABI tag name
 
-| Standard vector calling convention variant | riscv_vector_cc_<ABI_VLEN>
+| Standard fixed-length vector calling convention variant | riscv_vls_cc_<ABI_VLEN>
 |===
 
 
 For example:
 [,c]
 ----
-    __attribute__((riscv_vector_cc(128))) void foo();
+    __attribute__((riscv_vls_cc(128))) void foo();
 ----
 
 is mangled as
 [,c]
 ----
-    _Z3fooB15riscv_vector_cc_128v
+    _Z3fooB12riscv_vls_cc_128v
 ----
 
 === Name Mangling for Vector Data Types, Vector Mask Types and Vector Tuple Types.
