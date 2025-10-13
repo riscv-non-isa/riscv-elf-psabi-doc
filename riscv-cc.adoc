@@ -609,6 +609,17 @@ Remaining Registers: The other three allocated registers remain unused and idle.
 | 256  | a, b, c, d, -, -, -, -  | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
 |===
 
+.int64x8_t layout on different VLEN with ABI_VLEN at 128 bits:
+[cols="2,3,3,3,3"]
+[width=100%]
+|===
+| VLEN | v8                     | v9                     | v10                    | v11
+
+| 128  | a, b                   | c, d                   | e, f                   | g, h
+| 256  | a, b, c, d             | e, f, g, h             | -, -, -, -             | -, -, -, -
+| 512  | a, b, c, d, e, f, g, h | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
+|===
+
 `-` means that part are not used, and the value can be anything.
 
 ====
