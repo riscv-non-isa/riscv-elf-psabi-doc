@@ -596,6 +596,21 @@ Utilization: All four integers are placed in the first vector register,
 utilizing its full 128-bit capacity (VLEN), despite ABI_VLEN being 32 bits.
 
 Remaining Registers: The other three allocated registers remain unused and idle.
+
+.int32x4_t layout on different VLEN with ABI_VLEN at 32 bits:
+[cols="2,3,3,3,3"]
+[width=100%]
+|===
+| VLEN |    v8 | v9 | v10 | v11
+
+| 32   | a                       | b                      | c                      | d
+| 64   | a, b                    | c, d		          | -, -                   | -, -
+| 128  | a, b, c, d              | -, -, -, -             | -, -, -, -             | -, -, -, -
+| 256  | a, b, c, d, -, -, -, -  | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
+|===
+
+`-` means that part are not used, and the value can be anything.
+
 ====
 
 NOTE: In a single compilation unit, different functions may use different
