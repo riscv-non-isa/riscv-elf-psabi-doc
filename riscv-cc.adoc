@@ -601,10 +601,10 @@ Remaining Registers: The other three allocated registers remain unused and idle.
 [cols="2,3,3,3,3"]
 [width=100%]
 |===
-| VLEN |    v8 | v9 | v10 | v11
+| VLEN | v8                      | v9                     | v10                    | v11
 
 | 32   | a                       | b                      | c                      | d
-| 64   | a, b                    | c, d		          | -, -                   | -, -
+| 64   | a, b                    | c, d                   | -, -                   | -, -
 | 128  | a, b, c, d              | -, -, -, -             | -, -, -, -             | -, -, -, -
 | 256  | a, b, c, d, -, -, -, -  | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
 |===
