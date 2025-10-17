@@ -577,6 +577,8 @@ alignments (based on the ILP32 convention):
 | int                  |  4            |  4                |
 | long                 |  4            |  4                |
 | long long            |  8            |  8                |
+| ++intmax_t++         |  8            |  8                | ++long long int++
+| ++uintmax_t++        |  8            |  8                | ++unsigned long long int++
 | void *               |  4            |  4                |
 | +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
 | _Float16             |  2            |  2                | Half precision floating point (binary16 in IEEE 754-2008)
@@ -603,6 +605,8 @@ alignments (based on the LP64 convention):
 | int                  |  4            |  4                |
 | long                 |  8            |  8                |
 | long long            |  8            |  8                |
+| ++intmax_t++         |  8            |  8                | ++long int++
+| ++uintmax_t++        |  8            |  8                | ++unsigned long int++
 | +++__int128+++       | 16            | 16                |
 | void *               |  8            |  8                |
 | +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
