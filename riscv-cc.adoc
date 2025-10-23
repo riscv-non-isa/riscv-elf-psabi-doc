@@ -127,7 +127,16 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 `vstart` before either returning or calling another procedure.
 
 ==== Calling Convention Variant
-.Variant vector register calling convention*
+
+Functions that use vector registers to pass arguments and return values must
+follow this calling convention. Some programming languages can require extra
+functions to follow this calling convention (e.g. C/C++ functions with
+attribute `riscv_vector_cc`).
+
+Please refer to the <<Standard Vector Calling Convention Variant>> section for
+more details about standard vector calling convention variant.
+
+.Variant vector register calling convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -141,14 +150,6 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
-
-*: Functions that use vector registers to pass arguments and return values must
-follow this calling convention. Some programming languages can require extra
-functions to follow this calling convention (e.g. C/C++ functions with
-attribute `riscv_vector_cc`).
-
-Please refer to the <<Standard Vector Calling Convention Variant>> section for
-more details about standard vector calling convention variant.
 
 NOTE: The `vxrm` and `vxsat` fields of `vcsr` follow the same behavior as the
 standard calling convention.
