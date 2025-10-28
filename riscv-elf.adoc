@@ -727,6 +727,19 @@ The PLT (Procedure Linkage Table) exists to allow function calls between
 dynamically linked shared objects. Each dynamic object has its own
 GOT (Global Offset Table) and PLT (Procedure Linkage Table).
 
+RISC-V defines several PLT styles, which are used in different situations.
+The default PLT style should be used if the program does not meet the conditions
+for using any of the other PLT sytles.
+
+[[plt-style]]
+.PLT styles
+[cols="1,2"]
+[width=70%]
+|===
+| Default PLT     | -
+| Landing pad PLT | Must use this PLT style when `GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED` is set.
+|===
+
 The first entry of a shared object PLT is a special entry that calls
 `_dl_runtime_resolve` to resolve the GOT offset for the called function.
 The `_dl_runtime_resolve` function in the dynamic loader resolves the
@@ -734,13 +747,22 @@ GOT offsets lazily on the first call to any function, except when
 `LD_BIND_NOW` is set in which case the GOT entries are populated by the
 dynamic linker before the executable is started. Lazy resolution of GOT
 entries is intended to speed up program loading by deferring symbol
-resolution to the first time the function is called. The first entry
-in the PLT occupies two 16 byte entries:
+resolution to the first time the function is called.
+
+Landing pad PLT can't be used with lazy binding.
+
+NOTE: Landing pads are designed for use with Control-Flow Integrity (CFI).
+Lazy binding may delay resolution of indirect branches until runtime, potentially
+allowing attackers to hijack control flow before CFI protections are fully
+enforced. Therefore, lazy binding is considered unsafe in conjunction with
+landing pad-based PLTs.
+
+The first entry in the PLT occupies two 16 byte entries for the default PLT style:
 
 [,asm]
 ----
 1:  auipc  t2, %pcrel_hi(.got.plt)
-    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12 
     l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
     addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
     addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
@@ -749,17 +771,45 @@ in the PLT occupies two 16 byte entries:
     jr     t3
 ----
 
-Subsequent function entry stubs in the PLT take up 16 bytes and load a
-function pointer from the GOT. On the first call to a function, the
-entry redirects to the first PLT entry which calls `_dl_runtime_resolve`
-and fills in the GOT entry for subsequent calls to the function:
+And occupies two 16 byte entries for the unlabeled landing pad PLT style:
 
+[,asm]
+----
+1:  auipc  t3, %pcrel_hi(.got.plt)
+    sub    t1, t1, t2               # shifted .got.plt offset + hdr size + 16
+    l[w|d] t2, %pcrel_lo(1b)(t3)    # _dl_runtime_resolve
+    addi   t1, t1, -(hdr size + 16) # shifted .got.plt offset
+    addi   t0, t3, %pcrel_lo(1b)    # &.got.plt
+    srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
+    l[w|d] t0, PTRSIZE(t0)          # link map
+    jr     t2
+----
+
+NOTE: Although lazy binding is prohibited for landing pad PLTs, the PLT
+header is still retained so that features implemented by the C library, such
+as LD_AUDIT and LD_PROFILE in glibc, continue to function as intended.
+
+Subsequent function entry stubs in the PLT take up 16 bytes.
+On the first call to a function, the entry redirects to the first PLT entry
+which calls `_dl_runtime_resolve` and fills in the GOT entry for subsequent
+calls to the function.
+
+The code sequences of the PLT entry for the default PLT style:
 [,asm]
 ----
 1:  auipc   t3, %pcrel_hi(function@.got.plt)
     l[w|d]  t3, %pcrel_lo(1b)(t3)
     jalr    t1, t3
     nop
+----
+
+The code sequences of the PLT entry for the landing pad PLT style:
+[,asm]
+----
+    lpad 0
+1:  auipc   t2, %pcrel_hi(function@.got.plt)
+    l[w|d]  t2, %pcrel_lo(1b)(t2)
+    jalr    t1, t2
 ----
 
 ==== Procedure Calls
@@ -1444,6 +1494,94 @@ that a linker or runtime loader needs to check for compatibility.
 
 The linker should ignore and discard unknown bits in program properties, and
 issue warnings or errors.
+
+<<rv-prog-prop-type>> provides details of the RISC-V ELF program property; the
+meaning of each column is given below:
+
+
+Name:: The name of the program property type, omitting the prefix of `GNU_PROPERTY_RISCV_`.
+
+Value:: The `pr_type` value for the program property type.
+
+Size:: The size (`pr_datasz`) of data type held within this program property
+       type.
+
+Description:: Additional information about the program property type.
+
+
+[[rv-prog-prop-type]]
+.RISC-V-specific program property types
+[cols="3,3,2,5"]
+[width=100%]
+|===
+| Name           | Value      | Size    | Description
+
+| FEATURE_1_AND  | 0xc0000000 | 4-bytes | RISC-V processor-specific features used in program.
+|===
+
+==== GNU_PROPERTY_RISCV_FEATURE_1_AND
+
+`GNU_PROPERTY_RISCV_FEATURE_1_AND` describe a set of processor features with
+each bit indicating a feature that the object file is compatible with. The
+linker should perform a bitwise AND operation when merging different objects.
+
+The value of `GNU_PROPERTY_RISCV_FEATURE_1_AND` is defined in <<rv-prog-prop-type>>.
+
+[%autowidth]
+|===
+| Bit | Bit Name
+|   0 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED
+|   1 | GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS
+|===
+
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`: This bit indicates that all
+executable sections are built to be compatible with the landing pad mechanism
+provided by the Zicfilp extension in the unlabeled scheme: Executables and
+shared libraries with this bit set are required to generate PLTs in the
+unlabeled landing pad PLT style, and all of the labels of lpad instructions are
+set to 0, i.e. unlabeled.
+See <<Tool Requirements for Generating Landing Pad Instruction>> for more details.
+
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_SS`: This bit indicates that all executable
+sections are built to be compatible with the shadow stack mechanism provided by
+the `Zicfiss` extension. Loading an executable or shared library with this bit
+set requires the execution environment to provide either the `Zicfiss` extension
+or the `Zimop` extension. When the executable or shared library is compiled with
+compressed instructions then loading it with this bit set requires the execution
+environment to provide the `Zicfiss` extension or the `Zcmop` extensions.
+
+=== Tool Requirements for Generating Landing Pad Instructions
+
+For an executable or shared library to set the GNU property
+`GNU_PROPERTY_RISCV_FEATURE_1_CFI_LP_UNLABELED`, every indirect branch targeting
+a location guarded by landing pads must point to a landing pad (`lpad`)
+instruction with a compatible label value. Indirect branches may originate from:
+
+* Relocatable object producers, such as a compiler or assembler.
+
+* Static linkers when generating PLT entries.
+
+* Other executables and shared libraries via calls through PLT entries or
+  function pointers.
+
+It is desirable to minimize the number of landing pad instructions to limit the
+number of indirect branch destinations within the program. The following tool
+requirements determine which tool is responsible for inserting landing pad
+instructions, allowing tools to omit landing pad instructions if it can be
+proven that there are no indirect branches targeting the location.
+
+A relocatable object producer is required to insert a landing pad instruction at
+the target of an indirect branch originating from within the same relocatable
+object.
+
+A relocatable object producer must insert a landing pad instruction at any
+location whose address escapes the relocatable object. This includes all symbols
+that can be exported into the dynamic symbol table by a static linker.
+
+A static linker is required to generate PLT entries with appropriate landing pad
+instructions. During linker relaxation, a static linker may remove unnecessary
+landing pad instructions if it can prove that there are no indirect branches
+targeting the corresponding location.
 
 === Mapping Symbol
 
