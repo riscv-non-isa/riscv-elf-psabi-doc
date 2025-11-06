@@ -189,6 +189,8 @@ When passed in registers or on the stack, `_BitInt(N)` types are handled as
 follows:
 - For N < XLEN: Types are widened to XLEN bits, with upper bits sign-extended
   for signed `_BitInt(N)` or zero-extended for unsigned `_BitInt(N)`.
+  However, for N = 32 in RV64, both signed and unsigned types are sign-extended.
++
 - For N = XLEN: Types are passed using the same rules as scalars that are XLEN
   bits wide.
 - For XLEN < N ≤ 2×XLEN: Types are passed using the same rules as scalars that
@@ -199,6 +201,11 @@ follows:
   with the address). When stored in memory, any unused bits in the most
   significant chunk are sign-extended for signed types or zero-extended for
   unsigned types.
+
+[NOTE]
+====
+`_BitInt(32)` on RV64 has a special rule because it behaves consistently with regular `int` types.
+====
 
 Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
