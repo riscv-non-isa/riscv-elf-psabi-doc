@@ -808,7 +808,7 @@ and when symbol has an `@plt` suffix it expands to:
 Unconditional jump (J-Type) instructions have a `R_RISCV_JAL` relocation
 that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
 
-Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
+Branch (B-Type) instructions have a `R_RISCV_BRANCH` relocation that
 can represent an even signed 13-bit offset (-4096 to +4094).
 
 ==== PC-Relative Symbol Addresses
