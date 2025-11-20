@@ -586,7 +586,7 @@ purpose. These vendor-specific relocations must be preceded by a
 implementation for the associated nonstandard relocation.
 
 The vendor identifier symbol should be a defined symbol and should set the type
-to `STT_NOTYPE`, binding to `STB_LOCAL`, and the size of symbol to zero.
+to `STT_NOTYPE` and the size of symbol to zero.
 
 Vendor identifiers must be unique amongst all vendors providing custom
 relocations. Vendor identifiers may be suffixed with a tag to provide extra
