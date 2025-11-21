@@ -185,6 +185,28 @@ sign-extended to XLEN bits.
 When passed in registers or on the stack, floating-point types narrower than
 XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
+When passed in registers or on the stack, `_BitInt(N)` types are handled as
+follows:
+- For N < XLEN: Types are widened to XLEN bits, with upper bits sign-extended
+  for signed `_BitInt(N)` or zero-extended for unsigned `_BitInt(N)`.
+  However, for N = 32 in RV64, both signed and unsigned types are sign-extended.
++
+- For N = XLEN: Types are passed using the same rules as scalars that are XLEN
+  bits wide.
+- For XLEN < N ≤ 2×XLEN: Types are passed using the same rules as scalars that
+  are 2×XLEN bits wide.
+  Any unused bits in the most significant chunk are sign-extended for signed
+  types or zero-extended for unsigned types.
+- For N > 2×XLEN: Types are passed by reference (replaced in the argument list
+  with the address). When stored in memory, any unused bits in the most
+  significant chunk are sign-extended for signed types or zero-extended for
+  unsigned types.
+
+[NOTE]
+====
+`_BitInt(32)` on RV64 has a special rule because it behaves consistently with regular `int` types.
+====
+
 Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
 XLEN bits in the higher-numbered register.  If no argument registers are
@@ -589,6 +611,11 @@ alignments (based on the ILP32 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(N > 64)      | RoundUp(N / 64) * 8 | 8           |
 |===
 
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
@@ -618,6 +645,12 @@ alignments (based on the LP64 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
+| _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
 |===
 
 The alignment of `max_align_t` is 16.
@@ -638,6 +671,31 @@ alignment requirement of its elemental type.
 
 The size of the fixed length vector is determined by multiplying the size of its
 elemental type by the total number of elements within the vector.
+
+==== _BitInt (N)
+
+`_BitInt (N)` is the type defined in C23, allow user to define an
+arbitrary-sized integer type, where N is a postive integer larger than zero.
+
+`_BitInt(N)` types are stored in memory as follows:
+- For N ≤ 2×XLEN: Types follow the standard scalar endianness rules.
+- For N > 2×XLEN: Types are divided into 2×XLEN-bit chunks. Each chunk follows
+  the standard scalar endianness rules. The chunk ordering in memory follows
+  the system endianness: on little-endian systems, lower-addressed chunks contain
+  less significant bits; on big-endian systems, lower-addressed chunks contain
+  more significant bits.
+
+NOTE: The big-endian ABI is still experimental and may change in the future.
+
+Unused bits of the `_BitInt(N)` are extended based on the signedness of the
+type when stored in memory or register. For signed `_BitInt(N)`, unused bits
+are sign-extended from the most significant bit of the N-bit value. For
+unsigned `_BitInt(N)`, unused bits are zero-extended.
+
+NOTE: According to the C language specification, `_BitInt(N)` without an
+explicit `unsigned` qualifier is treated as signed. For example, `_BitInt(66)`
+is signed and will use sign-extension for unused bits, while
+`unsigned _BitInt(66)` will use zero-extension.
 
 === C/{Cpp} Type Representations
 
