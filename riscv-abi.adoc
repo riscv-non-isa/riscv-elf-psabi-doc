@@ -15,3 +15,5 @@ include::riscv-dwarf.adoc[]
 include::riscv-rtabi.adoc[]
 
 include::riscv-atomic.adoc[]
+
+include::riscv-fdpic-epic.adoc[]
