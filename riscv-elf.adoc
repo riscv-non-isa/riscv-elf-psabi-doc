@@ -558,9 +558,11 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66-75   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
+.2+| 66      .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
-.2+| 76-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 67-76   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
+                                            <|
+.2+| 77-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
