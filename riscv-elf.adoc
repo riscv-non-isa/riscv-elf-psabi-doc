@@ -558,7 +558,7 @@ Description:: Additional information about the relocation
                                             <| S - P
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
-.2+| 66-75   .2+| RVY[1-10]         .2+| Dynamic |                   .2+| Reserved for RISCV Y ISA
+.2+| 66-75   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
                                             <|
 .2+| 76-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
