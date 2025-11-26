@@ -204,6 +204,34 @@ See the "Type encodings" section in _Itanium {Cpp} ABI_
 for more detail on how to mangle types. Note that `__bf16` is mangled in the
 same way as `std::bfloat16_t`.
 
+=== Name Mangling for Standard Calling Convention Variant
+
+Functions using the standard calling convention variant have to append extra ABI tag to
+the function name mangling, the rule is the same as the "ABI tags" section in
+_Itanium {Cpp} ABI_.
+
+.ABI Tag name for calling convention variants
+[cols="5,2"]
+[width=80%]
+|===
+| Name                                       | ABI tag name
+
+| Standard fixed-length vector calling convention variant | riscv_vls_cc_<ABI_VLEN>
+|===
+
+
+For example:
+[,c]
+----
+    __attribute__((riscv_vls_cc(128))) void foo();
+----
+
+is mangled as
+[,c]
+----
+    _Z3fooB12riscv_vls_cc_128v
+----
+
 === Name Mangling for Vector Data Types, Vector Mask Types and Vector Tuple Types.
 
 The vector data types and vector mask types, as defined in the section
