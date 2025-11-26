@@ -611,7 +611,8 @@ Nonstandard extensions are free to use relocation numbers 192-255 for any
 purpose. These vendor-specific relocations must be preceded by a
 `R_RISCV_VENDOR` relocation against a vendor identifier symbol. The preceding
 `R_RISCV_VENDOR` relocation is used by the linker to choose the correct
-implementation for the associated nonstandard relocation.
+implementation for the associated nonstandard relocation. This scheme for
+nonstandard relocations is specifically designed for static relocations.
 
 The vendor identifier symbol should be a defined symbol and should set the type
 to `STT_NOTYPE`, binding to `STB_LOCAL`, and the size of symbol to zero.
