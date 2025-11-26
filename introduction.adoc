@@ -58,8 +58,30 @@ This specification uses the following terms and abbreviations:
 | RV64ILP32Q        | Draft
 |===
 
-NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
-define that in future version of this specification.
+=== Big-endian ABI Status
+
+[width=80%]
+|===
+| ABI Name          | Status
+
+| ILP32 (BE)        | Draft
+| ILP32F (BE)       | Draft
+| ILP32D (BE)       | Draft
+| ILP32E (BE)       | Draft
+| LP64 (BE)         | Draft
+| LP64F (BE)        | Draft
+| LP64D (BE)        | Draft
+| LP64Q (BE)        | Draft
+| RV64ILP32 (BE)    | Draft
+| RV64ILP32F (BE)   | Draft
+| RV64ILP32D (BE)   | Draft
+| RV64ILP32Q (BE)   | Draft
+|===
+
+NOTE: This specification now includes preliminary support for big-endian ABIs.
+Big-endian support has been implemented in GNU GCC and LLVM/Clang toolchains.
+The big-endian variants follow the same calling conventions as their
+little-endian counterparts, with only the data byte ordering differing.
 
 Any encodings that are marked as reserved for a specific extension (ISA or
 purely ABI addition) should be treated by standard tools identically to any
