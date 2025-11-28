@@ -318,6 +318,57 @@ mangled-vector-name := "_ZGV" <isa> <mask> <len> <parameters> "_" <func-name>
 <func-name> := the orignal name of the scalar function
 ----
 
+=== Description of the lmul token
+
+"lmul":: The LMUL field is set based on the maximum LMUL value among the types
+of the parameters and the return value.
+
+For example:
+
+[,c]
+----
+    #pragma omp declare simd notinbranch
+    extern double foo (float x) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vfloat64m2_t _ZGVr2N4v_foo  (vfloat32m1_t x);  // LMUL=2
+    vfloat64m4_t _ZGVr4N8v_foo  (vfloat32m2_t x);  // LMUL=4
+    vfloat64m8_t _ZGVr8N16v_foo (vfloat32m4_t x);  // LMUL=8
+
+    // VLA Mode
+    vfloat64m2_t _ZGVr2Nxv_foo  (vfloat32m1_t x);  // LMUL=2
+    vfloat64m4_t _ZGVr4Nxv_foo  (vfloat32m2_t x);  // LMUL=4
+    vfloat64m8_t _ZGVr8Nxv_foo  (vfloat32m4_t x);  // LMUL=8
+----
+
+As another example,
+
+[,c]
+----
+    #pragma omp declare simd notinbranch
+    extern float foo (double x) __attribute__ ((__nothrow__, __leaf__, const));
+----
+
+is mangled as
+
+[,c]
+----
+    // VLS Mode, VLEN=128
+    vfloat32m1_t _ZGVr2N4v_foo  (vfloat64m2_t x);  // LMUL=2
+    vfloat32m2_t _ZGVr4N8v_foo  (vfloat64m4_t x);  // LMUL=4
+    vfloat32m4_t _ZGVr8N16v_foo (vfloat64m8_t x);  // LMUL=8
+
+    // VLA Mode
+    vfloat32m1_t _ZGVr2Nxv_foo  (vfloat64m2_t x);  // LMUL=2
+    vfloat32m2_t _ZGVr4Nxv_foo  (vfloat64m4_t x);  // LMUL=4
+    vfloat32m4_t _ZGVr8Nxv_foo  (vfloat64m8_t x);  // LMUL=8
+----
+
 === Description of the parameter_type token
 
 "v":: Vector parameter, default value for no linear or uniform clause.
