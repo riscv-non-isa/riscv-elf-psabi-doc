@@ -803,9 +803,8 @@ default ABIs for specific architectures:
 on RV32G:: <<abi-ilp32d,ILP32D>>
 on RV64G:: <<abi-lp64d,LP64D>>
 
-For the same reasons, but to make full use of the additional
-protections made available by CHERI, we recommend that the default ABIs on
-CHERI-RISC-V be <<abi-l64pc128d,L64PC128D>> and <<abi-il32pc64d,IL32PC64D>>.
+For the same reasons, we recommend that the default ABIs on
+RVY be <<abi-l64pc128d,L64PC128D>> and <<abi-il32pc64d,IL32PC64D>>.
 
 NOTE: Although RV64GQ systems can technically use <<abi-lp64q,LP64Q>>, it is
 strongly recommended to use LP64D on general-purpose RV64GQ systems for
@@ -890,6 +889,45 @@ alignments (based on the LP64 convention):
 | _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
 | _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
 | _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
+|===
+
+L64PC128* and IL32PC64* ABIs::
+The pure-capability RVY ABIs use YLEN bits to represent all pointers and introduce two new base C types to hold capabilities:
+the C standard library on RVY defines `intptr_t`/`uintptr_t` types that can hold capabilities (YLEN values) and integers (XLEN values) alike.
+These types have a YLEN-bit storage size (either 64-bit or 128-bit), however, the maximum arithmetic value that such a type can hold is limited to the maximum _address_ a capability can take (XLEN bits, i.e. YLEN/2).
+Pointers and `intptr_t`/`uintptr_t` must be aligned to YLEN bits.
++
+All other types are otherwise identical to their LP64*/ILP32* counterparts.
++
+NOTE: For very large objects, additional padding and alignment requirements may be introduced to ensure that capabilities referring to the object can be represented precisely.
+The capability compression means the available precision for bounds decreases as the object size increases above a threshold.
+See <<riscv-cheri-spec,the RVY specification>> for details of the restrictions.
+The threshold depends on the ISA but objects smaller than 256 bytes (on RVY32) / 4096 bytes (on RVY64) are never affected.
++
+* **L64PC128, L64PC128F, L64PC128D, and L64PC128Q** use the following type size and
+alignment (based on the L64 convention):
++
+.C/{Cpp} type sizes and alignments for L64PC128
+[cols="4,>2,>3"]
+[width=60%]
+|===
+| Type                   | Size (Bytes)   | Alignment (Bytes)
+| void *                 | 16             | 16
+| `intptr_t`/`uintptr_t` | 16             | 16
+| All other types        | See LP64* ABIs | See LP64* ABIs
+|===
++
+* **IL32PC64, IL32PC64F, IL32PC64D, and IL32PC64E** use the following type size and
+alignment (based on the IL32PC64 convention):
++
+.C/{Cpp} type sizes and alignments for IL32PC64
+[cols="4,>2,>3"]
+[width=60%]
+|===
+| Type                   | Size (Bytes)    | Alignment (Bytes)
+| void *                 | 8               | 8
+| `intptr_t`/`uintptr_t` | 8               | 8
+| All other types        | See ILP32* ABIs | See LP64* ABIs
 |===
 
 The alignment of `max_align_t` is 16.
@@ -1090,4 +1128,8 @@ https://github.com/riscv/riscv-v-spec
 
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
+
+* [[[riscv-cheri-spec]]] "RISC-V Specification for CHERI Extensions "
+https://riscv.github.io/riscv-cheri
+
 
