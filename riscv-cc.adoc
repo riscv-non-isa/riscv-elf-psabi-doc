@@ -748,8 +748,41 @@ RV64ILP32Q:: RV64ILP32 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS32,ELFCLASS32>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
-The LP64* ABIs are only compatible with RV64* ISAs. The ILP32* are compatible
-with RV32* and RV64* ISAs.
+[[abi-il32pc64]]
+IL32PC64:: Integer and capability calling convention only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
+
+[[abi-il32pc64f]]
+IL32PC64F:: IL32PC64 with hardware floating-point calling convention for FLEN=32
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-il32pc64d]]
+IL32PC64D:: IL32PC64 with hardware floating-point calling convention for FLEN=64
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
+
+[[abi-il32pc64e]]
+IL32PC64E:: <<IL32PC64E Calling Convention,IL32PC64E calling-convention>> only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>>, <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>, and <<EF_RISCV_RVE,EF_RISCV_RVE>>).
+
+[[abi-l64pc128]]
+L64PC128:: Integer and capability calling convention only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
+
+[[abi-l64pc128f]]
+L64PC128F:: L64PC128 with hardware floating-point calling convention for FLEN=32
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-l64pc128d]]
+L64PC128D:: L64PC128 with hardware floating-point calling convention for FLEN=64
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
+
+[[abi-l64pc128q]]
+L64PC128Q:: L64PC128 with hardware floating-point calling convention for FLEN=128
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
+
+The LP64* and L64PC128* ABIs are only compatible with RV64* ISAs.
+The ILP32* are compatible with RV32* and RV64* ISAs.
+Unlike the ILP32* ABIs, the IL32PC64* ABIs are only compatible with RV32* ISAs (since `YLEN` cannot be changed dynamically).
 
 NOTE: RV64ILP32* ABIs are experimental.
 
@@ -769,6 +802,10 @@ default ABIs for specific architectures:
 [horizontal]
 on RV32G:: <<abi-ilp32d,ILP32D>>
 on RV64G:: <<abi-lp64d,LP64D>>
+
+For the same reasons, but to make full use of the additional
+protections made available by CHERI, we recommend that the default ABIs on
+CHERI-RISC-V be <<abi-l64pc128d,L64PC128D>> and <<abi-il32pc64d,IL32PC64D>>.
 
 NOTE: Although RV64GQ systems can technically use <<abi-lp64q,LP64Q>>, it is
 strongly recommended to use LP64D on general-purpose RV64GQ systems for
