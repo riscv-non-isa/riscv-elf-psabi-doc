@@ -1,4 +1,5 @@
 .RISC-V ABI Specifications
+* xref:index.adoc[RISC-V ABI]
 * xref:introduction.adoc[Introduction]
 * xref:riscv-cc.adoc[Calling Conventions]
 * xref:riscv-elf.adoc[ELF Specification]

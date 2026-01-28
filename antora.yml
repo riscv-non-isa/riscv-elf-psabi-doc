@@ -1,5 +1,5 @@
-name: psabi
-title: ELF psABI Specification
+name: abi
+title: ABI Specification
 version: v1.0
 nav:
 - modules/ROOT/nav.adoc
