@@ -1,0 +1,28 @@
+== Contributors
+
+Contributors to all versions of the spec in alphabetical order:
+
+Alex Bradbury,
+Andrew Burgess,
+Chih-Mao Chen,
+Zakk Chen,
+Kito Cheng,
+Nelson Chu,
+Michael Clark,
+Jessica Clarke,
+Palmer Dabbelt,
+Sam Elliott,
+Gonzalo Brito Gadeschi,
+Sebastian Huber,
+Roger Ferrer Ibanez,
+Quey-Liang Kao,
+Nick Knight,
+Luís Marques,
+Evandro Menezes,
+Max Nordlund,
+Stefan O'Rear,
+Konrad Schwarz,
+Fangrui Song,
+Hsiangkai Wang,
+Andrew Waterman,
+Jim Wilson
