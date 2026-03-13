@@ -556,7 +556,7 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 46-50   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
                                             <|
-.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address
+.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address. This relocation might point to an optional dummy symbol containing a Relax Feature String (see <<relax-feature-string>>), which specifies constraints on the relaxation process.
                                             <|
 .2+| 52      .2+| SUB6          .2+| Static  | _word6_           .2+| Local label subtraction
                                             <| V - S - A
@@ -2115,6 +2115,104 @@ instructions. It is recommended to initialize `jvt` CSR immediately after
     addi  a0, a0, %pcrel_lo(1b)
     csrw  jvt, a0
 ----
+
+[[relax-feature-string]]
+=== Relax Feature String
+
+A Relax Feature String is used to specify constraints on linker relaxation for
+individual instructions. When an `R_RISCV_RELAX` relocation references a symbol
+whose name starts with `$r`, the remainder of the symbol name is interpreted as
+a comma-separated list of features.
+
+The dummy symbol must have the following properties:
+
+- Name: starts with `$r` prefix
+- Binding: `STB_LOCAL`
+- Type: `STT_NOTYPE`
+- Size: 0
+
+Features in the string MUST be sorted in lexicographical (dictionary) order.
+If the features are not properly sorted, the linker behavior is undefined.
+
+==== Defined Features
+
+The following features are defined:
+
+[%autowidth]
+|===
+| Feature | Description
+
+| `norvc`
+| The instruction shall not be relaxed into a compressed instruction from the
+C or Zc* extensions (e.g., `c.j`, `c.jal`). This feature implies `nozcmt`,
+since Zcmt instructions (`cm.jt`, `cm.jalt`) are also compressed instructions.
+
+| `nozcmt`
+| The instruction shall not be relaxed into a table jump instruction from the
+Zcmt extension (e.g., `cm.jt`, `cm.jalt`).
+
+|===
+
+NOTE: Zcmt instructions are typically much slower than a regular `auipc` + `jalr`
+sequence because they require a table lookup before the actual jump. In
+performance-critical code regions, users may want to prevent instructions from
+being relaxed into Zcmt instructions by using the `nozcmt` feature.
+
+Multiple features can be specified in a single string, separated by commas.
+For example, `$rnorvc,nozcmt` prohibits both compressed instruction relaxation
+and table jump relaxation (though `$rnorvc` alone is sufficient since it
+implies `nozcmt`).
+
+The linker or assembler might simplify the feature string by removing redundant
+features (e.g., simplifying `$rnorvc,nozcmt` to `$rnorvc`).
+
+Unknown features should be ignored by the linker. Linkers may emit a warning
+message when encountering unknown features.
+
+==== Example
+
+[,asm]
+----
+    .option push
+    .option arch, rv32imafdc_zcmt
+    auipc ra, 0          # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    jalr  ra, ra, 0      # Can be relaxed to jal, c.jal, or cm.jalt
+    .option pop
+
+    .option push
+    .option norvc
+    auipc ra, 0          # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX ($rnorvc)
+    jalr  ra, ra, 0      # Can only be relaxed to jal (norvc implies nozcmt)
+    .option pop
+
+    .option push
+    .option nozcmt
+    auipc ra, 0          # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX ($rnozcmt)
+    jalr  ra, ra, 0      # Can be relaxed to jal or c.jal, but NOT cm.jalt
+    .option pop
+----
+
+==== Use Case: LPAD Alignment
+
+When Zicfilp is enabled, LPAD instructions must be 4-byte aligned. For calls
+to `returns_twice` functions (e.g., `setjmp`), the following LPAD must remain
+aligned even after linker relaxation.
+
+[,asm]
+----
+    .p2align 2           # R_RISCV_ALIGN
+    .option push
+    .option norvc
+    call  setjmp         # R_RISCV_CALL_PLT (setjmp), R_RISCV_RELAX ($rnorvc)
+    lpad 0               # Must be 4-byte aligned
+    .option pop
+----
+
+Using `.option norvc` generates `R_RISCV_RELAX` with `$rnorvc`, which allows
+the call to be relaxed to `jal` (4-byte instruction) while preventing
+relaxation to 2-byte instructions like `c.jal` or `cm.jalt` that would
+misalign the following LPAD. This is more precise than using `.option exact`,
+which would completely disable relaxation.
 
 [bibliography]
 == References
