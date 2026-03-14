@@ -6,5 +6,6 @@ nav:
 
 asciidoc:
   attributes:
-    page-pdf_url: https://github.com/riscv/docs.riscv.org/blob/main/static/pdf/riscv-abi.pdf
+    page-pdf_url: _attachments/RISCV_UEFI_PROTOCOL-spec.pdf
+    more_details_url: https://riscv.atlassian.net/wiki/external/NDEzOThmNmRjZmZhNDdhNzgxYmYwOWRmMTRkOTBlMTE
     page-group: application-software
