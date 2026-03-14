@@ -1,5 +1,6 @@
 [[riscv-abi]]
 = RISC-V ABIs Specification
+:doctype: book
 //ifeval::["{docname}" == "riscv-abi"]
 //include::prelude.adoc[]
 //endif::[]
