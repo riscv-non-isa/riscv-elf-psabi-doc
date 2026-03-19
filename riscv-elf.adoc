@@ -1,8 +1,8 @@
 [[riscv-elf]]
 = RISC-V ELF Specification
-ifeval::["{docname}" == "riscv-elf"]
-include::prelude.adoc[]
-endif::[]
+//ifeval::["{docname}" == "riscv-elf"]
+//include::prelude.adoc[]
+//endif::[]
 
 == Code Models
 
