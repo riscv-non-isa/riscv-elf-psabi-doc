@@ -127,7 +127,16 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 `vstart` before either returning or calling another procedure.
 
 ==== Calling Convention Variant
-.Variant vector register calling convention*
+
+Functions that use vector registers to pass arguments and return values must
+follow this calling convention. Some programming languages can require extra
+functions to follow this calling convention (e.g. C/C++ functions with
+attribute `riscv_vector_cc`).
+
+Please refer to the <<Standard Vector Calling Convention Variant>> section for
+more details about standard vector calling convention variant.
+
+.Variant vector register calling convention
 [%autowidth]
 |===
 | Name    | ABI Mnemonic | Meaning                      | Preserved across calls?
@@ -141,14 +150,6 @@ Any procedure that does explicitly write `vstart` to a nonzero value must zero
 | vxrm    |              | Vector fixed-point rounding mode register    | No
 | vxsat   |              | Vector fixed-point saturation flag register  | No
 |===
-
-*: Functions that use vector registers to pass arguments and return values must
-follow this calling convention. Some programming languages can require extra
-functions to follow this calling convention (e.g. C/C++ functions with
-attribute `riscv_vector_cc`).
-
-Please refer to the <<Standard Vector Calling Convention Variant>> section for
-more details about standard vector calling convention variant.
 
 NOTE: The `vxrm` and `vxsat` fields of `vcsr` follow the same behavior as the
 standard calling convention.
@@ -183,6 +184,28 @@ bits are widened according to the sign of their type up to 32 bits, then
 sign-extended to XLEN bits.
 When passed in registers or on the stack, floating-point types narrower than
 XLEN bits are widened to XLEN bits, with the upper bits undefined.
+
+When passed in registers or on the stack, `_BitInt(N)` types are handled as
+follows:
+- For N < XLEN: Types are widened to XLEN bits, with upper bits sign-extended
+  for signed `_BitInt(N)` or zero-extended for unsigned `_BitInt(N)`.
+  However, for N = 32 in RV64, both signed and unsigned types are sign-extended.
++
+- For N = XLEN: Types are passed using the same rules as scalars that are XLEN
+  bits wide.
+- For XLEN < N ≤ 2×XLEN: Types are passed using the same rules as scalars that
+  are 2×XLEN bits wide.
+  Any unused bits in the most significant chunk are sign-extended for signed
+  types or zero-extended for unsigned types.
+- For N > 2×XLEN: Types are passed by reference (replaced in the argument list
+  with the address). When stored in memory, any unused bits in the most
+  significant chunk are sign-extended for signed types or zero-extended for
+  unsigned types.
+
+[NOTE]
+====
+`_BitInt(32)` on RV64 has a special rule because it behaves consistently with regular `int` types.
+====
 
 Scalars that are 2×XLEN bits wide are passed in a pair of argument registers,
 with the low-order XLEN bits in the lower-numbered register and the high-order
@@ -429,6 +452,208 @@ NOTE: `setjmp`/`longjmp` follow the standard calling convention, which clobbers
 all vector registers. Hence, the standard vector calling convention variant
 won't disrupt the `jmp_buf` ABI.
 
+NOTE: Functions that use the standard vector calling convention
+variant follow an additional name mangling rule for {Cpp}.
+For more details, see <<Name Mangling for Standard Calling Convention Variant>>.
+
+=== Standard Fixed-length Vector Calling Convention Variant
+
+This section defines the calling convention variant for fixed-length vectors.
+The intention of this variant is to pass fixed-length vectors via the vector
+registers. For the definition of a fixed-length vector, see
+<<Fixed-Length Vector>>.
+
+This variant is based on the standard vector calling convention variant:
+the register convention and the rules for passing arguments and return values
+are the same.
+
+NOTE: The reason we define a separate calling convention variant is that we
+would like to define a flexible convention to utilize the variable length
+feature in the vector extension, also considering embedded vector extensions,
+such as `Zve32x`.
+
+ABI_VLEN refers to the width of a vector register in the calling convention
+variant.
+
+The ABI_VLEN must be no wider than the ISA's VLEN, meaning that the ISA may
+support wider vector registers than the ABI, but the ABI's VLEN cannot exceed
+the ISA's VLEN.
+
+ABI_VLEN represents the width (in bits) of the vector registers available in the
+calling convention for fixed-length vectors. ABI_VLEN can vary from 32 bits
+(as in `Zve32x`) up to the maximum supported by the ISA. The flexibility of
+ABI_VLEN enables the convention to adapt to both low-end embedded systems and
+high-performance processors that utilize wider vector registers.
+
+The ABI_VLEN is a parameter of this calling convention variant. It could be set
+by a command line option for the compiler or specified by a function
+attribute in the source code.
+
+NOTE: We suggest the toolchain implementation set the default value of ABI_VLEN
+to 128, as it's the most common minimal requirement. However, it is not fixed
+to 128, since the ISA allows the VLEN to be only 32 bits or 64 bits. This
+also enables the utilization of the capacity of longer VLEN. Users can build
+with an optimized library with larger ABI_VLEN for better utilization of those
+cores with longer VLEN.
+
+A fixed-length vector argument is passed in one vector argument register if the
+size of the vector is less than or equal to ABI_VLEN bit.
+
+[NOTE]
+====
+Even in the absence of specific vector extension support for certain element
+types, such as `__bf16`, `_Float16`, `float`, or `double`, the standard
+fixed-length vector calling convention rules still apply. For example,
+even without the support of extensions like `Zvfbfmin`, `Zve32f`, or `Zve64d`,
+these element types will be passed according to the calling convention rules
+outlined here.
+
+Additionally, data types such as `__int128_t`, which currently do not
+have direct support in any vector extension, will also follow these rules.
+This design ensures that the calling convention remains forward-compatible,
+minimizing the need for continuous adjustments as new extensions and data types
+are introduced in the future.
+
+The consistency in applying these rules to unsupported element types guarantees
+a smooth transition when future vector extensions become available, allowing for
+seamless integration of new features without requiring significant changes to
+the calling convention.
+====
+
+A fixed-length vector argument is passed in two vector argument registers,
+similar to vector data arguments with LMUL=2 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 2×ABI_VLEN bits.
+
+A fixed-length vector argument is passed in four vector argument registers,
+similar to vector data arguments with LMUL=4 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 4×ABI_VLEN bits.
+
+A fixed-length vector argument is passed in eight vector argument registers,
+similar to vector data arguments with LMUL=4 and following the same register
+constraints, if the size of the vector is greater than ABI_VLEN bits and less
+than or equal to 8×ABI_VLEN bits.
+
+[NOTE]
+====
+Fixed-length vectors that are not a power-of-2 in size will be rounded up to
+the next power-of-2 length for the purpose of register allocation and handling.
+For instance, a vector type like `int32x3_t` (which contains three 32-bit
+integers) will be treated as an `int32x4_t` (a 128-bit vector, as LMUL=1 for
+ABI_VLEN=128) in the ABI, and passed accordingly. This ensures consistency in
+how vectors are handled and simplifies the process of argument passing.
+
+Example: Consider an `int32x3_t` vector (three 32-bit integers):
+- The vector's total size is 96 bits, which is not a power of 2.
+- The ABI will round up the size to 128 bits (corresponding to `int32x4_t`),
+  meaning the vector will be passed using one vector argument register when
+  ABI_VLEN=128.
+
+This rule applies to all non-power-of-2 fixed-length vectors, ensuring they
+are treated consistently across different ABI_VLEN settings.
+====
+
+A fixed-length vector argument is passed by reference and is replaced in the
+argument list with the address if it is larger than 8×ABI_VLEN bit or if
+there is a shortage of vector argument registers.
+
+A struct containing members with all fixed-length vectors will be passed in
+vector argument registers like a vector tuple type if all members have the
+same length, the length is less than or equal to 4×ABI_VLEN bit, and the size of
+the whole struct is less than or equal to 8×ABI_VLEN bit.
+If there are not enough vector argument registers to pass the entire struct,
+it will pass by reference and is replaced in the argument list with the address.
+Otherwise, it will use the rule defined in the hardware floating-point calling
+convention.
+
+A struct containing just one fixed-length vector or a fixed-length vector
+array of length one, will be flattened as a single fixed-length vector argument
+if the size of the vector is less than or equal to 8×ABI_VLEN bit.
+
+Structs with zero-length fixed-length arrays use the rule defined in the hardware
+floating-point calling convention, which means it won't consume vector argument
+register either in C or {Cpp}.
+
+A struct containing just one fixed-length vector array is passed as though it
+were a vector tuple type if the size of the base element for the array is less than
+or equal to 8×ABI_VLEN bit, and the size of the array is less than 8×ABI_VLEN
+bits.
+If there are not enough vector argument registers to pass the entire struct,
+it will pass by reference and is replaced in the argument list with the address.
+Otherwise, it will use the rule defined in the hardware floating-point
+calling convention.
+
+Unions with fixed-length vectors are always passed according to the integer
+calling convention.
+
+The details of vector argument register rules are the same as the standard
+vector calling convention variant.
+
+NOTE: Functions that use the standard fixed-length vector calling convention
+variant must be marked with STO_RISCV_VARIANT_CC. See <<Dynamic Linking>>
+for the meaning of STO_RISCV_VARIANT_CC.
+
+NOTE: Functions that use the standard fixed-length vector calling convention
+variant follow an additional name mangling rule for {Cpp}.
+For more details, see <<Name Mangling for Standard Calling Convention Variant>>.
+
+[NOTE]
+====
+When ABI_VLEN is smaller than the VLEN, the number of vector argument
+registers utilized remains unchanged. However, in such cases, values are only
+placed in a portion of these vector argument registers, corresponding to the
+size of ABI_VLEN. The remaining portion of the vector argument registers, which
+extends beyond the ABI_VLEN, will remain idle. This means that while the full
+capacity of the vector argument registers may not be used, the allocation of
+these registers do not change, ensuring consistency in register usage regardless
+of the ABI_VLEN to VLEN ratio.
+
+Example: With ABI_VLEN at 32 bits and VLEN at 128 bits, consider passing an
+`int32x4_t` parameter (four 32-bit integers).
+
+Allocation: Four vector argument registers are allocated for
+`int32x4_t`, based on LMUL=4.
+
+Utilization: All four integers are placed in the first vector register,
+utilizing its full 128-bit capacity (VLEN), despite ABI_VLEN being 32 bits.
+
+Remaining Registers: The other three allocated registers remain unused and idle.
+
+.int32x4_t layout on different VLEN with ABI_VLEN at 32 bits:
+[cols="2,3,3,3,3"]
+[width=100%]
+|===
+| VLEN | v8                      | v9                     | v10                    | v11
+
+| 32   | a                       | b                      | c                      | d
+| 64   | a, b                    | c, d                   | -, -                   | -, -
+| 128  | a, b, c, d              | -, -, -, -             | -, -, -, -             | -, -, -, -
+| 256  | a, b, c, d, -, -, -, -  | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
+|===
+
+.int64x8_t layout on different VLEN with ABI_VLEN at 128 bits:
+[cols="2,3,3,3,3"]
+[width=100%]
+|===
+| VLEN | v8                     | v9                     | v10                    | v11
+
+| 128  | a, b                   | c, d                   | e, f                   | g, h
+| 256  | a, b, c, d             | e, f, g, h             | -, -, -, -             | -, -, -, -
+| 512  | a, b, c, d, e, f, g, h | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, - | -, -, -, -, -, -, -, -
+|===
+
+`-` means that part are not used, and the value can be anything.
+
+====
+
+NOTE: In a single compilation unit, different functions may use different
+ABI_VLEN values. This means that ABI_VLEN is not uniform across the entire unit,
+allowing for function-specific optimization. However, this necessitates that
+users ensure consistency in ABI_VLEN between calling and called functions. It
+is the user's responsibility to verify that the ABI_VLEN matches on both sides
+of a function call to ensure correct operation and data handling.
+
 === ILP32E Calling Convention
 
 IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
@@ -577,6 +802,8 @@ alignments (based on the ILP32 convention):
 | int                  |  4            |  4                |
 | long                 |  4            |  4                |
 | long long            |  8            |  8                |
+| ++intmax_t++         |  8            |  8                | ++long long int++
+| ++uintmax_t++        |  8            |  8                | ++unsigned long long int++
 | void *               |  4            |  4                |
 | +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
 | _Float16             |  2            |  2                | Half precision floating point (binary16 in IEEE 754-2008)
@@ -586,6 +813,11 @@ alignments (based on the ILP32 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(N > 64)      | RoundUp(N / 64) * 8 | 8           |
 |===
 
 LP64, LP64F, LP64D, and LP64Q:: Use the following type sizes and
@@ -603,6 +835,8 @@ alignments (based on the LP64 convention):
 | int                  |  4            |  4                |
 | long                 |  8            |  8                |
 | long long            |  8            |  8                |
+| ++intmax_t++         |  8            |  8                | ++long int++
+| ++uintmax_t++        |  8            |  8                | ++unsigned long int++
 | +++__int128+++       | 16            | 16                |
 | void *               |  8            |  8                |
 | +++__bf16+++         |  2            |  2                | Half precision floating point (bfloat16)
@@ -613,6 +847,12 @@ alignments (based on the LP64 convention):
 | float _Complex       |  8            |  4                |
 | double _Complex      | 16            |  8                |
 | long double _Complex | 32            | 16                |
+| _BitInt(1  ≤ N ≤  8) |  1            |  1                |
+| _BitInt(9  ≤ N ≤ 16) |  2            |  2                |
+| _BitInt(17 ≤ N ≤ 32) |  4            |  4                |
+| _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
+| _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
+| _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
 |===
 
 The alignment of `max_align_t` is 16.
@@ -633,6 +873,31 @@ alignment requirement of its elemental type.
 
 The size of the fixed length vector is determined by multiplying the size of its
 elemental type by the total number of elements within the vector.
+
+==== _BitInt (N)
+
+`_BitInt (N)` is the type defined in C23, allow user to define an
+arbitrary-sized integer type, where N is a postive integer larger than zero.
+
+`_BitInt(N)` types are stored in memory as follows:
+- For N ≤ 2×XLEN: Types follow the standard scalar endianness rules.
+- For N > 2×XLEN: Types are divided into 2×XLEN-bit chunks. Each chunk follows
+  the standard scalar endianness rules. The chunk ordering in memory follows
+  the system endianness: on little-endian systems, lower-addressed chunks contain
+  less significant bits; on big-endian systems, lower-addressed chunks contain
+  more significant bits.
+
+NOTE: The big-endian ABI is still experimental and may change in the future.
+
+Unused bits of the `_BitInt(N)` are extended based on the signedness of the
+type when stored in memory or register. For signed `_BitInt(N)`, unused bits
+are sign-extended from the most significant bit of the N-bit value. For
+unsigned `_BitInt(N)`, unused bits are zero-extended.
+
+NOTE: According to the C language specification, `_BitInt(N)` without an
+explicit `unsigned` qualifier is treated as signed. For example, `_BitInt(66)`
+is signed and will use sign-extension for unused bits, while
+`unsigned _BitInt(66)` will use zero-extension.
 
 === C/{Cpp} Type Representations
 
