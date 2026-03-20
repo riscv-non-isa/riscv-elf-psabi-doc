@@ -590,7 +590,15 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 67-76   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
                                             <|
-.2+| 77-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 77      .2+| REGREL_LO12_I .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%regrel_lo(symbol)`
+                                            <|
+.2+| 78      .2+| REGREL_LO12_S .2+| Static  | _S-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%regrel_lo(symbol)`
+                                            <|
+.2+| 79      .2+| REGREL_ADD    .2+| Static  |                   .2+| Global Array usage, `%regrel_add(symbol)`
+                                            <|
+.2+| 80      .2+| REGREL_SHXADD .2+| Static  |                   .2+| Global Array usage, `%regrel_shxadd(symbol)`
+                                            <|
+.2+| 81-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
@@ -1877,6 +1885,59 @@ Relaxation result:
 [,asm]
 ----
     lw t1, <address-of-symbol>(x0)
+----
+--
+
+==== Global Array Offset Relaxation
+
+  Target Relocation:: R_RISCV_HI20, R_RISCV_REGREL_LO12_I, R_RISCV_REGREL_LO12_S,
+  R_RISCV_REGREL_ADD, R_RISCV_REGREL_SHXADD
+
+  Description:: This relaxation type can relax a sequence of the load
+  address of a symbol or load/store with a symbol reference into shorter
+  instruction sequence if possible.
+
+  Condition:: Global-pointer relaxation requires that Tag_RISCV_x3_reg_usage
+  must be 0 or 1, and offset between global-pointer and symbol is within +-2KiB.
+  `R_RISCV_REGREL_SHXADD` the Zba feature is required.
+
+  Relaxation::
+  - Instruction associated  with `R_RISCV_HI20` can be removed.
+
+  - Instruction associated with `R_RISCV_REGREL_ADD` or `R_RISCV_REGREL_SHXADD`
+    can be replaced with a global-pointer-relative access instruction. Update the
+    `R_RISCV_REGREL_LO12_I` or `R_RISCV_REGREL_LO12_S` Symbol's Offset
+
+  Example::
++
+--
+Relaxation candidate 1:
+[,asm]
+----
+    lui tX, 0       # R_RISCV_HI20 (symbol), R_RISCV_RELAX
+    add tY, tY, tX  # R_RISCV_REGREL_ADD (symbol), R_RISCV_RELAX
+    lw t1, 0(tY)    # R_RISCV_REGREL_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    add tY, tY, gp
+    lw t1, <gp-offset-for-symbol>(tY)
+----
++
+--
+Relaxation candidate 2: same as sh2add/sh3add
+[,asm]
+----
+    lui tX, 0          # R_RISCV_HI20 (symbol), R_RISCV_RELAX
+    sh1add tY, tY, tX  # R_RISCV_REGREL_SHXADD (symbol), R_RISCV_RELAX
+    lw t1, 0(tY)       # R_RISCV_REGREL_LO12_I (symbol), R_RISCV_RELAX
+----
+Relaxation result:
+[,asm]
+----
+    sh1add tY, tY, gp
+    lw t1, <gp-offset-for-symbol>(tY)
 ----
 --
 
