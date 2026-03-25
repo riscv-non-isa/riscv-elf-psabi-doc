@@ -1,0 +1,1 @@
+../../../vector_type_infos.adoc
