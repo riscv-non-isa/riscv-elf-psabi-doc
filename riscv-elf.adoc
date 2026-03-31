@@ -14,4 +14,4 @@ include::riscv-elf-object-files.adoc[]
 
 include::riscv-elf-linker-relaxation.adoc[]
 
-include::elf.bib[]
+include::elf-bib.adoc[]

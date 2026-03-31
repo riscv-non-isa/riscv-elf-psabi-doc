@@ -8,4 +8,4 @@ include::riscv-dwarf-debugging-format.adoc[]
 
 include::riscv-dwarf-register-numbers.adoc[]
 
-include::dwarf.bib[]
+include::dwarf-bib.adoc[]
