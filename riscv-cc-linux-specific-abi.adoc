@@ -1,0 +1,31 @@
+[appendix]
+== Linux-specific ABI
+
+NOTE: This section of the RISC-V calling convention specification only applies
+to Linux-based systems.
+
+In order to ensure compatibility between different implementations of the C
+library for Linux, we provide some extra definitions which only apply on those
+systems. These are noted in this section.
+
+=== Linux-specific C type sizes and alignments
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 ABIs.
+
+.Linux-specific C type sizes and alignments
+[cols="2,>1,>1"]
+[width=80%]
+|===
+| Type    | Size (Bytes) | Alignment (Bytes)
+
+| wchar_t |  4           |  4
+| wint_t  |  4           |  4
+|===
+
+=== Linux-specific C type representations
+
+The following definitions apply for all ABIs defined in this document. Here
+there is no differentiation between ILP32 and LP64 ABIs.
+
+`wchar_t` is signed.  `wint_t` is unsigned.

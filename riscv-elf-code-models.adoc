@@ -1,0 +1,120 @@
+== Code models
+
+The RISC-V architecture constrains the addressing of positions in the
+address space.  There is no single instruction that can refer to an arbitrary
+memory position using a literal as its argument.  Rather, instructions exist
+that, when combined together, can then be used to refer to a memory position
+via its literal.  And, when not, other data structures are used to help the
+code to address the memory space.  The coding conventions governing their use
+are known as code models.
+
+However, some code models can't access the whole address space. The linker may
+raise an error if it cannot adjust the instructions to access the target address
+in the current code model.
+
+=== Medium low code model
+
+The medium low code model, or `medlow`, allows the code to address the whole RV32
+address space or the lower 2 GiB and highest 2 GiB of the RV64 address space
+(`0xFFFFFFFF7FFFF800` ~ `0xFFFFFFFFFFFFFFFF` and `0x0` ~ `0x000000007FFFF7FF`).
+By using the `lui` and load / store instructions, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a 32-bit address literal can be produced.
+
+The following instructions show how to load a value, store a value, or calculate
+an address in the `medlow` code model.
+
+[,asm]
+----
+    # Load value from a symbol
+    lui  a0, %hi(symbol)
+    lw   a0, %lo(symbol)(a0)
+
+    # Store value to a symbol
+    lui  a0, %hi(symbol)
+    sw   a1, %lo(symbol)(a0)
+
+    # Calculate address
+    lui  a0, %hi(symbol)
+    addi a0, a0, %lo(symbol)
+----
+
+NOTE: The ranges on RV64 are not `0x0` ~ `0x000000007FFFFFFF` and
+`0xFFFFFFFF80000000` ~ `0xFFFFFFFFFFFFFFFF` due to RISC-V's sign-extension of
+immediates; the following code fragments show where the ranges come from:
+[,asm]
+----
+# Largest postive number:
+lui a0, 0x7ffff # a0 = 0x7ffff000
+addi a0, 0x7ff # a0 = a0 + 2047 = 0x000000007FFFF7FF
+
+# Smallest negative number:
+lui a0, 0x80000 # a0 = 0xffffffff80000000
+addi a0, a0, -0x800 # a0 = a0 + -2048 = 0xFFFFFFFF7FFFF800
+----
+
+=== Medium any code model
+
+The medium any code model, or `medany`, allows the code to address the range
+between -2 GiB and +2 GiB from its position.  By using `auipc`
+and load / store instructions, when referring to an object, or
+`addi`, when calculating an address literal, for example,
+a signed 32-bit offset, relative to the value of the `pc` register,
+can be produced.
+
+As a special edge-case, undefined weak symbols must still be supported, whose
+addresses will be 0 and may be out of range depending on the address at which
+the code is linked. Any references to possibly-undefined weak symbols should be
+made indirectly through the GOT as is used for position-independent code. Not
+doing so is deprecated and a future version of this specification will require
+using the GOT, not just advise.
+
+NOTE: This is not yet a requirement as existing toolchains predating this part
+of the specification do not adhere to this, and without improvements to linker
+relaxation support doing so would regress performance and code size.
+
+The following instructions show how to load a value, store a value, or calculate
+an address in the medany code model.
+
+[,asm]
+----
+         # Load value from a symbol
+.Ltmp0:  auipc a0, %pcrel_hi(symbol)
+         lw    a0, %pcrel_lo(.Ltmp0)(a0)
+
+         # Store value to a symbol
+.Ltmp1:  auipc a0, %pcrel_hi(symbol)
+         sw    a1, %pcrel_lo(.Ltmp1)(a0)
+
+         # Calculate address
+.Ltmp2:  auipc a0, %pcrel_hi(symbol)
+         addi  a0, a0, %pcrel_lo(.Ltmp2)
+----
+
+NOTE: Although the generated code is technically position independent, it's not
+suitable for ELF shared libraries due to differing symbol interposition rules;
+for that, please use the medium position independent code model below.
+
+=== Medium position independent code model
+
+This model is similar to the medium any code model, but uses the
+<<Global Offset Table,global offset table>> (GOT) for non-local symbol addresses.
+
+[,asm]
+----
+         # Load value from a local symbol
+.Ltmp0:  auipc a0, %pcrel_hi(symbol)
+         lw    a0, %pcrel_lo(.Ltmp0)(a0)
+
+         # Store value to a local symbol
+.Ltmp1:  auipc a0, %pcrel_hi(symbol)
+         sw    a1, %pcrel_lo(.Ltmp1)(a0)
+
+         # Calculate address of a local symbol
+.Ltmp2:  auipc a0, %pcrel_hi(symbol)
+         addi  a0, a0, %pcrel_lo(.Ltmp2)
+
+         # Calculate address of non-local symbol
+.Ltmp3:  auipc  a0, %got_pcrel_hi(symbol)
+         l[w|d] a0, a0, %pcrel_lo(.Ltmp3)
+----

@@ -1,0 +1,986 @@
+== ELF Object Files
+
+The ELF object file format for RISC-V follows the
+_Generic System V Application Binary Interface_ <<gabi>>
+("gABI"); this specification only describes RISC-V-specific definitions.
+
+=== File Header
+
+The section below lists the defined RISC-V-specific values for several ELF
+header fields; any fields not listed in this section have no RISC-V-specific
+values.
+
+e_ident::
+  EI_CLASS::: Specifies the base ISA, either RV32 or RV64.
+  Linking RV32 and RV64 code together is not supported.
++
+--
+[horizontal]
+[[ELFCLASS64]]
+ELFCLASS64:::: ELF-64 Object File
+[horizontal]
+[[ELFCLASS32]]
+ELFCLASS32:::: ELF-32 Object File
+--
+  EI_DATA::: Specifies the endianness; either big-endian or little-endian.
+  Linking big-endian and little-endian code together is not supported.
++
+--
+[horizontal]
+ELFDATA2LSB:::: Little-endian Object File
+ELFDATA2MSB:::: Big-endian Object File
+--
+
+e_machine:: Identifies the machine this ELF file targets.  Always contains
+EM_RISCV (243) for RISC-V ELF files.
+
+e_flags:: Describes the format of this ELF file.  These flags are used by the
+linker to disallow linking ELF files with incompatible ABIs together,
+<<e-flags-layout>> shows the layout of e_flags, and flag details are listed
+below.
++
+[[e-flags-layout]]
+.Layout of e_flags
+[cols="1,2,1,1,3,5"]
+[width=80%]
+|===
+| Bit 0 | Bits 1 - 2 | Bit 3 | Bit 4 | Bits 5 - 23 | Bits 24 - 31
+
+| RVC   | Float ABI  | RVE   | TSO   | *Reserved*  | *Non-standard extensions*
+|===
+
++
+--
+  EF_RISCV_RVC (0x0001)::: This bit is set when the binary targets the C ABI,
+  which allows instructions to be aligned to 16-bit boundaries (the base RV32
+  and RV64 ISAs only allow 32-bit instruction alignment).  When linking
+  objects which specify EF_RISCV_RVC, the linker is permitted to use RVC
+  instructions such as C.JAL in the linker relaxation process.
+
+  EF_RISCV_FLOAT_ABI_SOFT (0x0000):::
+[[EF_RISCV_FLOAT_ABI_SOFT]]
+  EF_RISCV_FLOAT_ABI_SINGLE (0x0002):::
+[[EF_RISCV_FLOAT_ABI_SINGLE]]
+  EF_RISCV_FLOAT_ABI_DOUBLE (0x0004):::
+[[EF_RISCV_FLOAT_ABI_DOUBLE]]
+  EF_RISCV_FLOAT_ABI_QUAD (0x0006):::
+[[EF_RISCV_FLOAT_ABI_QUAD]] These flags identify the floating point
+  ABI in use for this ELF file.  They store the largest floating-point type
+  that ends up in registers as part of the ABI (but do not control if code
+  generation is allowed to use floating-point internally).  The rule is that
+  if you have a floating-point type in a register, then you also have all
+  smaller floating-point types in registers.  For example _DOUBLE would
+  store "float" and "double" values in F registers, but would not store "long
+  double" values in F registers.  If none of the float ABI flags are set, the
+  object is taken to use the soft-float ABI.
+
+  EF_RISCV_FLOAT_ABI (0x0006)::: This macro is used as a mask to test for one
+  of the above floating-point ABIs, e.g.,
+  `(e_flags & EF_RISCV_FLOAT_ABI) == EF_RISCV_FLOAT_ABI_DOUBLE`.
+
+[[EF_RISCV_RVE]]
+  EF_RISCV_RVE (0x0008)::: This bit is set when the binary targets the E ABI.
+
+  EF_RISCV_TSO (0x0010)::: This bit is set when the binary requires the RVTSO
+  memory consistency model.
+
+Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
+versions of this specification, they shall not be set by standard software.
+Non-standard extensions are free to use bits 24-31 for any purpose. This may
+conflict with other non-standard extensions.
+
+NOTE: There is no provision for compatibility between conflicting uses of the
+e_flags bits reserved for non-standard extensions, and many standard RISC-V
+tools will ignore them. Do not use them unless you control both the toolchain
+and the operating system, and the ABI differences are so significant they
+cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
+different syscall ABI.
+
+==== Policy for Merge Objects With Different File Headers
+
+This section describe the behavior when the inputs files come with different
+file headers.
+
+`e_ident` and `e_machine` should have exact same value otherwise linker should
+raise an error.
+
+`e_flags` has different different policy for different fields:
+
+  RVC::: Input file could have different values for the RVC field; the linker
+  should set this field into EF_RISCV_RVC if any of the input objects has
+  been set.
+
+  Float ABI::: Linker should report errors if object files of different value
+  for float ABI field.
+
+  RVE::: Linker should report errors if object files of different value
+  for RVE field.
+
+  TSO::: Linker should report errors if object files of different value
+  for TSO field.
+
+NOTE: The static linker may ignore the compatibility checks if all fields in the
+`e_flags` are zero and all sections in the input file are non-executable
+sections.
+
+--
+
+=== String Tables
+
+There are no RISC-V specific definitions relating to ELF string tables.
+
+=== Symbol Table
+
+st_other:: The lower 2 bits are used to specify a symbol's visibility. The
+remaining 6 bits have no defined meaning in the ELF gABI. We use the highest
+bit to mark functions that do not follow the standard calling convention for
+the ABI in use.
++
+The defined processor-specific `st_other` flags are listed in <<rv-st-other>>.
++
+[[rv-st-other]]
+.RISC-V-specific `st_other` flags
+[cols="3,1"]
+[width=60%]
+|===
+| Name                 | Mask
+
+| STO_RISCV_VARIANT_CC | 0x80
+|===
++
+See <<Dynamic Linking>> for the meaning of `STO_RISCV_VARIANT_CC`.
+
+`__global_pointer$` must be exported in the dynamic symbol table of dynamically-linked
+executables if there are any GP-relative accesses present in the executable.
+
+=== Relocations
+
+RISC-V is a classical RISC architecture that has densely packed non-word
+sized instruction immediate values. While the linker can make relocations on
+arbitrary memory locations, many of the RISC-V relocations are designed for
+use with specific instructions or instruction sequences. RISC-V has several
+instruction specific encodings for PC-Relative address loading, jumps,
+branches and the RVC compressed instruction set.
+
+The purpose of this section is to describe the RISC-V specific instruction
+sequences with their associated relocations in addition to the general purpose
+machine word sized relocations that are used for symbol addresses in the
+Global Offset Table or DWARF meta data.
+
+<<reloc-table>> provides details of the RISC-V ELF relocations; the meaning of each
+column is given below:
+
+Enum:: The number of the relocation, encoded in the r_info field
+
+ELF Reloc Type:: The name of the relocation, omitting the prefix of `R_RISCV_`.
+
+Type:: Whether the relocation is a static or dynamic relocation:
++
+- A static relocation relocates a location in a relocatable file, processed by a static linker.
+- A dynamic relocation relocates a location in an executable or shared object, processed by a run-time linker.
+- `Both`: Some relocation types are used by both static relocations and dynamic relocations.
+
+Field:: Describes the set of bits affected by this relocation; see <<Field Symbols>> for the definitions of the individual types
+
+Calculation:: Formula for how to resolve the relocation value; definitions of the
+              symbols can be found in <<Calculation Symbols>>
+
+Description:: Additional information about the relocation
+
+[[reloc-table]]
+.Relocation types
+[cols=">2,6,3,6,11"]
+[width=100%]
+|===
+| Enum          | ELF Reloc Type   | Type    | Field / Calculation  | Description
+
+.2+| 0       .2+| NONE          .2+| None    |                   .2+|
+                                            <|
+.2+| 1       .2+| 32            .2+| Both    | _word32_          .2+| 32-bit relocation
+                                            <| S + A
+.2+| 2       .2+| 64            .2+| Both    | _word64_          .2+| 64-bit relocation
+                                            <| S + A
+.2+| 3       .2+| RELATIVE      .2+| Dynamic | _wordclass_       .2+| Adjust a link address (A) to its load address (B + A)
+                                            <| B + A
+.2+| 4       .2+| COPY          .2+| Dynamic |                   .2+| Must be in executable; not allowed in shared library
+                                            <|
+.2+| 5       .2+| JUMP_SLOT     .2+| Dynamic | _wordclass_       .2+| Indicates the symbol associated with a PLT entry
+                                            <| S
+.2+| 6       .2+| TLS_DTPMOD32  .2+| Dynamic | _word32_          .2+|
+                                            <| TLSMODULE
+.2+| 7       .2+| TLS_DTPMOD64  .2+| Dynamic | _word64_          .2+|
+                                            <| TLSMODULE
+.2+| 8       .2+| TLS_DTPREL32  .2+| Dynamic | _word32_          .2+|
+                                            <| S + A - TLS_DTV_OFFSET
+.2+| 9       .2+| TLS_DTPREL64  .2+| Dynamic | _word64_          .2+|
+                                            <| S + A - TLS_DTV_OFFSET
+.2+| 10      .2+| TLS_TPREL32   .2+| Dynamic | _word32_          .2+|
+                                            <| S + A + TLSOFFSET
+.2+| 11      .2+| TLS_TPREL64   .2+| Dynamic | _word64_          .2+|
+                                            <| S + A + TLSOFFSET
+.2+| 16      .2+| BRANCH        .2+| Static  | _B-Type_          .2+| 12-bit PC-relative branch offset
+                                            <| S + A - P
+.2+| 17      .2+| JAL           .2+| Static  | _J-Type_          .2+| 20-bit PC-relative jump offset
+                                            <| S + A - P
+.2+| 18      .2+| CALL          .2+| Static  | _U+I-Type_        .2+| *Deprecated, please use CALL_PLT instead* 32-bit PC-relative function call, macros `call`, `tail`
+                                            <| S + A - P
+.2+| 19      .2+| CALL_PLT      .2+| Static  | _U+I-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail` (PIC)
+                                            <| S + A - P
+.2+| 20      .2+| GOT_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative GOT access, `%got_pcrel_hi(symbol)`
+                                            <| G + GOT + A - P
+.2+| 21      .2+| TLS_GOT_HI20  .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS IE GOT access, macro `la.tls.ie`
+                                            <|
+.2+| 22      .2+| TLS_GD_HI20   .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS GD GOT reference, macro `la.tls.gd`
+                                            <|
+.2+| 23      .2+| PCREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative reference, `%pcrel_hi(symbol)`
+                                            <| S + A - P
+.2+| 24      .2+| PCREL_LO12_I  .2+| Static  | _I-type_          .2+| Low 12 bits of a 32-bit PC-relative, `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
+                                            <| S - P
+.2+| 25      .2+| PCREL_LO12_S  .2+| Static  | _S-Type_          .2+| Low 12 bits of a 32-bit PC-relative, `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
+                                            <| S - P
+.2+| 26      .2+| HI20          .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit absolute address, `%hi(symbol)`
+                                            <| S + A
+.2+| 27      .2+| LO12_I        .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit absolute address, `%lo(symbol)`
+                                            <| S + A
+.2+| 28      .2+| LO12_S        .2+| Static  | _S-Type_          .2+| Low 12 bits of 32-bit absolute address, `%lo(symbol)`
+                                            <| S + A
+.2+| 29      .2+| TPREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of TLS LE thread pointer offset, `%tprel_hi(symbol)`
+                                            <|
+.2+| 30      .2+| TPREL_LO12_I  .2+| Static  | _I-Type_          .2+| Low 12 bits of TLS LE thread pointer offset, `%tprel_lo(symbol)`
+                                            <|
+.2+| 31      .2+| TPREL_LO12_S  .2+| Static  | _S-Type_          .2+| Low 12 bits of TLS LE thread pointer offset, `%tprel_lo(symbol)`
+                                            <|
+.2+| 32      .2+| TPREL_ADD     .2+| Static  |                   .2+| TLS LE thread pointer usage, `%tprel_add(symbol)`
+                                            <|
+.2+| 33      .2+| ADD8          .2+| Static  | _word8_           .2+| 8-bit label addition
+                                            <| V + S + A
+.2+| 34      .2+| ADD16         .2+| Static  | _word16_          .2+| 16-bit label addition
+                                            <| V + S + A
+.2+| 35      .2+| ADD32         .2+| Static  | _word32_          .2+| 32-bit label addition
+                                            <| V + S + A
+.2+| 36      .2+| ADD64         .2+| Static  | _word64_          .2+| 64-bit label addition
+                                            <| V + S + A
+.2+| 37      .2+| SUB8          .2+| Static  | _word8_           .2+| 8-bit label subtraction
+                                            <| V - S - A
+.2+| 38      .2+| SUB16         .2+| Static  | _word16_          .2+| 16-bit label subtraction
+                                            <| V - S - A
+.2+| 39      .2+| SUB32         .2+| Static  | _word32_          .2+| 32-bit label subtraction
+                                            <| V - S - A
+.2+| 40      .2+| SUB64         .2+| Static  | _word64_          .2+| 64-bit label subtraction
+                                            <| V - S - A
+.2+| 41-42   .2+| *Reserved*    .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
+.2+| 43      .2+| ALIGN         .2+| Static  |                   .2+| Alignment statement. The addend indicates the number of bytes occupied by `nop` instructions at the relocation offset. The alignment boundary is specified by the addend rounded up to the next power of two.
+                                            <|
+.2+| 44      .2+| RVC_BRANCH    .2+| Static  | _CB-Type_         .2+| 8-bit PC-relative branch offset
+                                            <| S + A - P
+.2+| 45      .2+| RVC_JUMP      .2+| Static  | _CJ-Type_         .2+| 11-bit PC-relative jump offset
+                                            <| S + A - P
+.2+| 46      .2+| RVC_LUI       .2+| Static  | _CI-Type_         .2+| High 6 bits of 18-bit absolute address
+                                            <| S + A
+.2+| 47-50   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
+.2+| 51      .2+| RELAX         .2+| Static  |                   .2+| Instruction can be relaxed, paired with a normal relocation at the same address
+                                            <|
+.2+| 52      .2+| SUB6          .2+| Static  | _word6_           .2+| Local label subtraction
+                                            <| V - S - A
+.2+| 53      .2+| SET6          .2+| Static  | _word6_           .2+| Local label assignment
+                                            <| S + A
+.2+| 54      .2+| SET8          .2+| Static  | _word8_           .2+| Local label assignment
+                                            <| S + A
+.2+| 55      .2+| SET16         .2+| Static  | _word16_          .2+| Local label assignment
+                                            <| S + A
+.2+| 56      .2+| SET32         .2+| Static  | _word32_          .2+| Local label assignment
+                                            <| S + A
+.2+| 57      .2+| 32_PCREL      .2+| Static  | _word32_          .2+| 32-bit PC relative
+                                            <| S + A - P
+.2+| 58      .2+| IRELATIVE     .2+| Dynamic | _wordclass_       .2+| Relocation against a non-preemptible ifunc symbol
+                                            <| `ifunc_resolver(B + A)`
+.2+| 59-191  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
+.2+| 192-255 .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for nonstandard ABI extensions
+                                            <|
+|===
+
+Nonstandard extensions are free to use relocation numbers 192-255 for any
+purpose.  These relocations may conflict with other nonstandard extensions.
+
+This section and later ones contain fragments written in assembler. The precise
+assembler syntax, including that of the relocations, is described in the
+_RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
+
+==== Calculation Symbols
+
+<<var-reloc-calc>> provides details on the variables used in relocation
+calculation:
+
+[[var-reloc-calc]]
+.Variables used in relocation calculation
+[%autowidth]
+|===
+| Variable  | Description
+
+| A         | Addend field in the relocation entry associated with the symbol
+| B         | Base address of a shared object loaded into memory
+| G         | Offset of the symbol into the GOT (Global Offset Table)
+| GOT       | Address of the GOT (Global Offset Table)
+| P         | Position of the relocation
+| S         | Value of the symbol in the symbol table
+| V         | Value at the position of the relocation
+| GP        | Value of `__global_pointer$` symbol
+| TLSMODULE | TLS module index for the object containing the symbol
+| TLSOFFSET | TLS static block offset (relative to `tp`) for the object containing the symbol
+|===
+
+**Global Pointer**: It is assumed that program startup code will load the value
+of the `__global_pointer$` symbol into register `gp` (aka `x3`).
+
+==== Field Symbols
+
+<<var-reloc-field>> provides details on the variables used in relocation fields:
+
+[[var-reloc-field]]
+.Variables used in relocation fields
+[%autowidth]
+|===
+| Variable    | Description
+
+| _word6_     | Specifies the 6 least significant bits of a _word8_ field
+| _word8_     | Specifies an 8-bit word
+| _word16_    | Specifies a 16-bit word
+| _word32_    | Specifies a 32-bit word
+| _word64_    | Specifies a 64-bit word
+| _wordclass_ | Specifies a _word32_ field for ILP32 or a _word64_ field for LP64
+| _B-Type_    | Specifies a field as the immediate field in a B-type instruction
+| _CB-Type_   | Specifies a field as the immediate field in a CB-type instruction
+| _CI-Type_   | Specifies a field as the immediate field in a CI-type instruction
+| _CJ-Type_   | Specifies a field as the immediate field in a CJ-type instruction
+| _I-Type_    | Specifies a field as the immediate field in an I-type instruction
+| _S-Type_    | Specifies a field as the immediate field in an S-type instruction
+| _U-Type_    | Specifies a field as the immediate field in an U-type instruction
+| _J-Type_    | Specifies a field as the immediate field in a J-type instruction
+| _U+I-Type_  | Specifies a field as the immediate fields in a U-type and I-type instruction pair
+|===
+
+==== Constants
+
+<<const-reloc-field>> provides details on the constants used in relocation fields:
+
+[[const-reloc-field]]
+.Constants used in relocation fields
+[cols="3,1"]
+[width=30%]
+|===
+| Name           | Value
+
+| TLS_DTV_OFFSET | 0x800
+|===
+
+==== Absolute Addresses
+
+32-bit absolute addresses in position dependent code are loaded with a pair
+of instructions which have an associated pair of relocations:
+`R_RISCV_HI20` plus `R_RISCV_LO12_I` or `R_RISCV_LO12_S`.
+
+The `R_RISCV_HI20` refers to an `LUI` instruction containing the high
+20-bits to be relocated to an absolute symbol address. The `LUI` instruction
+is used in conjunction with one or more I-Type instructions (add immediate or
+load) with `R_RISCV_LO12_I` relocations or S-Type instructions (store) with
+`R_RISCV_LO12_S` relocations.
+The addresses for pair of relocations are
+calculated like this:
+
+[horizontal]
+HI20:: `(symbol_address + 0x800) >> 12`
+LO12:: `symbol_address`
+
+The following assembly and relocations show loading an absolute address:
+
+[,asm]
+----
+    lui  a0, %hi(symbol)     # R_RISCV_HI20 (symbol)
+    addi a0, a0, %lo(symbol) # R_RISCV_LO12_I (symbol)
+----
+
+==== Global Offset Table
+
+For position independent code in dynamically linked objects, each shared
+object contains a GOT (Global Offset Table), which contains addresses of
+global symbols (objects and functions) referred to by the dynamically
+linked shared object. The GOT in each shared library is filled in by the
+dynamic linker during program loading, or on the first call to extern functions.
+
+To avoid dynamic relocations within the text segment of position independent
+code the GOT is used for indirection. Instead of code loading virtual addresses
+directly, as can be done in static code, addresses are loaded from the GOT.
+This allows runtime binding to external objects and functions at the expense of
+a slightly higher runtime overhead for access to extern objects and functions.
+
+==== Program Linkage Table
+
+The PLT (Program Linkage Table) exists to allow function calls between
+dynamically linked shared objects. Each dynamic object has its own
+GOT (Global Offset Table) and PLT (Program Linkage Table).
+
+The first entry of a shared object PLT is a special entry that calls
+`_dl_runtime_resolve` to resolve the GOT offset for the called function.
+The `_dl_runtime_resolve` function in the dynamic loader resolves the
+GOT offsets lazily on the first call to any function, except when
+`LD_BIND_NOW` is set in which case the GOT entries are populated by the
+dynamic linker before the executable is started. Lazy resolution of GOT
+entries is intended to speed up program loading by deferring symbol
+resolution to the first time the function is called. The first entry
+in the PLT occupies two 16 byte entries:
+
+[,asm]
+----
+1:  auipc  t2, %pcrel_hi(.got.plt)
+    sub    t1, t1, t3               # shifted .got.plt offset + hdr size + 12
+    l[w|d] t3, %pcrel_lo(1b)(t2)    # _dl_runtime_resolve
+    addi   t1, t1, -(hdr size + 12) # shifted .got.plt offset
+    addi   t0, t2, %pcrel_lo(1b)    # &.got.plt
+    srli   t1, t1, log2(16/PTRSIZE) # .got.plt offset
+    l[w|d] t0, PTRSIZE(t0)          # link map
+    jr     t3
+----
+
+Subsequent function entry stubs in the PLT take up 16 bytes and load a
+function pointer from the GOT. On the first call to a function, the
+entry redirects to the first PLT entry which calls `_dl_runtime_resolve`
+and fills in the GOT entry for subsequent calls to the function:
+
+[,asm]
+----
+1:  auipc   t3, %pcrel_hi(function@.got.plt)
+    l[w|d]  t3, %pcrel_lo(1b)(t3)
+    jalr    t1, t3
+    nop
+----
+
+==== Procedure Calls
+
+`R_RISCV_CALL` and `R_RISCV_CALL_PLT` relocations are associated with
+pairs of instructions (`AUIPC+JALR`) generated by the `CALL` or `TAIL`
+pseudoinstructions.  Originally, these relocations had slightly different
+behavior, but that has turned out to be unnecessary, and they are now
+interchangeable,  `R_RISCV_CALL` is deprecated, suggest using `R_RISCV_CALL_PLT`
+instead.
+
+With linker relaxation enabled, the `AUIPC` instruction in the `AUIPC+JALR` pair has
+both a `R_RISCV_CALL` or `R_RISCV_CALL_PLT` relocation and an `R_RISCV_RELAX`
+relocation indicating the instruction sequence can be relaxed during linking.
+
+Procedure call linker relaxation allows the `AUIPC+JALR` pair to be relaxed
+to the `JAL` instruction when the procedure or PLT entry is within (-1MiB to
++1MiB-2) of the instruction pair.
+
+The pseudoinstruction:
+
+[,asm]
+----
+    call symbol
+    call symbol@plt
+----
+
+expands to the following assembly and relocation:
+
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, ra, 0
+----
+
+and when symbol has an `@plt` suffix it expands to:
+
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX (symbol)
+    jalr  ra, ra, 0
+----
+
+==== PC-Relative Jumps and Branches
+
+Unconditional jump (J-Type) instructions have a `R_RISCV_JAL` relocation
+that can represent an even signed 21-bit offset (-1MiB to +1MiB-2).
+
+Branch (SB-Type) instructions have a `R_RISCV_BRANCH` relocation that
+can represent an even signed 13-bit offset (-4096 to +4094).
+
+==== PC-Relative Symbol Addresses
+
+32-bit PC-relative relocations for symbol addresses on sequences of
+instructions such as the `AUIPC+ADDI` instruction pair expanded from
+the `la` pseudoinstruction, in position independent code typically
+have an associated pair of relocations: `R_RISCV_PCREL_HI20` plus
+`R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`.
+
+The `R_RISCV_PCREL_HI20` relocation refers to an `AUIPC` instruction
+containing the high 20-bits to be relocated to a symbol relative to the
+program counter address of the `AUIPC` instruction. The `AUIPC`
+instruction is used in conjunction with one or more I-Type instructions
+(add immediate or load) with `R_RISCV_PCREL_LO12_I` relocations or S-Type
+instructions (store) with `R_RISCV_PCREL_LO12_S` relocations.
+
+The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
+a label pointing to an instruction in the same section with an
+`R_RISCV_PCREL_HI20` relocation entry that points to the target symbol:
+
+* At label: `R_RISCV_PCREL_HI20` relocation entry -> symbol
+* `R_RISCV_PCREL_LO12_I` relocation entry -> label
+
+To get the symbol address to perform the calculation to fill the 12-bit
+immediate on the add, load or store instruction the linker finds the
+`R_RISCV_PCREL_HI20` relocation entry associated with the `AUIPC`
+instruction. The addresses for pair of relocations are calculated like this:
+
+[horizontal]
+HI20:: `(symbol_address - hi20_reloc_offset + 0x800) >> 12`
+LO12:: `symbol_address - hi20_reloc_offset`
+
+The successive instruction has a signed 12-bit immediate so the value of the
+preceding high 20-bit relocation may have 1 added to it.
+
+Note the compiler emitted instructions for PC-relative symbol addresses are
+not necessarily sequential or in pairs. There is a constraint is that the
+instruction with the `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S`
+relocation label points to a valid HI20 PC-relative relocation pointing to
+the symbol.
+
+Here is example assembler showing the relocation types:
+
+[,asm]
+----
+label:
+    auipc t0, %pcrel_hi(symbol)   # R_RISCV_PCREL_HI20 (symbol)
+    lui t1, 1
+    lw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_I (label)
+    add t2, t2, t1
+    sw t2, t0, %pcrel_lo(label)   # R_RISCV_PCREL_LO12_S (label)
+----
+
+==== Relocation for Alignment
+
+The relocation type `R_RISCV_ALIGN` marks a location that must be aligned to
+`N`-bytes, where `N` is the smallest power of two that is greater than the value
+of the addend field, e.g. `R_RISCV_ALIGN` with addend value 2 means align to 4
+bytes, `R_RISCV_ALIGN` with addend value 4 means align to 8 bytes; this
+relocation is only required if the containing section has any `R_RISCV_RELAX`
+relocations, `R_RISCV_ALIGN` points to the beginning of the padding bytes,
+and the instruction that actually needs to be aligned is located at the point
+of `R_RISCV_ALIGN` plus its addend.
+
+To ensure the linker can always satisfy the required alignment solely by
+deleting bytes, the compiler or assembler must emit a `R_RISCV_ALIGN` relocation
+and then insert `N` - <<IALIGN>> padding bytes before the location where we need to
+align, it could be mark by an alignment directive like `.align`, `.p2align` or
+`.balign` or emit by compiler directly, the addend value of that relocation
+is the number of padding bytes.
+
+The compiler and assembler must ensure padding bytes are valid instructions
+without any side-effect like `nop` or `c.nop`, and make sure those instructions
+are aligned to IALIGN if possible.
+
+The linker may remove part of the padding bytes at the linking process to meet
+the alignment requirement, and must make sure those padding bytes still are
+valid instructions and each instruction is aligned to at least IALIGN byte.
+
+Here is example to showing how `R_RISCV_ALIGN` is used:
+[,asm]
+----
+
+0x0    c.nop           # R_RISCV_ALIGN with addend 2
+0x2    add t1, t2, t3  # This instruction must align to 4 byte.
+
+----
+
+
+NOTE: `R_RISCV_ALIGN` relocation is needed because linker relaxation can shrink
+preceding code during the linking process, which may cause an aligned location
+to become mis-aligned.
+
+NOTE: IALIGN[[IALIGN]] means the instruction-address alignment constraint. IALIGN is 4
+bytes in the base ISA, but some ISA extensions, including the compressed ISA
+extension, relax IALIGN to 2 bytes. IALIGN may not take on any value other than
+4 or 2. This term is also defined in `The RISC-V Instruction Set Manual` with a
+similar meaning, the only difference being it is specified in terms of the number
+of bits instead of the number of bytes.
+
+NOTE: Here is pseudocode to decide the alignment of `R_RISCV_ALIGN` relocation:
+[,python]
+----
+# input:
+#   addend: addend value of relocation with R_RISCV_ALIGN type.
+# output:
+#   Alignment of this relocation.
+
+def align(addend):
+  ALIGN = 1
+  while addend >= ALIGN:
+    ALIGN *= 2
+  return ALIGN
+----
+
+=== Thread Local Storage
+
+RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
+`.tbss` and `.tdata` sections and `PT_TLS` program headers that contain the
+TLS "initialization images" for new threads. The `.tbss` and `.tdata` sections
+are not referenced directly like regular segments, rather they are copied or
+allocated to the thread local storage space of newly created threads.
+See _ELF Handling For Thread-Local Storage_ <<tls>>.
+
+In The ELF Thread Local Storage Model, TLS offsets are used instead of pointers.
+The ELF TLS sections are initialization images for the thread local variables of
+each new thread. A TLS offset defines an offset into the dynamic thread vector
+which is pointed to by the TCB (Thread Control Block). RISC-V uses Variant I as
+described by the ELF TLS specification, with `tp` containing the address one
+past the end of the TCB.
+
+There are various thread local storage models for statically allocated or
+dynamically allocated thread local storage. <<tls-model>> lists the
+thread local storage models:
+
+[[tls-model]]
+.TLS models
+[cols="1,2,3"]
+[width=70%]
+|===
+| Mnemonic | Model
+
+| TLS LE   | Local Exec
+| TLS IE   | Initial Exec
+| TLS LD   | Local Dynamic
+| TLS GD   | Global Dynamic
+|===
+
+The program linker in the case of static TLS or the dynamic linker in the case
+of dynamic TLS allocate TLS offsets for storage of thread local variables.
+
+NOTE: `Global Dynamic` model is also known as `General Dynamic` model.
+
+==== Local Exec
+
+Local exec is a form of static thread local storage. This model is used
+when static linking as the TLS offsets are resolved during program linking.
+
+Variable attribute:: `+__thread int i __attribute__((tls_model("local-exec")));+`
+
+Example assembler load and store of a thread local variable `i` using the
+`%tprel_hi`, `%tprel_add` and `%tprel_lo` assembler functions. The emitted
+relocations are in comments.
+
+[,asm]
+----
+    lui  a5,%tprel_hi(i)           # R_RISCV_TPREL_HI20 (symbol)
+    add  a5,a5,tp,%tprel_add(i)    # R_RISCV_TPREL_ADD (symbol)
+    lw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_I (symbol)
+    addi t0,t0,1
+    sw   t0,%tprel_lo(i)(a5)       # R_RISCV_TPREL_LO12_S (symbol)
+----
+
+The `%tprel_add` assembler function does not return a value and is used purely
+to associate the `R_RISCV_TPREL_ADD` relocation with the `add` instruction.
+
+==== Initial Exec
+
+Initial exec is is a form of static thread local storage that can be used in
+shared libraries that use thread local storage. TLS relocations are performed
+at load time. `dlopen` calls to libraries that use thread local storage may fail
+when using the initial exec thread local storage model as TLS offsets must all
+be resolved at load time. This model uses the GOT to resolve TLS offsets.
+
+Variable attribute:: `+__thread int i __attribute__((tls_model("initial-exec")));+`
+ELF flags:: DF_STATIC_TLS
+
+Example assembler load and store of a thread local variable `i` using the
+`la.tls.ie` pseudoinstruction, with the emitted TLS relocations in comments:
+
+[,asm]
+----
+    la.tls.ie a5,i
+    add  a5,a5,tp
+    lw   t0,0(a5)
+    addi t0,t0,1
+    sw   t0,0(a5)
+----
+
+The assembler pseudoinstruction:
+
+[,asm]
+----
+    la.tls.ie a5,symbol
+----
+
+expands to the following assembly instructions and relocations:
+
+[,asm]
+----
+label:
+    auipc a5, 0                   # R_RISCV_TLS_GOT_HI20 (symbol)
+    {ld,lw} a5, 0(a5)             # R_RISCV_PCREL_LO12_I (label)
+----
+
+==== Global Dynamic
+
+RISC-V local dynamic and global dynamic TLS models generate equivalent object code.
+The Global dynamic thread local storage model is used for PIC Shared libraries and
+handles the case where more than one library uses thread local variables, and
+additionally allows libraries to be loaded and unloaded at runtime using `dlopen`.
+In the global dynamic model, application code calls the dynamic linker function
+`__tls_get_addr` to locate TLS offsets into the dynamic thread vector at runtime.
+
+Variable attribute:: `+__thread int i __attribute__((tls_model("global-dynamic")));+`
+
+Example assembler load and store of a thread local variable `i` using the
+`la.tls.gd` pseudoinstruction, with the emitted TLS relocations in comments:
+
+[,asm]
+----
+    la.tls.gd a0,i
+    call  __tls_get_addr@plt
+    mv   a5,a0
+    lw   t0,0(a5)
+    addi t0,t0,1
+    sw   t0,0(a5)
+----
+
+The assembler pseudoinstruction:
+
+[,asm]
+----
+    la.tls.gd a0,symbol
+----
+
+expands to the following assembly instructions and relocations:
+
+[,asm]
+----
+label:
+    auipc a0,0                    # R_RISCV_TLS_GD_HI20 (symbol)
+    addi  a0,a0,0                 # R_RISCV_PCREL_LO12_I (label)
+----
+
+In the Global Dynamic model, the runtime library provides the `__tls_get_addr` function:
+
+[,c]
+----
+extern void *__tls_get_addr (tls_index *ti);
+----
+
+where the type tls_index is defined as:
+
+[,c]
+----
+typedef struct
+{
+  unsigned long int ti_module;
+  unsigned long int ti_offset;
+} tls_index;
+----
+
+=== Sections
+
+==== Section Types
+
+The defined processor-specific section types are listed in <<rv-section-type>>.
+
+[[rv-section-type]]
+.RISC-V-specific section types
+[cols="3,3,1"]
+[width=80%]
+|===
+| Name                  | Value       | Attributes
+
+| SHT_RISCV_ATTRIBUTES  | 0x70000003  | none
+|===
+
+==== Special Sections
+
+<<rv-section>> lists the special sections defined by this ABI.
+
+[[rv-section]]
+.RISC-V-specific sections
+[cols="3,3,1"]
+[width=80%]
+|===
+| Name                       | Type                 | Attributes
+
+| .riscv.attributes          | SHT_RISCV_ATTRIBUTES | none
+|===
+
++++.riscv.attributes+++ names a section that contains RISC-V ELF attributes.
+
+=== Program Header Table
+
+The defined processor-specific segment types are listed in <<rv-seg-type>>.
+
+[[rv-seg-type]]
+.RISC-V-specific segment types
+[cols="3,2,3"]
+[width=80%]
+|===
+| Name                 | Value       | Meaning
+
+| PT_RISCV_ATTRIBUTES  | 0x70000003  | RISC-V ELF attribute section.
+|===
+
+`PT_RISCV_ATTRIBUTES` describes the location of RISC-V ELF attribute section.
+
+=== Note Sections
+
+There are no RISC-V specific definitions relating to ELF note sections.
+
+=== Dynamic Section
+
+The defined processor-specific dynamic array tags are listed in <<rv-dyn-tag>>.
+
+[[rv-dyn-tag]]
+.RISC-V-specific dynamic array tags
+[cols="4,2,1,3,3"]
+[width=90%]
+|===
+| Name                | Value      | d_un  | Executable        | Shared Object
+
+| DT_RISCV_VARIANT_CC | 0x70000001 | d_val | Platform specific | Platform specific
+|===
+
+An object must have the dynamic tag `DT_RISCV_VARIANT_CC` if it has one or more
+`R_RISCV_JUMP_SLOT` relocations against symbols with the `STO_RISCV_VARIANT_CC`
+attribute.
+
+`DT_INIT` and `DT_FINI` are not required to be supported and should be avoided
+in favour of `DT_PREINIT_ARRAY`, `DT_INIT_ARRAY` and `DT_FINI_ARRAY`.
+
+=== Hash Table
+
+There are no RISC-V specific definitions relating to ELF hash tables.
+
+=== Attributes
+
+Attributes are used to record information about an object file/binary that a
+linker or runtime loader needs to check compatibility.
+
+Attributes are encoded in a vendor-specific section of type SHT_RISCV_ATTRIBUTES
+and name .riscv.attributes. The value of an attribute can hold an integer
+encoded in the uleb128 format or a null-terminated byte string (NTBS).
+
+RISC-V attributes have a string value if the tag number is odd and an integer
+value if the tag number is even.
+
+==== List of attributes
+
+.RISC-V attributes
+[cols="4,>2,2,5"]
+[width=100%]
+|===
+| Tag                                 | Value    | Parameter type | Description
+
+| Tag_RISCV_stack_align               |        4 | uleb128        | Indicates the stack alignment requirement in bytes.
+| Tag_RISCV_arch                      |        5 | NTBS           | Indicates the target architecture of this object.
+| Tag_RISCV_unaligned_access          |        6 | uleb128        | Indicates whether to impose unaligned memory accesses in code generation.
+| Tag_RISCV_priv_spec                 |        8 | uleb128        | *Deprecated*, indicates the major version of the privileged specification.
+| Tag_RISCV_priv_spec_minor           |       10 | uleb128        | *Deprecated*, indicates the minor version of the privileged specification.
+| Tag_RISCV_priv_spec_revision        |       12 | uleb128        | *Deprecated*, indicates the revision version of the privileged specification.
+| Reserved for non-standard attribute | >= 32768 | -              | -
+|===
+
+==== Detailed attribute description
+
+===== How does this specification describe public attributes?
+
+Each attribute is described in the following structure:
+`<Tag name>, <Value>, <Parameter type 1>=<Parameter name 1>[, <Parameter type 2>=<Parameter name 2>]`
+
+===== Tag_RISCV_stack_align, 4, uleb128=value
+Tag_RISCV_stack_align records the N-byte stack alignment for this object. The
+default value is 16 for RV32I or RV64I, and 4 for RV32E.
+
+Merge Policy:::
+The linker should report erros if link object files with different `Tag_RISCV_stack_align` values.
+
+===== Tag_RISCV_arch, 5, NTBS=subarch
+Tag_RISCV_arch contains a string for the target architecture taken from
+the option `-march`. Different architectures will be integrated into a superset
+when object files are merged.
+
+Tag_RISCV_arch should be recorded in lowercase, and all extensions should be
+separated by underline(`_`).
+
+Note that the version information for target architecture must be presented
+explicitly in the attribute and abbreviations must be expanded. The version
+information, if not given by `-march`, must agree with the default
+specified by the tool. For example, the architecture `rv32i` has to be recorded
+in the attribute as `rv32i2p1` in which `2p1` stands for the default version of
+its based ISA. On the other hand, the architecture `rv32g` has to be presented
+as `rv32i2p1_m2p0_a2p1_f2p2_d2p2_zicsr2p0_zifencei2p0` in which the
+abbreviation `g` is expanded to the `imafd_zicsr_zifencei` combination with
+default versions of the standard extensions.
+
+The toolchain should normalized the architecture string into canonical order
+whcih defined in
+_The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document_ <<riscv-unpriv>>
+, expanded with all required extension and should add shorthand extension into
+architecture string if all expanded extensions are included in architecture
+string.
+
+NOTE: A shorthand extension is an extension that does not define any actual
+instructions, registers or behavior, but requires other extensions, such as the
+`zks` extension, which is defined in the cryptographic extension,
+`zks` extension is shorthand for `zbkb`, `zbkc`, `zbkx`, `zksed` and `zksh`, so
+the toolchain should normalize `rv32i_zbkb_zbkc_zbkx_zksed_zksh` to
+`rv32i_zbkb_zbkc_zbkx_zks_zksed_zksh`; `g` is an exception and does not apply to
+this rule.
+
+Merge Policy:::
+The linker should merge the different architectures into a superset when
+object files are merged, and should report errors if the merge result contains
+conflict extensions.
++
+This specification does not mandate rules on how to merge ISA strings that
+refer to different versions of the same ISA extension.
+The suggested merge rules are as follows:
++
+* Merge versions into the latest version of all input versions that are
+ratified without warning or error.
++
+* The linker should emit a warning or error if input versions have different
+versions and any extension versions are not ratified.
++
+* The linker may report a warning or error if it detects incompatible
+versions, even if it's ratified.
+
+NOTE: Example of conflicting merge result: `RV32IF` and `RV32IZfinx` will
+be merged into `RV32IFZfinx`, which is an invalid architecture since `F` and
+`Zfinx` conflict.
+
+===== Tag_RISCV_unaligned_access, 6, uleb128=value
+Tag_RISCV_unaligned_access denotes the code generation policy for this object
+file. Its values are defined as follows:
+
+[horizontal]
+0:: This object does not perform any unaligned memory accesses.
+1:: This object may perform unaligned memory accesses.
+
+--
+
+Merge policy:::
+Input file could have different values for the Tag_RISCV_unaligned_access;
+the linker should set this field into 1 if any of the input objects has
+been set.
+
+--
+
+===== Tag_RISCV_priv_spec, 8, uleb128=version
+===== Tag_RISCV_priv_spec_minor, 10, uleb128=version
+===== Tag_RISCV_priv_spec_revision, 12, uleb128=version
+
+WARNING: Those three attributes are deprecated since RISC-V using extensions
+with version rather than a single privileged specification version scheme for
+privileged ISA.
+
+Tag_RISCV_priv_spec contains the major/minor/revision version information of
+the privileged specification.
+
+Merge policy:::
+The linker should report errors if object files of different privileged
+specification versions are merged.
