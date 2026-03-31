@@ -1,6 +1,6 @@
 . ABIs Specification
 * xref:index.adoc[Title Page]
-* xref:preable.adoc[Preable]
+* xref:preamble.adoc[Preamble]
 * xref:introduction.adoc[Introduction]
 * xref:terms.adoc[Terms and Abbreviations]
 * xref:status.adoc[Status of ABI]
