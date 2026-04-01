@@ -1,5 +1,6 @@
 [.space-below]
 image::common::risc-v_logo.svg[id="riscvlogo"xs,alt="RISCV"]
+:page-layout: default
 
 
 
