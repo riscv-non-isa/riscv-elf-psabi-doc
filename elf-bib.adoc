@@ -1,14 +1,14 @@
 [bibliography]
 == References
 
-* [[gabi]][[[gabi]]] link:http://www.sco.com/developers/gabi/latest/contents.html["Generic System V Application Binary Interface"]
+* [[gabi]] link:http://www.sco.com/developers/gabi/latest/contents.html["Generic System V Application Binary Interface"]
 
-* [[itanium-cxx-abi]][[[itanium-cxx-abi]]] link:http://itanium-cxx-abi.github.io/cxx-abi/["Itanium {Cpp} ABI"]
+* [[itanium-cxx-abi]] link:http://itanium-cxx-abi.github.io/cxx-abi/["Itanium {Cpp} ABI"]
 
-* [[rv-asm]][[[rv-asm]]] link:https://github.com/riscv-non-isa/riscv-asm-manual["RISC-V Assembly Programmer's Manual"]
+* [[rv-asm]] link:https://github.com/riscv-non-isa/riscv-asm-manual["RISC-V Assembly Programmer's Manual"]
 
-* [[tls]][[[tls]]] link:https://www.akkadia.org/drepper/tls.pdf["ELF Handling For Thread-Local Storage"], Ulrich Drepper
+* [[tls]] link:https://www.akkadia.org/drepper/tls.pdf["ELF Handling For Thread-Local Storage"], Ulrich Drepper
 
-* [[riscv-unpriv]][[[riscv-unpriv]]] "The RISC-V Instruction Set Manual, Volume I: User-Level
+* [[riscv-unpriv]] "The RISC-V Instruction Set Manual, Volume I: User-Level
 ISA, Document", Editors Andrew Waterman and Krste Asanovi´c,
 RISC-V International.
