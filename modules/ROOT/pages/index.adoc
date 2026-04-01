@@ -1,11 +1,12 @@
 [.space-below]
 image::common::risc-v_logo.svg[id="riscvlogo"xs,alt="RISCV"]
-:page-layout: default
 
 
 
 [.space-below]
 == RISC-V ABIs Specification
+
+
 
 Version 1.0: Ratified
 
