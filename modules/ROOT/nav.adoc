@@ -10,6 +10,7 @@
 * xref:riscv-cc-system-calls.adoc[Calling Conventions for System Calls]
 * xref:riscv-cc-c-cpp-type-details.adoc[C/C++ type details]
 * xref:riscv-cc-linux-specific-abi.adoc[Linux-specific ABI]
+
 .RISC-V ELF Specification
 * xref:riscv-elf-code-models.adoc[Code Models]
 * xref:riscv-elf-dynamic-linking.adoc[Dynamic Linking]
@@ -17,6 +18,7 @@
 * xref:riscv-elf-object-files.adoc[ELF Object Files]
 * xref:riscv-elf-linker-relaxation.adoc[Linker Relaxation]
 * xref:elf-bib.adoc[References]
+
 .RISC-V DWARF Specification
 * xref:riscv-dwarf-debugging-format.adoc[DWARF Debugging Format]
 * xref:riscv-dwarf-register-numbers.adoc[DWARF Register Numbers]
