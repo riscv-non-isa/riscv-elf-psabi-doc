@@ -23,6 +23,6 @@ The alternate frame return column is meant to be used when unwinding from
 signal handlers, and stores the address where the signal handler will return
 to.
 
-The RISC-V specification defines a total of 4096 CSRs (see <<riscv-priv>>).
+The RISC-V specification defines a total of 4096 CSRs (see xref:dwarf-bib.adoc#riscv-priv[]).
 Each CSR is assigned a DWARF register number corresponding to its specified CSR
 number plus 4096.

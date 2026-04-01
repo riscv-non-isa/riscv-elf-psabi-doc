@@ -1,7 +1,7 @@
 == ELF Object Files
 
 The ELF object file format for RISC-V follows the
-_Generic System V Application Binary Interface_ <<gabi>>
+_Generic System V Application Binary Interface_ xref:elf-bib.adoc#gabi[]
 ("gABI"); this specification only describes RISC-V-specific definitions.
 
 === File Header
@@ -307,7 +307,7 @@ purpose.  These relocations may conflict with other nonstandard extensions.
 
 This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
-_RISC-V Assembly Programmer's Manual_ <<rv-asm>>.
+_RISC-V Assembly Programmer's Manual_ xref:elf-bib.adoc#rv-asm[].
 
 ==== Calculation Symbols
 
@@ -627,7 +627,7 @@ RISC-V adopts the ELF Thread Local Storage Model in which ELF objects define
 TLS "initialization images" for new threads. The `.tbss` and `.tdata` sections
 are not referenced directly like regular segments, rather they are copied or
 allocated to the thread local storage space of newly created threads.
-See _ELF Handling For Thread-Local Storage_ <<tls>>.
+See _ELF Handling For Thread-Local Storage_ xref:elf-bib.adoc#tls[].
 
 In The ELF Thread Local Storage Model, TLS offsets are used instead of pointers.
 The ELF TLS sections are initialization images for the thread local variables of
@@ -918,7 +918,7 @@ default versions of the standard extensions.
 
 The toolchain should normalized the architecture string into canonical order
 whcih defined in
-_The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document_ <<riscv-unpriv>>
+_The RISC-V Instruction Set Manual, Volume I: User-Level ISA, Document_ xref:elf-bib.adoc#riscv-unpriv[]
 , expanded with all required extension and should add shorthand extension into
 architecture string if all expanded extensions are included in architecture
 string.
