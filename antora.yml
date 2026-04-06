@@ -9,5 +9,7 @@ asciidoc:
     page-group: application-software
     page-card-description: 'Application binary interface definitions for ELF tooling.'
     page-release-date: 'November 2022'
+    refrev: '1.0'
+    monthyear: 'November 2022'
     page-pdf_url: _attachments/riscv-abi.pdf
     more_details_url: https://riscv.atlassian.net/wiki/external/NWMwYmRhMDBkZGI5NDdiNjllZDRkODI2YTRhZDE4ZDc
