@@ -874,7 +874,7 @@ alignment requirement of its elemental type.
 The size of the fixed length vector is determined by multiplying the size of its
 elemental type by the total number of elements within the vector.
 
-==== _BitInt (N)
+=== _BitInt (N)
 
 `_BitInt (N)` is the type defined in C23, allow user to define an
 arbitrary-sized integer type, where N is a postive integer larger than zero.
