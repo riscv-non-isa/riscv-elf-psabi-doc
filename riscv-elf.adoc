@@ -1142,7 +1142,7 @@ The TLS descriptor `entry` is called with a special calling convention, specifie
 
 - `a0` is used to pass the argument and return value.
 - `t0` is used as the link register.
-- Any other registers are callee-saved. This includes any vector registers when the vector extension is supported.
+- Any other registers are callee-saved excepting the vector registers and vector CSRs when the vector extension is supported, which should be caller-saved.
 
 Example assembler load and store of a thread local variable `i` using the `%tlsdesc_hi`, `%tlsdesc_load_lo`, `%tlsdesc_add_lo` and `%tlsdesc_call`
 assembler functions. The emitted relocations are in the comments.
