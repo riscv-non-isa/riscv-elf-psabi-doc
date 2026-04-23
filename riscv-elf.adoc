@@ -355,7 +355,7 @@ below.
 
 NOTE: RV64ILP32* ABIs are experimental.
 
-Until such a time that the *Reserved* bits (0x00ffffe0) are allocated by future
+Until such a time that the *Reserved* bits are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This may
 conflict with other non-standard extensions.
