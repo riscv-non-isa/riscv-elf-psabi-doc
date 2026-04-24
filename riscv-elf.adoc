@@ -554,22 +554,19 @@ is mangled as
     // 's' equals 1, and 'number' equals 1.
 
     // VLS Mode, VLEN=128
-    vint32m1_t _ZGVr1N4L_foo  (vint32m1_t i);  // LMUL=1
-    vint32m2_t _ZGVr2N8L_foo  (vint32m2_t i);  // LMUL=2
-    vint32m4_t _ZGVr4N16L_foo (vint32m4_t i);  // LMUL=4
-    vint32m8_t _ZGVr8N32L_foo (vint32m8_t i);  // LMUL=8
+    vint32m1_t _ZGVr2N4L_foo  (vint64m2_t i);  // LMUL=2
+    vint32m2_t _ZGVr4N8L_foo  (vint64m4_t i);  // LMUL=4
+    vint32m4_t _ZGVr8N16L_foo (vint64m8_t i);  // LMUL=8
 
     // VLS Mode, VLEN=256
-    vint32m1_t _ZGVr1N8L_foo  (vint32m1_t i);  // LMUL=1
-    vint32m2_t _ZGVr2N16L_foo (vint32m2_t i);  // LMUL=2
-    vint32m4_t _ZGVr4N32L_foo (vint32m4_t i);  // LMUL=4
-    vint32m8_t _ZGVr8N64L_foo (vint32m8_t i);  // LMUL=8
+    vint32m1_t _ZGVr2N8L_foo  (vint64m2_t i);  // LMUL=2
+    vint32m2_t _ZGVr4N16L_foo (vint64m4_t i);  // LMUL=4
+    vint32m4_t _ZGVr8N32L_foo (vint64m8_t i);  // LMUL=8
 
     // VLA Mode
-    vint32m1_t _ZGVr1NxL_foo  (vint32m1_t i);  // LMUL=1
-    vint32m2_t _ZGVr2NxL_foo  (vint32m1_t i);  // LMUL=2
-    vint32m4_t _ZGVr4NxL_foo  (vint32m1_t i);  // LMUL=4
-    vint32m8_t _ZGVr8NxL_foo  (vint32m1_t i);  // LMUL=8
+    vint32m1_t _ZGVr2NxL_foo  (vint64m2_t i);  // LMUL=2
+    vint32m2_t _ZGVr4NxL_foo  (vint64m4_t i);  // LMUL=4
+    vint32m4_t _ZGVr8NxL_foo  (vint64m8_t i);  // LMUL=8
 ----
 
 
@@ -749,22 +746,19 @@ is mangled as
     // The step parameter is variable 'c', which is the parameter at index 1 in the function argument list, so 'pos' equal to 1.
 
     // VLS Mode, VLEN=128
-    vint32m1_t _ZGVr1N4Ls1u_foo  (vint32m1_t i, int c);  // LMUL=1
-    vint32m2_t _ZGVr2N8Ls1u_foo  (vint32m2_t i, int c);  // LMUL=2
-    vint32m4_t _ZGVr4N16Ls1u_foo (vint32m4_t i, int c);  // LMUL=4
-    vint32m8_t _ZGVr8N32Ls1u_foo (vint32m8_t i, int c);  // LMUL=8
+    vint32m1_t _ZGVr2N4Ls1u_foo  (vint64m2_t i, int c);  // LMUL=2
+    vint32m2_t _ZGVr4N8Ls1u_foo  (vint64m4_t i, int c);  // LMUL=4
+    vint32m4_t _ZGVr8N16Ls1u_foo (vint64m8_t i, int c);  // LMUL=8
 
     // VLS Mode, VLEN=256
-    vint32m1_t _ZGVr1N8Ls1u_foo  (vint32m1_t i, int c);  // LMUL=1
-    vint32m2_t _ZGVr2N16Ls1u_foo (vint32m2_t i, int c);  // LMUL=2
-    vint32m4_t _ZGVr4N32Ls1u_foo (vint32m4_t i, int c);  // LMUL=4
-    vint32m8_t _ZGVr8N64Ls1u_foo (vint32m8_t i, int c);  // LMUL=8
+    vint32m1_t _ZGVr2N8Ls1u_foo  (vint64m2_t i, int c);  // LMUL=2
+    vint32m2_t _ZGVr4N16Ls1u_foo (vint64m4_t i, int c);  // LMUL=4
+    vint32m4_t _ZGVr8N32Ls1u_foo (vint64m8_t i, int c);  // LMUL=8
 
     // VLA Mode
-    vint32m1_t _ZGVr1NxLs1u_foo  (vint32m1_t i, int c);  // LMUL=1
-    vint32m2_t _ZGVr2NxLs1u_foo  (vint32m1_t i, int c);  // LMUL=2
-    vint32m4_t _ZGVr4NxLs1u_foo  (vint32m1_t i, int c);  // LMUL=4
-    vint32m8_t _ZGVr8NxLs1u_foo  (vint32m1_t i, int c);  // LMUL=8
+    vint32m1_t _ZGVr2NxLs1u_foo  (vint64m2_t i, int c);  // LMUL=2
+    vint32m2_t _ZGVr4NxLs1u_foo  (vint64m4_t i, int c);  // LMUL=4
+    vint32m4_t _ZGVr8NxLs1u_foo  (vint64m8_t i, int c);  // LMUL=8
 ----
 
 
