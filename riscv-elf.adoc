@@ -355,6 +355,13 @@ below.
 
 NOTE: RV64ILP32* ABIs are experimental.
 
+[[EF_RISCV_RVY]]
+EF_RISCV_RVY (0x00000040)::: This bit is set when the binary targets the
+<<rvy-spec,RVY>> base ISA using a pure-capability ABI.
+
+NOTE: The pure-capability RVY calling conventions are not yet defined in this specification.
+
+
 Until such a time that the *Reserved* bits are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This may
@@ -2144,3 +2151,6 @@ https://github.com/riscv/riscv-code-size-reduction
 
 * [[[rv-toolchain-conventions]]] "RISC-V Toolchain Conventions"
 https://github.com/riscv-non-isa/riscv-toolchain-conventions
+
+* [[[rvy-spec]]] "RISC-V Specification for CHERI Extensions"
+https://riscv.github.io/riscv-cheri/
