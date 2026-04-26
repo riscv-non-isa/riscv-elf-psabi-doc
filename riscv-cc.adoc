@@ -735,7 +735,7 @@ This approach has been used successfully in other CHERI-enabled architectures su
 
 2. A capability that covers all on-stack arguments on the stack is passed in the `x5` (`t0`) register.
 3. For variadic functions, this capability has its `Store` and `Execute` permissions cleared.
-4. If no on-stack arguments are passed to a variadic function, the `x5` register is set to null.
+4. If no on-stack arguments are passed to a variadic function, the `x5` register is set to a `NULL` capability (marked as invalid).
 
 === IL32PC64E Calling Convention
 
