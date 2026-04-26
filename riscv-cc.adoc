@@ -100,7 +100,7 @@ duration in accordance with C11 section 7.6 "Floating-point environment
 === Pure-Capability Register Convention
 
 Since the RVY capability registers extend the integer register file, the same conventions and names are used.
-The only difference is that they are `YLEN=2*XLEN` bits wide and must be aligned to `YLEN` bits as well.
+The only difference is that they are `YLEN` bits wide and must be aligned to `YLEN` bits as well.
 
 IMPORTANT: Capability register usage in the ILP32* and LP64* ABIs is not specified yet, only IL32PC64* and L64PC128* ABIs have a well-defined calling convention for capability registers.
 
@@ -697,7 +697,7 @@ Any integer operation (e.g., add/multiply/etc.) writing to the `x1`-`x31` regist
 The pure-capability ABIs closely follow the same calling conventions as the base integer and hardware floating-point calling conventions, but since the GPRs are now `YLEN` bits wide the following differences exist:
 
 * Variadic and on-stack arguments use a different register convention (see next subsection).
-* `2*XLEN` (i.e. `YLEN`) wide scalars are passed in a single argument register if they are of pointer type (including `(u)intptr_t`).
+* `YLEN` wide scalars are passed in a single argument register if they are of pointer type (including `(u)intptr_t`).
 +
 NOTE: For non-pointer scalar types the maximum size passed in a single argument register is still `XLEN` rather than `YLEN`.
 This avoids the implementation difficulty of passing `int64_t` in a single register when `YLEN` is 64 (RV32).
