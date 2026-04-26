@@ -97,6 +97,15 @@ The Floating-Point Control and Status Register (fcsr) must have thread storage
 duration in accordance with C11 section 7.6 "Floating-point environment
 <fenv.h>".
 
+=== Pure-Capability Register Convention
+
+Since the RVY capability registers extend the integer register file, the same conventions and names are used.
+The only difference is that they are `YLEN` bits wide and must be aligned to `YLEN` bits as well.
+Register usage follows the underlying ILP32*/LP64* ABIs with the only difference that `x5` is used for on-stack arguments (see <<pure-cap-on-stack-args>>).
+
+IMPORTANT: Capability register usage in the ILP32* and LP64* ABIs is not specified yet, only IL32PC64* and L64PC128* ABIs have a well-defined calling convention for capability registers.
+
+
 === Vector Register Convention
 
 ==== Standard Calling Convention
@@ -675,6 +684,77 @@ The ILP32E calling convention is not compatible with ISAs that have registers
 that require load and store alignments of more than 32 bits. In particular, this
 calling convention must not be used with the D ISA extension.
 
+[[pure-cap-cc]]
+=== RVY Pure-Capability Calling Conventions
+
+IMPORTANT: RVY Pure-Capability ABIs are experimental.
+
+These calling conventions are used when the base ISA is RVY and a pure-capability ABI is in use.
+In these ABIs, all pointers (including the stack pointer, frame pointer, and return address) are represented as capabilities (using the extended GPRs).
+
+The register names and usage remain the same as the <<integer-cc,integer calling convention>>, but the registers `x0`-`x31` (and their ABI aliases) now refer to the `YLEN`-wide extended GPRs.
+Any integer operation (e.g., add/multiply/etc.) writing to the `x1`-`x31` registers sets the address bits and clears the metadata.
+
+The pure-capability ABIs closely follow the same calling conventions as the base integer and hardware floating-point calling conventions, but since the GPRs are now `YLEN` bits wide the following differences exist:
+
+* Variadic and on-stack arguments use a different register convention (see next subsection).
+* `YLEN` wide scalars are passed in a single argument register if they are of pointer type (including `(u)intptr_t`).
++
+NOTE: For non-pointer scalar types the maximum size passed in a single argument register is still `XLEN` rather than `YLEN`.
+This avoids the implementation difficulty of passing `int64_t` in a single register when `YLEN` is 64 (RV32).
+// It also reflects that the high bits of capability registers cannot be used for computation directly as they need to be copied to another register using `YHIR` first.
+// A future calling convention variant may allow for packing these types in a single register.
+
+* Aggregates up to `2*YLEN` bits are passed in `YLEN` argument register(s) (using the memory layout of the aggregate) if they are at least `YLEN`-bit aligned.
+All less-aligned aggregates follow rules of the underlying base integer or float calling convention (ILP32*/LP64* ABIs).
++
+NOTE: This rule is required to ensure that aggregates that could potentially be used to store capabilities, but do not declare capability members (such as `alignas(16) char bytes[16]`) are passed in capability registers instead of being split into two registers (which would invalidate the capability tag).
+// This does mean that `int64_t` and `struct { int64_t }` have different calling conventions but this behaviour matches the base integer calling convention.
+
+* For aggregates that can be passed in pairs of registers,   they are never split into one register part and one on-stack part.
+  Instead of splitting the entire aggregate is passed on the stack.
+* Aggregates larger than `2*YLEN` or with an alignment larger than the stack alignment are always passed by reference.
+* All other aggregates follow the base calling convention.
+* Unions follow the same rules as aggregates: if they are `YLEN`-bit aligned and less than or equal to `2*YLEN` bits in size,   they are passed in memory layout in `YLEN` registers.
+  Otherwise, the base calling convention rules apply.
+
+Values are returned in the same manner as a first named argument of the same
+type would be passed.
+
+[[pure-cap-on-stack-args]]
+==== Variadic and On-Stack Arguments
+
+In the pure-capability ABIs, variadic and on-stack arguments are handled differently from the base integer calling convention to ensure capability safety and allow for bounded `va_list` implementations.
+
+1. All variadic arguments (those corresponding to the `...` in the function prototype) are passed on the stack.
+They never occupy argument registers `a0`-`a7`.
+Each variadic argument is passed in a `YLEN`-aligned stack slot.
++
+NOTE: Passing all variadic arguments on the stack simplifies the implementation of `va_list` and ensures capability safety.
+Measurements on other architectures (AArch64) have shown that most variadic functions are simply wrappers around a function taking a `va_list`.
+In standard ABIs that pass variadic arguments in registers, the callee must spill these registers to the stack to create a contiguous `va_list` structure, which adds overhead and complicates the implementation.
+Passing all variadic arguments on the stack from the start simplifies these wrappers and avoids complex register-to-stack spilling logic.
+Using `YLEN`-sized slots for all arguments, including those smaller than `YLEN`, further avoids the need for complex logic to determine the offset of each argument.
+This approach has been used successfully in other CHERI-enabled architectures such as Morello and was also adopted by Apple in the variadic calling convention for AArch64 on iOS and macOS.
+
+2. A capability that covers all on-stack arguments on the stack is passed in the `x5` (`t0`) register.
+3. For variadic functions, this capability has its `Store` and `Execute` permissions cleared.
+4. If no on-stack arguments are passed to a variadic function, the `x5` register is set to a `NULL` capability (marked as invalid).
+
+=== IL32PC64E Calling Convention
+
+// TODO: confirm final naming of Y+E base ISA with ARC
+The IL32PC64E calling convention is designed to be usable with the RV32YE base ISA.
+This calling convention is the same as the IL32PC64 calling convention except for the following differences:
+
+* The stack pointer must be aligned to a 128-bit boundary.
++
+NOTE: Maintaining 16-byte alignment even for RV32-based ABIs has benefits for bulk zeroing and capability representability.
+
+* Registers x16-x31 do not participate in the calling convention, so there are only six argument registers, a0-a5, only two callee-saved registers, s0-s1, and only three temporaries, t0-t2.
++
+If used with an ISA that has any of the registers x16-x31 and f0-f31, then these registers are considered temporaries.
+
 === RV64ILP32* Calling Convention
 
 IMPORTANT: RV64ILP32* ABIs are experimental.
@@ -748,8 +828,41 @@ RV64ILP32Q:: RV64ILP32 with hardware floating-point calling
 convention for ABI_FLEN=128 (i.e. <<ELFCLASS32,ELFCLASS32>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
-The LP64* ABIs are only compatible with RV64* ISAs. The ILP32* are compatible
-with RV32* and RV64* ISAs.
+[[abi-il32pc64]]
+IL32PC64:: Integer and pure-capability calling convention only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
+
+[[abi-il32pc64f]]
+IL32PC64F:: IL32PC64 with hardware floating-point calling convention for FLEN=32
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-il32pc64d]]
+IL32PC64D:: IL32PC64 with hardware floating-point calling convention for FLEN=64
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
+
+[[abi-il32pc64e]]
+IL32PC64E:: <<IL32PC64E Calling Convention,IL32PC64E calling-convention>> only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>>, <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>, and <<EF_RISCV_RVE,EF_RISCV_RVE>>).
+
+[[abi-l64pc128]]
+L64PC128:: Integer and capability calling convention only, hardware floating-point calling convention is not used
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
+
+[[abi-l64pc128f]]
+L64PC128F:: L64PC128 with hardware floating-point calling convention for FLEN=32
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SINGLE,EF_RISCV_FLOAT_ABI_SINGLE>>).
+
+[[abi-l64pc128d]]
+L64PC128D:: L64PC128 with hardware floating-point calling convention for FLEN=64
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_DOUBLE,EF_RISCV_FLOAT_ABI_DOUBLE>>).
+
+[[abi-l64pc128q]]
+L64PC128Q:: L64PC128 with hardware floating-point calling convention for FLEN=128
+(i.e. ELFCLASS64, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
+
+The LP64* and L64PC128* ABIs are only compatible with RV64* ISAs.
+The ILP32* are compatible with RV32* and RV64* ISAs.
+Unlike the ILP32* ABIs, the IL32PC64* ABIs are only compatible with RV32* ISAs (since `YLEN` cannot be changed dynamically).
 
 NOTE: RV64ILP32* ABIs are experimental.
 
@@ -769,6 +882,9 @@ default ABIs for specific architectures:
 [horizontal]
 on RV32G:: <<abi-ilp32d,ILP32D>>
 on RV64G:: <<abi-lp64d,LP64D>>
+
+For the same reasons, we recommend that the default ABIs on
+RVY be <<abi-l64pc128d,L64PC128D>> and <<abi-il32pc64d,IL32PC64D>>.
 
 NOTE: Although RV64GQ systems can technically use <<abi-lp64q,LP64Q>>, it is
 strongly recommended to use LP64D on general-purpose RV64GQ systems for
@@ -853,6 +969,45 @@ alignments (based on the LP64 convention):
 | _BitInt(33 ≤ N ≤ 64) |  8            |  8                |
 | _BitInt(65 ≤ N ≤ 128)| 16            | 16                |
 | _BitInt(N > 128)     | RoundUp(N / 128) * 16 | 16        |
+|===
+
+L64PC128* and IL32PC64* ABIs::
+The pure-capability RVY ABIs use YLEN bits to represent all pointers and introduce two new base C types to hold capabilities:
+the C standard library on RVY defines `intptr_t`/`uintptr_t` types that can hold capabilities (YLEN values) and integers (XLEN values) alike.
+These types have a YLEN-bit storage size (either 64-bit or 128-bit), however, the maximum arithmetic value that such a type can hold is limited to the maximum _address_ a capability can take (XLEN bits, i.e. YLEN/2).
+Pointers and `intptr_t`/`uintptr_t` must be aligned to YLEN bits.
++
+All other types are otherwise identical to their LP64*/ILP32* counterparts.
++
+NOTE: For very large objects, additional padding and alignment requirements may be introduced to ensure that capabilities referring to the object can be represented precisely.
+The capability compression means the available precision for bounds decreases as the object size increases above a threshold.
+See <<riscv-cheri-spec,the RVY specification>> for details of the restrictions.
+The threshold depends on the ISA but objects smaller than 256 bytes (on RVY32) / 4096 bytes (on RVY64) are never affected.
++
+* **L64PC128, L64PC128F, L64PC128D, and L64PC128Q** use the following type size and
+alignment (based on the L64 convention):
++
+.C/{Cpp} type sizes and alignments for L64PC128
+[cols="4,>2,>3"]
+[width=60%]
+|===
+| Type                   | Size (Bytes)   | Alignment (Bytes)
+| void *                 | 16             | 16
+| `intptr_t`/`uintptr_t` | 16             | 16
+| All other types        | See LP64* ABIs | See LP64* ABIs
+|===
++
+* **IL32PC64, IL32PC64F, IL32PC64D, and IL32PC64E** use the following type size and
+alignment (based on the IL32PC64 convention):
++
+.C/{Cpp} type sizes and alignments for IL32PC64
+[cols="4,>2,>3"]
+[width=60%]
+|===
+| Type                   | Size (Bytes)    | Alignment (Bytes)
+| void *                 | 8               | 8
+| `intptr_t`/`uintptr_t` | 8               | 8
+| All other types        | See ILP32* ABIs | See ILP32* ABIs
 |===
 
 The alignment of `max_align_t` is 16.
@@ -981,6 +1136,17 @@ alignment used will be those of a pointer, and the fetched pointer will be used
 as the address of the actual argument. The `va_copy` macro is a single pointer
 copy and the `va_end` macro performs no operation.
 
+==== va_list, va_start, and va_arg in pure-capability ABIs
+NOTE: In the pure-capability ABIs, the handling of variadic arguments is different.
+All variadic arguments are passed on the stack, and a capability to them is passed in the `x5` (`t0`) register.
+See <<pure-cap-cc>> for details.
+
+As in other ABIs, the `va_list` type is represented as `void *` (which is a capability now).
+The `va_start` macro initializes the `va_list` using the capability provided in `x5`.
+Since all variadic arguments are on the stack, the callee does not need to construct a varargs save area for registers.
+Since the `va_list` now includes bounds information, attempting to use a non-existant argument via `va_arg` will result in a trap.
+
+
 === Vector Type Sizes and Alignments
 
 This section defines the sizes and alignments for the vector types defined in
@@ -1053,4 +1219,8 @@ https://github.com/riscv/riscv-v-spec
 
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
+
+* [[[riscv-cheri-spec]]] "RISC-V Specification for CHERI Extensions"
+https://riscv.github.io/riscv-cheri
+
 
