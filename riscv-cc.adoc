@@ -97,7 +97,7 @@ The Floating-Point Control and Status Register (fcsr) must have thread storage
 duration in accordance with C11 section 7.6 "Floating-point environment
 <fenv.h>".
 
-=== Capability Register Convention
+=== Pure-Capability Register Convention
 
 Since the RVY capability registers extend the integer register file, the same conventions and names are used.
 The only difference is that they are `YLEN=2*XLEN` bits wide and must be aligned to `YLEN` bits as well.
@@ -683,7 +683,7 @@ The ILP32E calling convention is not compatible with ISAs that have registers
 that require load and store alignments of more than 32 bits. In particular, this
 calling convention must not be used with the D ISA extension.
 
-[[cheri-cc]]
+[[pure-cap-cc]]
 === RVY Pure-Capability Calling Conventions
 
 IMPORTANT: RVY Pure-Capability ABIs are experimental.
@@ -716,6 +716,8 @@ NOTE: This rule is required to ensure that aggregates that could potentially be 
 * Unions follow the same rules as aggregates: if they are `YLEN`-bit aligned and less than or equal to `2*YLEN` bits in size,   they are passed in memory layout in `YLEN` registers.
   Otherwise, the base calling convention rules apply.
 
+Values are returned in the same manner as a first named argument of the same
+type would be passed.
 ==== Variadic and On-Stack Arguments
 
 In the pure-capability ABIs, variadic and on-stack arguments are handled differently from the base integer calling convention to ensure capability safety and allow for bounded `va_list` implementations.
@@ -823,7 +825,7 @@ convention for ABI_FLEN=128 (i.e. <<ELFCLASS32,ELFCLASS32>> and
 <<EF_RISCV_FLOAT_ABI_QUAD,EF_RISCV_FLOAT_ABI_QUAD>>).
 
 [[abi-il32pc64]]
-IL32PC64:: Integer and capability calling convention only, hardware floating-point calling convention is not used
+IL32PC64:: Integer and pure-capability calling convention only, hardware floating-point calling convention is not used
 (i.e. ELFCLASS32, <<EF_RISCV_RVY,EF_RISCV_RVY>> and <<EF_RISCV_FLOAT_ABI_SOFT,EF_RISCV_FLOAT_ABI_SOFT>>).
 
 [[abi-il32pc64f]]
@@ -1001,7 +1003,7 @@ alignment (based on the IL32PC64 convention):
 | Type                   | Size (Bytes)    | Alignment (Bytes)
 | void *                 | 8               | 8
 | `intptr_t`/`uintptr_t` | 8               | 8
-| All other types        | See ILP32* ABIs | See LP64* ABIs
+| All other types        | See ILP32* ABIs | See ILP32* ABIs
 |===
 
 The alignment of `max_align_t` is 16.
@@ -1133,7 +1135,7 @@ copy and the `va_end` macro performs no operation.
 ==== va_list, va_start, and va_arg in pure-capability ABIs
 NOTE: In the pure-capability ABIs, the handling of variadic arguments is different.
 All variadic arguments are passed on the stack, and a capability to them is passed in the `x5` (`t0`) register.
-See <<cheri-cc>> for details.
+See <<pure-cap-cc>> for details.
 
 As in other ABIs, the `va_list` type is represented as `void *` (which is a capability now).
 The `va_start` macro initializes the `va_list` using the capability provided in `x5`.
@@ -1214,7 +1216,7 @@ https://github.com/riscv/riscv-v-spec
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
 
-* [[[riscv-cheri-spec]]] "RISC-V Specification for CHERI Extensions "
+* [[[riscv-cheri-spec]]] "RISC-V Specification for CHERI Extensions"
 https://riscv.github.io/riscv-cheri
 
 
