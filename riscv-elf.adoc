@@ -590,11 +590,11 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 67-76   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
                                             <|
-.2+| 77      .2+| REGREL_LO12_I .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%regrel_lo(symbol)`
+.2+| 77      .2+| R_RISCV_BASE_IDX_LO12_I .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%base_idx_lo(symbol)`
                                             <|
-.2+| 78      .2+| REGREL_LO12_S .2+| Static  | _S-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%regrel_lo(symbol)`
+.2+| 78      .2+| R_RISCV_BASE_IDX_LO12_S .2+| Static  | _S-Type_          .2+| Low 12 bits of 32-bit Global Array Offset, `%base_idx_lo(symbol)`
                                             <|
-.2+| 79      .2+| REGREL_ADD    .2+| Static  |                   .2+| Global Array usage, `%regrel_add(symbol)`
+.2+| 79      .2+| R_RISCV_BASE_IDX_ADD    .2+| Static  |                   .2+| Global Array usage, `%base_idx_add(symbol)`
                                             <|
 .2+| 81-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
@@ -1888,8 +1888,8 @@ Relaxation result:
 
 ==== Global Array Offset Relaxation
 
-  Target Relocation:: R_RISCV_HI20, R_RISCV_REGREL_LO12_I, R_RISCV_REGREL_LO12_S,
-  R_RISCV_REGREL_ADD
+  Target Relocation:: R_RISCV_HI20, R_RISCV_BASE_IDX_LO12_I, R_RISCV_BASE_IDX_LO12_S,
+  R_RISCV_BASE_IDX_ADD, R_RISCV_PCREL_HI20
 
   Description:: This relaxation type can relax a sequence of the load
   address of a symbol or load/store with a symbol reference into shorter
@@ -1901,9 +1901,9 @@ Relaxation result:
   Relaxation::
   - Instruction associated  with `R_RISCV_HI20` can be removed.
 
-  - Instruction associated with `R_RISCV_REGREL_ADD` can be replaced with a
-    global-pointer-relative access instruction. Update the `R_RISCV_REGREL_LO12_I`
-    or `R_RISCV_REGREL_LO12_S` Symbol's Offset
+  - Instruction associated with `R_RISCV_BASE_IDX_ADD` can be replaced with a
+    global-pointer-relative access instruction. Update the `R_RISCV_BASE_IDX_LO12_I`
+    or `R_RISCV_BASE_IDX_LO12_S` Symbol's Offset
 
   Example::
 +
@@ -1912,8 +1912,8 @@ Relaxation candidate 1:
 [,asm]
 ----
     lui tX, 0       # R_RISCV_HI20 (symbol), R_RISCV_RELAX
-    add tY, tY, tX  # R_RISCV_REGREL_ADD (symbol), R_RISCV_RELAX
-    lw t1, 0(tY)    # R_RISCV_REGREL_LO12_I (symbol), R_RISCV_RELAX
+    add tY, tY, tX  # R_RISCV_BASE_IDX_ADD (symbol), R_RISCV_RELAX
+    lw t1, 0(tY)    # R_RISCV_BASE_IDX_LO12_I (symbol), R_RISCV_RELAX
 ----
 Relaxation result:
 [,asm]
@@ -1927,8 +1927,8 @@ Relaxation candidate 2: same as sh2add/sh3add
 [,asm]
 ----
     lui tX, 0          # R_RISCV_HI20 (symbol), R_RISCV_RELAX
-    sh1add tY, tY, tX  # R_RISCV_REGREL_ADD (symbol), R_RISCV_RELAX
-    lw t1, 0(tY)       # R_RISCV_REGREL_LO12_I (symbol), R_RISCV_RELAX
+    sh1add tY, tY, tX  # R_RISCV_BASE_IDX_ADD (symbol), R_RISCV_RELAX
+    lw t1, 0(tY)       # R_RISCV_BASE_IDX_LO12_I (symbol), R_RISCV_RELAX
 ----
 Relaxation result:
 [,asm]
