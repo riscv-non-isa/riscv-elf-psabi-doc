@@ -355,6 +355,8 @@ below.
 
 NOTE: RV64ILP32* ABIs are experimental.
 
+--
+
 Until such a time that the *Reserved* bits are allocated by future
 versions of this specification, they shall not be set by standard software.
 Non-standard extensions are free to use bits 24-31 for any purpose. This may
@@ -396,8 +398,6 @@ raise an error.
 NOTE: The static linker may ignore the compatibility checks if all fields in the
 `e_flags` are zero and all sections in the input file are non-executable
 sections.
-
---
 
 === String Tables
 
