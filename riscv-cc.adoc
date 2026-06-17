@@ -275,9 +275,37 @@ and the higher-numbered register receives the XLEN bits from the higher memory
 address. This ensures correct `va_arg` operation when arguments are spilled to
 the stack.
 
-NOTE: This memory-layout ordering for variadic arguments differs from the
-significance-based ordering used for named arguments and return values on
-big-endian systems.
+The following table summarizes the register-pair ordering for a value that
+occupies an aligned 2×XLEN register pair. Two orderings are distinguished:
+_significance ordering_, in which the lower-numbered register holds the
+low-order XLEN bits, and _memory-layout ordering_, in which the lower-numbered
+register holds the XLEN bits at the lower memory address. On little-endian
+these two orderings coincide; on big-endian they are opposite.
+
+[cols="4,3,3"]
+|===
+| Value in an aligned 2×XLEN register pair | Named argument / return value | Variadic argument
+
+| 2×XLEN scalar
+| significance ordering
+| memory-layout ordering
+
+| `_BitInt(N)` with XLEN < N ≤ 2×XLEN (passed under the 2×XLEN-scalar rules)
+| significance ordering
+| memory-layout ordering
+
+| Aggregate no larger than 2×XLEN bits
+| memory-layout ordering
+| memory-layout ordering
+|===
+
+Variadic values always use memory-layout ordering so that register-passed and
+stack-passed variadic arguments share the same in-memory layout, which is
+required for correct `va_arg` operation.
+
+NOTE: On big-endian systems, only scalar-class values (2×XLEN scalars and
+`_BitInt` passed under the scalar rules) change ordering between the named and
+variadic paths. Aggregates use memory-layout ordering in both cases.
 
 Values are returned in the same manner as a first named argument of the same
 type would be passed.  If such an argument would have been passed by
@@ -1080,4 +1108,3 @@ https://github.com/riscv/riscv-v-spec
 
 * [[[rvv-intrinsic-doc]]] "RISC-V Vector Extension Intrinsic Document"
 https://github.com/riscv-non-isa/rvv-intrinsic-doc
-
