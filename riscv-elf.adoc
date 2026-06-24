@@ -884,7 +884,10 @@ RISC-V implementations can support either little-endian or big-endian byte order
   This is the default and most common byte ordering for RISC-V.
 * **Big-endian**: The most significant byte is stored at the lowest memory address.
 
-All data types follow the byte ordering of the target system.
+All data types in a program follow the byte ordering selected for that program.
+The psABI assumes this data byte ordering is fixed for the duration of the
+program; mechanisms for changing data endianness are system-level issues outside
+the scope of this ABI.
 
 IMPORTANT: RISC-V instructions are always stored in little-endian format,
 regardless of the data endianness. This means that in big-endian systems,
