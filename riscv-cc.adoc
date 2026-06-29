@@ -535,7 +535,7 @@ constraints, if the size of the vector is greater than ABI_VLEN bits and less
 than or equal to 4×ABI_VLEN bits.
 
 A fixed-length vector argument is passed in eight vector argument registers,
-similar to vector data arguments with LMUL=4 and following the same register
+similar to vector data arguments with LMUL=8 and following the same register
 constraints, if the size of the vector is greater than ABI_VLEN bits and less
 than or equal to 8×ABI_VLEN bits.
 
