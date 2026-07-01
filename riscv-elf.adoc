@@ -451,10 +451,10 @@ is mangled as
     vint32m8_t _ZGVr8N64l_foo (int i);  // LMUL=8
 
     // VLA Mode
-    vint32m1_t _ZGVr1Nxvl_foo (int i);  // LMUL=1
-    vint32m2_t _ZGVr2Nxvl_foo (int i);  // LMUL=2
-    vint32m4_t _ZGVr4Nxvl_foo (int i);  // LMUL=4
-    vint32m8_t _ZGVr8Nxvl_foo (int i);  // LMUL=8
+    vint32m1_t _ZGVr1Nxl_foo  (int i);  // LMUL=1
+    vint32m2_t _ZGVr2Nxl_foo  (int i);  // LMUL=2
+    vint32m4_t _ZGVr4Nxl_foo  (int i);  // LMUL=4
+    vint32m8_t _ZGVr8Nxl_foo  (int i);  // LMUL=8
 ----
 
 [,c]
@@ -482,10 +482,10 @@ is mangled as
     vint32m8_t _ZGVr8N64l4_foo (int *i);  // LMUL=8
 
     // VLA Mode
-    vint32m1_t _ZGVr1Nxvl4_foo (int *i);  // LMUL=1
-    vint32m2_t _ZGVr2Nxvl4_foo (int *i);  // LMUL=2
-    vint32m4_t _ZGVr4Nxvl4_foo (int *i);  // LMUL=4
-    vint32m8_t _ZGVr8Nxvl4_foo (int *i);  // LMUL=8
+    vint32m1_t _ZGVr1Nxl4_foo  (int *i);  // LMUL=1
+    vint32m2_t _ZGVr2Nxl4_foo  (int *i);  // LMUL=2
+    vint32m4_t _ZGVr4Nxl4_foo  (int *i);  // LMUL=4
+    vint32m8_t _ZGVr8Nxl4_foo  (int *i);  // LMUL=8
 ----
 
 
