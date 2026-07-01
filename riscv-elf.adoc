@@ -1125,9 +1125,9 @@ Description:: Additional information about the relocation
 .2+| 23      .2+| PCREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative reference, `%pcrel_hi(symbol)`
                                             <| S + A - P
 .2+| 24      .2+| PCREL_LO12_I  .2+| Static  | _I-type_          .2+| Low 12 bits of a 32-bit PC-relative, `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
-                                            <| S - P
+                                            <| Same as the paired high-part relocation
 .2+| 25      .2+| PCREL_LO12_S  .2+| Static  | _S-Type_          .2+| Low 12 bits of a 32-bit PC-relative, `%pcrel_lo(address of %pcrel_hi)`, the addend must be 0
-                                            <| S - P
+                                            <| Same as the paired high-part relocation
 .2+| 26      .2+| HI20          .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit absolute address, `%hi(symbol)`
                                             <| S + A
 .2+| 27      .2+| LO12_I        .2+| Static  | _I-Type_          .2+| Low 12 bits of 32-bit absolute address, `%lo(symbol)`
@@ -1195,9 +1195,9 @@ Description:: Additional information about the relocation
 .2+| 62      .2+| TLSDESC_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_hi(symbol)`
                                             <| S + A - P
 .2+| 63      .2+| TLSDESC_LOAD_LO12 .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_load_lo(address of %tlsdesc_hi)`, the addend must be 0
-                                            <| S - P
+                                            <| Same as the paired high-part relocation
 .2+| 64      .2+| TLSDESC_ADD_LO12  .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_add_lo(address of %tlsdesc_hi)`, the addend must be 0
-                                            <| S - P
+                                            <| Same as the paired high-part relocation
 .2+| 65      .2+| TLSDESC_CALL      .2+| Static  |                   .2+| Annotate call to TLS descriptor resolver function, `%tlsdesc_call(address of %tlsdesc_hi)`, for relaxation purposes only
                                             <|
 .2+| 66      .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
@@ -1475,10 +1475,10 @@ instruction is used in conjunction with one or more I-Type instructions
 instructions (store) with `R_RISCV_PCREL_LO12_S` relocations.
 
 The `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocations contain
-a label pointing to an instruction in the same section with an
-`R_RISCV_PCREL_HI20` relocation entry that points to the target symbol:
+a label pointing to an instruction in the same section with a high-part
+relocation entry that points to the target symbol:
 
-* At label: `R_RISCV_PCREL_HI20` relocation entry -> symbol
+* At label: high-part relocation entry -> symbol
 * `R_RISCV_PCREL_LO12_I` relocation entry -> label
 
 To get the symbol address to perform the calculation to fill the 12-bit
