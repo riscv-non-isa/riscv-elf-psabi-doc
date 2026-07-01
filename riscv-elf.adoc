@@ -502,8 +502,8 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 19      .2+| CALL_PLT      .2+| Static  | _U+I-Type_        .2+| 32-bit PC-relative function call, macros `call`, `tail` (PIC)
                                             <| S + A - P
-.2+| 20      .2+| GOT_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative GOT access, `%got_pcrel_hi(symbol)`
-                                            <| G + GOT + A - P
+.2+| 20      .2+| GOT_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative GOT access, `%got_pcrel_hi(symbol)`, the addend must be 0
+                                            <| G + GOT - P
 .2+| 21      .2+| TLS_GOT_HI20  .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS IE GOT access, macro `la.tls.ie`
                                             <|
 .2+| 22      .2+| TLS_GD_HI20   .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS GD GOT reference, macro `la.tls.gd`
