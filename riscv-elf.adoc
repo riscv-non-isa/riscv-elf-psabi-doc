@@ -1122,9 +1122,9 @@ Description:: Additional information about the relocation
                                             <| S + A - P
 .2+| 20      .2+| GOT_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative GOT access, `%got_pcrel_hi(symbol)`, the addend must be 0
                                             <| G + GOT - P
-.2+| 21      .2+| TLS_GOT_HI20  .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS IE GOT access, macro `la.tls.ie`
+.2+| 21      .2+| TLS_GOT_HI20  .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS IE GOT access, macro `la.tls.ie`, the addend must be 0
                                             <|
-.2+| 22      .2+| TLS_GD_HI20   .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS GD GOT reference, macro `la.tls.gd`
+.2+| 22      .2+| TLS_GD_HI20   .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative TLS GD GOT reference, macro `la.tls.gd`, the addend must be 0
                                             <|
 .2+| 23      .2+| PCREL_HI20    .2+| Static  | _U-Type_          .2+| High 20 bits of 32-bit PC-relative reference, `%pcrel_hi(symbol)`
                                             <| S + A - P
@@ -1196,8 +1196,8 @@ Description:: Additional information about the relocation
                                             <| S + A
 .2+| 61      .2+| SUB_ULEB128   .2+| Static  | _ULEB128_         .2+| Must be placed immediately after a SET_ULEB128 with the same offset. Local label subtraction <<uleb128-note,*note>>
                                             <| V - S - A
-.2+| 62      .2+| TLSDESC_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_hi(symbol)`
-                                            <| S + A - P
+.2+| 62      .2+| TLSDESC_HI20      .2+| Static  | _U-Type_          .2+| High 20 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_hi(symbol)`, the addend must be 0
+                                            <| S - P
 .2+| 63      .2+| TLSDESC_LOAD_LO12 .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_load_lo(address of %tlsdesc_hi)`, the addend must be 0
                                             <| Same as the paired high-part relocation
 .2+| 64      .2+| TLSDESC_ADD_LO12  .2+| Static  | _I-Type_          .2+| Low 12 bits of a 32-bit PC-relative offset into a TLS descriptor entry, `%tlsdesc_add_lo(address of %tlsdesc_hi)`, the addend must be 0
