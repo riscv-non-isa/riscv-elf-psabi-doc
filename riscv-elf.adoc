@@ -2722,17 +2722,27 @@ NOTE: Jump or call instructions with the rd operand `RA` will be relaxed into
 instructions separately. More details are available in the _ZC* extension
 specification_ <<riscv-zc-extension-group>>.
 
-NOTE: This relaxation requires programs to initialize the `jvt` CSR with the
-address of the `__jvt_base$` symbol before executing table jump
-instructions. It is recommended to initialize `jvt` CSR immediately after
+[NOTE]
+====
+This relaxation requires programs to initialize the `jvt` CSR with the
+address of the `__jvt_base$` symbol before executing table jump instructions. It
+is recommended to initialize `jvt` CSR immediately after
 <<gp-relax-asm,global pointer initialization>>.
+
+`__jvt_base$` may be undefined if the table has not been created, so the
+initialization should make a weak symbol reference to avoid undefined symbol
+issues.
+
 [,asm]
 ----
     # Recommended way to initialize the jvt CSR.
-1:  auipc a0, %pcrel_hi(__jvt_base$)
-    addi  a0, a0, %pcrel_lo(1b)
-    csrw  jvt, a0
+    .weak __jtv_base$
+    lla a0, __jvt_base$
+    beqz a0, 1f
+    csrw jvt, a0
+1:
 ----
+====
 
 [bibliography]
 == References
