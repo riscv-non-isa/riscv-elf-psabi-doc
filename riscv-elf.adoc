@@ -1208,7 +1208,11 @@ Description:: Additional information about the relocation
                                             <|
 .2+| 67-76   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for Y base ISA
                                             <|
-.2+| 77-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+.2+| 77-79   .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
+                                            <|
+.2+| 80      .2+| JF                .2+| Static  | (offset field in JF) .2+| 24-bit PC-relative jump offset
+                                            <| S + A - P
+.2+| 81-190  .2+| *Reserved*                          .2+| -       |                   .2+| Reserved for future standard use
                                             <|
 .2+| 191     .2+| VENDOR        .2+| Static  |                   .2+| Paired with a vendor-specific relocation and must be placed immediately before it, indicates which vendor owns the relocation.
                                             <|
@@ -2227,7 +2231,43 @@ Relaxation result:
 --
 
 NOTE: Using address of PLT stubs of the target symbol or address target symbol
-directly will resolve by linker according to the visibility of the target
+directly will resolve by linker according to the properties of the target
+symbol.
+
+==== Function Call Relaxation (Far)
+
+  Target Relocation::: R_RISCV_CALL, R_RISCV_CALL_PLT.
+
+  Description:: This relaxation type can relax `AUIPC+JALR` into `JFAL`.
+
+  Condition:: The offset between the location of relocation and target symbol or
+  the PLT stub of the target symbol is within +-16MiB, and the destination register
+  of the `JALR` must be `ra`.
+
+  Relaxation::
+  - Instruction sequence associated with `R_RISCV_CALL` or `R_RISCV_CALL_PLT`
+  can be rewritten to a single JFAL instruction with the offset between the
+  location of relocation and target symbol.
+
+  Example::
++
+--
+Relaxation candidate:
+[,asm]
+----
+    auipc ra, 0           # R_RISCV_CALL_PLT (symbol), R_RISCV_RELAX
+    jalr  ra, ra, 0
+----
+
+Relaxation result:
+[,asm]
+----
+    jfal  <offset-between-pc-and-PLT-or-func>
+----
+--
+
+NOTE: Using address of PLT stubs of the target symbol or address target symbol
+directly will resolve by linker according to the properties of the target
 symbol.
 
 [[compress-func-call-relax]]
