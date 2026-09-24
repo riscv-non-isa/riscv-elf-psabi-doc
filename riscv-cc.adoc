@@ -493,6 +493,30 @@ The ABI_VLEN is a parameter of this calling convention variant. It could be set
 by a command line option for the compiler or specified by a function
 attribute in the source code.
 
+For a fixed-length vector created by the `riscv_rvv_vector_bits(N)` type
+attribute (see <<Fixed-Length Vector>> and the RISC-V C API), the ABI_VLEN is
+derived from the sizeless RVV type that the fixed-length type was created from,
+not from the total size of the fixed-length type. This ABI_VLEN is the fixed
+VLEN selected at compile time. With this ABI_VLEN, the fixed-length type is
+passed and returned in the same way as the scalable RVV type it was derived
+from.
+
+For a fixed-length type created from an RVV data type whose vector register
+group multiplier is LMUL, the ABI_VLEN is N divided by LMUL, that is, the vector
+size normalized to LMUL=1 (m1). A type derived from an integer LMUL=n data type
+then occupies n vector argument registers, and a type derived from a fractional
+LMUL data type (mf2, mf4, or mf8) occupies a single vector argument register;
+both match the corresponding scalable type.
+
+For a fixed-length type created from an RVV mask type (for example `vbool8_t`),
+let RATIO be the number in the mask type name, that is the ratio between SEW and
+LMUL. Here N is the number of mask elements, and the ABI_VLEN is N multiplied by
+RATIO. The mask is passed in a single vector argument register, the same as the
+corresponding scalable mask type. The number of mask elements alone does not
+determine the ABI_VLEN, because the same number of mask elements can arise from
+different RATIO and VLEN combinations; the ABI_VLEN follows the originating mask
+type.
+
 NOTE: We suggest the toolchain implementation set the default value of ABI_VLEN
 to 128, as it's the most common minimal requirement. However, it is not fixed
 to 128, since the ISA allows the VLEN to be only 32 bits or 64 bits. This
@@ -871,6 +895,13 @@ member. The size of any object is a multiple of its alignment.
 Various compilers have support for fixed-length vector types, for example GCC
 and Clang both support declaring a type with `\\__attribute__\((vector_size(N))`,
 where N is a positive number larger than zero.
+
+The RISC-V C API additionally defines the `riscv_rvv_vector_bits(N)` type
+attribute, which creates a fixed-length variant of a sizeless RVV vector type
+(for example `vint8m1_t`) or RVV mask type (for example `vbool8_t`). The
+resulting type is a fixed-length vector for the purpose of this ABI; its
+argument-passing ABI_VLEN is defined in
+<<Standard Fixed-length Vector Calling Convention Variant>>.
 
 The alignment requirement for the fixed length vector shall be equivalent to the
 alignment requirement of its elemental type.
