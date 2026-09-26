@@ -34,6 +34,7 @@ This specification uses the following terms and abbreviations:
 | NTBS              | Null-Terminated Byte String
 | XLEN              | The width of an integer register in bits
 | FLEN              | The width of a floating-point register in bits
+| YLEN              | The width of a capability register in bits (equal to `2*XLEN`)
 | PTRSZ             | The width of a pointer type in bits (`8*sizeof(void *)`)
 | Linker relaxation | A mechanism for optimizing programs at link-time, see <<Linker Relaxation>> for more detail.
 | RVWMO             | RISC-V Weak Memory Order, as defined in the RISC-V specification.
@@ -57,6 +58,14 @@ This specification uses the following terms and abbreviations:
 | RV64ILP32F        | Draft
 | RV64ILP32D        | Draft
 | RV64ILP32Q        | Draft
+| IL32PC64          | Draft
+| IL32PC64F         | Draft
+| IL32PC64D         | Draft
+| IL32PC64E         | Draft
+| L64PC128          | Draft
+| L64PC128F         | Draft
+| L64PC128D         | Draft
+| L64PC128Q         | Draft
 |===
 
 NOTE: ABI for big-endian is *NOT* included in this specification, we intend to
