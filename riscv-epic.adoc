@@ -1,0 +1,545 @@
+= RISC-V Embedded PIC (ePIC) ABI Specification
+
+== Table of Contents
+
+* <<introduction>>
+* <<overview>>
+* <<specification>>
+** <<segments>>
+**  <<addr-gen>>
+***  <<addr-gen-data>>
+***  <<addr-gen-code>>
+***  <<addr-gen-unknown>>
+** <<relocations>>
+*** <<rels-gprel>>
+*** <<rels-epic-hi>>
+*** <<rels-epic-base>>
+*** <<rels-epic-lo>>
+** <<relaxations>>
+** <<toolchain-concerns>>
+** <<loading>>
+* <<examples>>
+** <<example-1>>
+** <<example-2>>
+** <<example-3>>
+** <<example-4>>
+** <<example-5>>
+* <<external-links>>
+
+== Introduction
+
+The RISC-V embedded PIC (ePIC) ABI defines an ABI and a relocation model for position-independent executables targeting the RISC-V ISA, optimized for small to medium-sized embedded systems.
+
+This document specifies an ePIC ABI for the RISC-V ISA but its overall design is easily generalizable to other architectures. The ABI is compatible with both the RV32 and RV64 ISAs.
+
+Dynamically linked libraries are currently not supported. It may be possible to extend the ABI to add such support, for instance by using the same overall approach employed by https://www.youtube.com/watch?v=GydyykyNjxs[FDPIC].
+
+Loading position-independent executables that follow the ePIC ABI requires a loader that applies simple relocations to offsets in the data segment.
+
+This ABI defines relocations that are used by the static linker to rewrite instruction sequences. That unconventional mechanism avoids the use of higher overhead alternatives such as the global offset table (GOT) used by position-independent executables following the System V ABI.
+
+== Overview [[overview]]
+
+The ePIC ABI considers that there are two memory segments, the code and the data segment. The code segment can be backed by read-only memory. Typically the code segment is backed by ROM or Flash memory and the data segment by SRAM. Each segment can be relocated independently at load time.
+
+Because the segments can move with respect to each other after the executable has been linked, it is not possible to use the RISC-V ISA's PC-relative addressing to directly access objects residing in the data segment. That would require applying relocations to the code at dynamic link time but the code may reside in read-only memory.
+
+Still, we want to avoid the use of indirection mechanisms that introduce code size and runtime performance overheads. As such, the ePIC ABI uses different addressing schemes for the code and the data segments. The code segment is addressed in a PC-relative way, while the data segment is addressed relative to the global pointer (i.e. GP-relative).
+
+Unfortunately, in general we cannot predict at compilation time the segment in which objects will reside (with typical toolchains). For example, consider the following C++ code:
+
+[,cpp]
+----
+struct S {
+    S();
+    int x;
+};
+
+extern const S s;
+
+const S* f() {
+    return &s;
+}
+----
+
+What code should be generated for `f`? Depending on the definition of `S::S`, `s` may be put in a read-only or a writable section. For instance, if `S::S` is defined as
+
+[,cpp]
+----
+S::S() {
+    x = 42;
+}
+----
+
+Clang will emit `s` in a read-only section. Whereas if `S::S` is defined as
+
+[,cpp]
+----
+int foo();
+S::S() {
+    x = foo();
+}
+----
+
+Clang will emit `s` in a writable section. In the case of the ePIC ABI, those sections would typically map to different segments. Since the ePIC segments are accessed using different instruction sequences, we need a mechanism to address objects whose residence is unknown at compilation time. In the System V ABI this is solved through the use of a global offset table (GOT). To avoid the overheads introduced by the GOT, the ePIC ABI instead defines a link-time instruction rewrite mechanism, based on relocations.
+
+== Specification [[specification]]
+
+=== Segments
+
+There are two independently relocatable segments:
+
+* The *code segment*. The addresses of symbols that reside in this segment are computed relative to the program counter (i.e. the `pc` register). This segment can be backed by read-only memory. Despite its name, it can be used to store data, namely read-only objects.
+
+* The *data segment*. This is where (writable) global data is generally stored. This segment must be backed by writable memory. The addresses of symbols that reside in this segment are computed relative to the global pointer, represented by the symbol `__global_pointer$`. The global pointer must point to an address contained within this segment.
+
+Like when using the https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#medium-code-model[medium code model], code can address the range between -2 GiB and +2 GiB from its position. Data in the data segment can be addressed between -2 GiB and +2 GiB from the global pointer.
+
+A register is reserved to store the value of the global pointer. Without loss of generality, this document assumes that the `gp` register (`x3`) is used for that purpose.
+
+ELF binaries can have more than two ELF segments but they cannot all be relocated independently. Each ELF segment conceptually belongs to either the ePIC code segment or the ePIC data segment. Thus, two ELF segments that belong to the same ePIC segment must be relocated using the same relocation offset. The mapping of ELF segments to ePIC segments is implementation-specific and out of the scope of this specification.
+
+=== Address generation [[addr-gen]]
+
+The address of a symbol is computed differently depending on whether the symbol resides in the code or data segment. The subsections below provide canonical instruction sequences to compute addresses under a variety of circumstances. In the examples below `rd` is the general-purpose destination register where the computed address will be stored.
+
+When using ePIC, the assembly language pseudoinstructions `la` and `lla` must expand to one of the described instruction sequences (as appropriate to the symbol) or to an equivalent sequence. Since all addresses are considered to be local in the ePIC ABI, there is no difference between `la` (load address) and `lla` (load local address).
+
+==== Address generation for the data segment [[addr-gen-data]]
+
+The address of a symbol that resides in the data segment is computed relative to the global pointer. The canonical instruction sequence to generate the address of a symbol in that segment is:
+
+----
+        lui  rd, %gprel_hi(symbol)
+        add  rd, gp, rd, %gprel_add(symbol)
+        addi rd, rd, %gprel_lo(symbol)
+----
+
+The four-operand `add` instruction is a pseudoinstruction. The fourth operand is fictitious but it provides a place to use the `%gprel_add` assembler relocation function. That way, the pseudoinstruction can be translated into a regular `add` with the first three operands, plus a `R_RISCV_GPREL_ADD` relocation referencing the appropriate symbol. That relocation is used only for the purposes of <<relaxations,linker relaxations>> , so it is not essential to this ABI. Therefore, a regular `add` without the fourth operand can also be used instead. This approach follows the https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc#local-exec[existing convention] used for thread-local storage, where an `add` pseudoinstruction is also used. There, the fourth operand is used with the assembler relocation function `%tprel_add` to emit a `R_RISCV_TPREL_ADD` relocation.
+
+==== Address generation for the code segment [[addr-gen-code]]
+
+Addresses of symbols that reside in the code segment are computed relative to the program counter. The canonical instruction sequence to generate the address of a symbol in that segment is:
+
+----
+1:      auipc rd, %pcrel_hi(symbol)
+        addi  rd, rd, %pcrel_lo(1b)
+----
+
+==== Address generation for an unknown segment [[addr-gen-unknown]]
+
+If you do not know in which segment a symbol will reside, the canonical instruction sequence to generate the address of that symbol is:
+
+----
+1:      lui  rd, %epic_hi(x)
+        add  rd, gp, rd, %epic_base_add(x)
+        addi rd, rd, %epic_lo(1b)
+        ret
+----
+
+The assembler relocation functions `%epic_hi`, `%epic_base_add` and `%epic_lo` emit relocations that effectively <<rels-epic-hi,transform this sequence>> into one of the preceding ones, depending on where the symbol resides.
+
+=== Relocations
+
+The relocation table below lists the additional relocations used by the ePIC ABI.
+
+[[reloc-table]]
+[cols="1,1,1,1"]
+|===
+| Code | Relocation type         | Resolution   | Assembler relocation function
+|   61 | `R_RISCV_GPREL_HI20`    | `S + A - GP` | `%gprel_hi(<symbol>)`
+|   62 | `R_RISCV_GPREL_LO12_I`  | `S + A - GP` | `%gprel_lo(<symbol>)`
+|   63 | `R_RISCV_GPREL_LO12_S`  | `S + A - GP` | `%gprel_lo(<symbol>)`
+|   64 | `R_RISCV_GPREL_ADD`     | Relaxation   | `%gprel_add(<symbol>)`
+|  192 | `R_RISCV_EPIC_HI20`     | Rewrite      | `%epic_hi(<symbol>)`
+|  193 | `R_RISCV_EPIC_LO12_I`   | Rewrite      | `%epic_lo(<address of %epic_hi>)`
+|  194 | `R_RISCV_EPIC_LO12_S`   | Rewrite      | `%epic_lo(<address of %epic_hi>)`
+|  195 | `R_RISCV_EPIC_BASE_ADD` | Rewrite      | `%epic_base_add(<symbol>)`
+|===
+
+[[reloc-table-legend]]
+*Resolution legend*:
+
+* `A`: the addend used to compute the value of the relocatable field.
+* `GP`: the value of the global pointer.
+* `S`: the value of the symbol.
+
+The `R_RISCV_GPREL_*` relocations are defined with a numerical code chosen to be compatible with other proposals under review such as the https://github.com/ebahapo/riscv-elf-psabi-doc/blob/compact/riscv-compact.md[compact] and https://github.com/ebahapo/riscv-elf-psabi-doc/blob/large/riscv-large.md[large] code models.
+
+The `R_RISCV_EPIC_*` relocations are currently defined with numerical codes in the 192-255 range reserved for nonstandard ABI extensions. If this ABI specification becomes an official standard then new numerical codes will be adopted from the range reserved for standard extensions.
+
+==== `R_RISCV_GPREL_*` [[rels-gprel]]
+
+The `R_RISCV_GPREL_HI20`, `R_RISCV_GPREL_LO12_I` and `R_RISCV_GPREL_LO12_S` relocations apply to instructions encoded using the `U`, `I`, and `S` instruction formats, respectively. The relocation value is given by the formula `S + A - GP`, which computes an address relative to the global pointer, as detailed in the relocation table legend[[reloc-table-legend]].
+
+The `R_RISCV_GPREL_ADD` relocation is used only for <<relaxations,relaxation purposes>> and is not essential for the ePIC ABI.
+
+==== `R_RISCV_EPIC_HI20` [[rels-epic-hi]]
+
+The `R_RISCV_EPIC_HI20` relocation must apply to an `lui` instruction. Its behavior depends on the residence of the referenced symbol.
+
+* If the symbol resides in the code segment:
+** Transforms the `lui` instruction into an `auipc` instruction with the same operands, by overwriting the opcode field.
+** Adds a `R_RISCV_GPREL_HI20` relocation with the same symbol and addend, at the same offset.
+* If the symbol resides in the data segment:
+** Adds a `R_RISCV_PCREL_HI20` relocation with the same symbol and addend, at the same offset.
+
+==== `R_RISCV_EPIC_BASE_ADD` [[rels-epic-base]]
+
+The `R_RISCV_EPIC_BASE_ADD` relocation must apply to an uncompressed `add` instruction. Its behavior depends on the residence of the referenced symbol.
+
+* If the symbol resides in the code segment, it either:
+** Writes a canonical uncompressed `nop` instruction (`addi x0, x0, 0`), or
+** Deletes the `add` instruction.
+* If the symbol resides in the data segment:
+** Optionally adds a `R_RISCV_GPREL_ADD` relaxation relocation with the same symbol and addend, at the same offset.
+
+==== `R_RISCV_EPIC_LO12_*` [[rels-epic-lo]]
+
+The `R_RISCV_EPIC_LO12_I` and `R_RISCV_EPIC_LO12_S` relocations apply to instructions encoded using the `I` and `S` instruction formats, respectively. For both of them, the symbol points to an instruction with a `R_RISCV_EPIC_HI20` relocation. Their behavior depends on the residence of the symbol referenced by the respective `R_RISCV_EPIC_HI20` relocation.
+
+* If the symbol resides in the code segment:
+** Adds a `R_RISCV_PCREL_LO12_I` or `R_RISCV_PCREL_LO12_S` relocation, as appropriate, with the same symbol and addend, at the same offset.
+* If the symbol resides in the data segment:
+** Adds a `R_RISCV_GPREL_LO12_I` or `R_RISCV_GPREL_LO12_S` relocation, as appropriate, at the same offset. The symbol and addend of the new relocation are those of the corresponding `R_RISCV_EPIC_HI20` relocation.
+
+=== Linker relaxations [[relaxations]]
+
+This ABI defines additional linker relaxations, used at link time to optimize instruction sequences that address the data segment. The instruction sequences that address the code segment can be optimized with the preexisting relaxations defined in the https://github.com/riscv-non-isa/riscv-elf-psabi-doc/blob/master/riscv-elf.adoc[base RISC-V ELF specification].
+
+The following instruction sequence, used to address a symbol in the data segment
+
+----
+        lui  rd, %gprel_hi(symbol)
+        add  rd, gp, rd, %gprel_add(symbol)
+        addi rd, rd, %gprel_lo(symbol)
+----
+
+can be optimized into
+
+----
+        addi rd, gp, %gprel_lo(symbol)
+----
+
+when the symbol is within the 12-bit immediate range of the global pointer. To allow this relaxation to occur, each instruction in the sequence must have a `R_RISCV_RELAX` relocation, in addition to the `R_RISCV_GPREL_HI20`, `R_RISCV_GPREL_LO12_I`, `R_RISCV_GPREL_LO12_S` or `R_RISCV_GPREL_ADD` relocations.
+
+Note that this is a different relaxation than what was proposed in the https://github.com/ebahapo/riscv-elf-psabi-doc/blob/compact/riscv-compact.md[compact] and https://github.com/ebahapo/riscv-elf-psabi-doc/blob/large/riscv-large.md[large] code models, as it adds the offset to the `gp` register.
+
+Likewise, load and store instruction sequences can be optimized. For instance, a typical load instruction sequence such as
+
+----
+        lui  rd, %gprel_hi(symbol)
+        add  rd, gp, rd, %gprel_add(symbol)
+        lw   rd, rd, %gprel_lo(symbol)
+----
+
+can be optimized into
+
+----
+        lw   rd, %gprel_lo(symbol)(gp)
+----
+
+A typical store instruction sequence such as
+
+----
+        lui  rd, %gprel_hi(symbol)
+        add  rd, gp, rd, %gprel_add(symbol)
+        sw   t0, rd, %gprel_lo(symbol)
+----
+
+can be optimized into
+
+----
+        sw   t0, %gprel_lo(symbol)(gp)
+----
+
+The same requirements apply in terms of being within the range of the 12-bit offset and needing `R_RISCV_RELAX` relocations for all instructions.
+
+=== Toolchain considerations [[toolchain-concerns]]
+
+The conventional toolchain option to enable ePIC is `-fepic`.
+
+Using the `-fepic` option with the compiler or the linker enables the use of the ePIC ABI during code generation. For the linker, this becomes relevant when doing link-time optimization. An `-mcmodel` option (or equivalent) should be rejected when ePIC is enabled.
+
+Using the `-fepic` option with the linker ensures that the generated segments in the output file (e.g. ELF program segments) can be mapped to the ePIC code and data segments, if not overridden by a linker script. It also prevents the linker from performing relaxations that are invalid in the context of ePIC, namely relaxing PC-relative addressing to GP-relative addressing.
+
+If the `__global_pointer$` symbol is not defined the linker should assume that it points 0x800 bytes past the start of the ePIC data segment.
+
+=== Loading and relocation [[loading]]
+
+To load and relocate an executable that follows the ePIC ABI the loader must:
+
+1. Load the code and data segments.
+2. Apply the `R_RISCV_32` (for RV32) or `R_RISCV_64` (for RV64) relocations that apply to the data segment.
+3. Set the `gp` register to the value of the relocated global pointer. For instance, if `__global_pointer$` points to the base of the data segment then it sets `gp` to the data segment's loading address.
+
+After that, the loading process is considered complete (for the purposes of the ePIC ABI) and control can be transferred to the executable.
+
+== Examples
+
+The subsections below provide examples that show how to address and access C objects under various circumstances.
+
+* <<example-1>>
+* <<example-2>>
+* <<example-3>>
+* <<example-4>>
+* <<example-5>>
+
+=== Example 1: Address of a writable object [[example-1]]
+
+This example shows a possible result of compiling and linking a C function that returns the address of an object that resides in the data segment.
+
+Consider the following C code:
+
+[,c]
+----
+int x;
+int* addr_x() {
+    return &x;
+}
+----
+
+The function can be compiled into the following assembly code:
+
+----
+1:      lui  a0, %epic_hi(x)
+        add  a0, gp, a0, %epic_base_add(x)
+        addi a0, a0, %epic_lo(1b)
+        ret
+----
+
+From that, the assembler will generate the following object code:
+
+----
+.Ltmp0: lui  a0, 0       # Relocation: R_RISCV_EPIC_HI20     x
+        add  a0, gp, a0  # Relocation: R_RISCV_EPIC_BASE_ADD x
+        addi a0, a0, 0   # Relocation: R_RISCV_EPIC_LO12_I   .Ltmp0
+        ret
+----
+
+After the linker resolves the EPIC relocations, the object code becomes equivalent to:
+
+----
+        lui  a0, 0       # Relocation: R_RISCV_GPREL_HI20   x
+        add  a0, gp, a0  # Relocation: R_RISCV_GPREL_ADD    x
+        addi a0, a0, 0   # Relocation: R_RISCV_GPREL_LO12_I x
+        ret
+----
+
+After that the object code can be linked normally, producing the same result as if we had originally written the following assembly code:
+
+----
+        lui  a0, %gprel_hi(x)
+        add  a0, gp, a0
+        addi a0, a0, %gprel_lo(x)
+        ret
+----
+
+=== Example 2: Address of a read-only object [[example-2]]
+
+This example shows a possible result of compiling and linking a C function that returns the address of an object that resides in the code segment.
+
+Consider the following C code:
+
+[,c]
+----
+const int x;
+int* addr_x() {
+    return &x;
+}
+----
+
+The function can be compiled into the same assembly code as in <<example-1, example 1>>:
+
+----
+1:	lui  a0, %epic_hi(x)
+	add  a0, gp, a0, %epic_base_add(x)
+	addi a0, a0, %epic_lo(1b)
+	ret
+----
+
+Thus, the assembler will generate the same object code:
+
+----
+.Ltmp0: lui  a0, 0       # Relocation: R_RISCV_EPIC_HI20     x
+        add  a0, gp, a0  # Relocation: R_RISCV_EPIC_BASE_ADD x
+        addi a0, a0, 0   # Relocation: R_RISCV_EPIC_LO12_I   .Ltmp0
+        ret
+----
+
+Where the results diverge is in the linker. After the linker resolves the EPIC relocations, the object code becomes equivalent to:
+
+----
+        auipc a0, 0      # Relocation: R_RISCV_PCREL_HI20   x
+        nop              # Can be deleted by the linker
+        addi  a0, a0, 0  # Relocation: R_RISCV_PCREL_LO12_I x
+        ret
+----
+
+After that the object code can be linked normally, producing the same result as if we had originally written the following assembly code:
+
+----
+1:      auipc a0, %pcrel_hi(x)
+        nop
+        addi  a0, a0, %pcrel_lo(1b)
+        ret
+----
+
+=== Example 3: Reading a writable object [[example-3]]
+
+This example shows a possible result of compiling and linking a C function that reads the value of an object that resides in the data segment.
+
+Consider the following C code:
+
+[,c]
+----
+int x;
+int val_x() {
+    return x;
+}
+----
+
+The function can be compiled into the following assembly code:
+
+----
+1:      lui a0, %epic_hi(x)
+        add a0, gp, a0, %epic_base_add(x)
+        lw  a0, %epic_lo(1b)(a0)
+        ret
+----
+
+From that, the assembler will generate the following object code:
+
+----
+.Ltmp0: lui  a0, 0       # Relocation: R_RISCV_EPIC_HI20     x
+        add  a0, gp, a0  # Relocation: R_RISCV_EPIC_BASE_ADD x
+        lw   a0, 0(a0)   # Relocation: R_RISCV_EPIC_LO12_I   .Ltmp0
+        ret
+----
+
+After the linker resolves the EPIC relocations, the object code becomes equivalent to:
+
+----
+        lui  a0, 0       # Relocation: R_RISCV_GPREL_HI20   x
+        add  a0, gp, a0  # Relocation: R_RISCV_GPREL_ADD    x
+        lw   a0, 0(a0)   # Relocation: R_RISCV_GPREL_LO12_I x
+        ret
+----
+
+After that the object code can be linked normally, producing the same result as if we had originally written the following assembly code:
+
+----
+        lui  a0, %gprel_hi(x)
+        add  a0, gp, a0
+        lw   a0, %gprel_lo(x)(a0)
+        ret
+----
+
+Writing a value into the object is very similar. The following changes must be made to the example:
+
+* The `lw` load instruction is replaced by a `sw` store instruction;
+* The `R_RISCV_EPIC_LO12_I` relocation is replaced by a `R_RISCV_EPIC_LO12_S` relocation.
+* The `R_RISCV_GPREL_LO12_I` relocation is replaced by a `R_RISCV_GPREL_LO12_S` relocation.
+
+=== Example 4: Reading a read-only object [[example-4]]
+
+This example shows a possible result of compiling and linking a C function that reads the value of an object that resides in the code segment.
+
+Consider the following C code:
+
+[,c]
+----
+extern const int x;
+int val_x() {
+    return x;
+}
+----
+
+The function can be compiled into the same assembly code as in <<example-3, example 3>>:
+
+----
+1:      lui a0, %epic_hi(x)
+        add a0, gp, a0, %epic_base_add(x)
+	lw  a0, %epic_lo(1b)(a0)
+	ret
+----
+
+Thus, the assembler will generate the same object code:
+
+----
+.Ltmp0: lui  a0, 0       # Relocation: R_RISCV_EPIC_HI20     x
+        add  a0, gp, a0  # Relocation: R_RISCV_EPIC_BASE_ADD x
+        lw   a0, 0(a0)   # Relocation: R_RISCV_EPIC_LO12_I   .Ltmp0
+        ret
+----
+
+Again, where the results diverge is in the linker. After the linker resolves the EPIC relocations, the object code becomes equivalent to:
+
+----
+.Ltmp0: auipc a0, 0      # Relocation: R_RISCV_PCREL_HI20   x
+        nop              # Can be deleted by the linker
+        lw   a0, 0(a0)   # Relocation: R_RISCV_PCREL_LO12_I .Ltmp0
+        ret
+----
+
+After that the object code can be linked normally, producing the same result as if we had originally written the following assembly code:
+
+----
+1:      auipc a0, %pcrel_hi(x)
+        nop
+        lw    a0, %pcrel_lo(1b)(a0)
+        ret
+----
+
+Writing a value into the object is very similar. The following changes must be made to the example:
+
+* The `lw` load instruction is replaced by a `sw` store instruction;
+* The `R_RISCV_EPIC_LO12_I` relocation is replaced by a `R_RISCV_EPIC_LO12_S` relocation.
+* The `R_RISCV_PCREL_LO12_I` relocation is replaced by a `R_RISCV_PCREL_LO12_S` relocation.
+
+=== Example 5: Statically initialized pointers [[example-5]]
+
+This example illustrates how pointer variables with (non-null) static initializers are handled.
+
+Consider the following C code:
+
+[,c]
+----
+int x = 42;
+const int y = 7;
+
+int *p1 = &x;
+const int *p2 = &y;
+int *const p3 = &x;
+const int *const p4 = &y;
+----
+
+We have two integer variables, `x` and `y`, and four pointer variables, `p1`, `p2`, `p3`, and `p4`.
+
+The following table illustrates typical results from building executables with that source code, both as position-independent executables (PIE) and regular executables (non-PIE). For these results it does not matter whether the PIE follows the System V PIC ABI or the ePIC ABI.
+
+[cols="1,1,1,1,1"]
+|===
+| Symbol | section (non-PIE) | section (PIE) | Relocation (RV32) | ePIC segment
+|    `x` |  .sdata |       .sdata |  | Data segment
+|    `y` | .rodata |      .rodata |  | Code segment
+|   `p1` |  .sdata |       .sdata | `R_RISCV_32` `(x + 0)` | Data segment
+|   `p2` |  .sdata |       .sdata | `R_RISCV_32` `(y + 0)` | Data segment
+|   `p3` | .rodata | .data.rel.ro | `R_RISCV_32` `(x + 0)` | Data segment
+|   `p4` | .rodata | .data.rel.ro | `R_RISCV_32` `(y + 0)` | Data segment
+|===
+
+`x` is mutable while `y` is not. Per the C specification, since `y` is `const` and it is not `volatile`, it may be placed in a read-only region of storage. Thus, a compiler like Clang will typically emit `y` in the read-only section `.rodata`, while `x` will be emitted in the writable section `.sdata`. When using ePIC, `x` will be accessed in a `GP`-relative way, due to being part of the data segment, while `y` will be accessed in a `PC`-relative way, due to being part of the code segment.
+
+`p1` and `p2` are mutable pointers so they are also emitted in the `.sdata` section. It does not matter whether the variables that they point to are `const` or not.
+
+`p3` is a `const` pointer to mutable data while `p4` is a `const` pointer to `const` data. Because they are `const` pointers, per the C specification they can be put in read-only storage. Again, it does not matter whether the variables that they point to are `const` or not. When building non-PIE binaries the location of `x` and `y` will be assigned at static link time. Thus, the `R_RISCV_32` relocation can be applied at static link time, and `p3` and `p4` can be emitted in a read-only section. In a PIE binary the relocation can only be resolved during the dynamic linking process, so `p3` and `p4` must be emitted in a writable section -- in this case `.data.rel.ro` -- so that the relocation can be applied by the dynamic linker. The `.rel.ro` suffix indicates the use of "Relocation Read-Only" (RELRO), not a read-only section. When using RELRO the dynamic linker is allowed to mark the section as read-only after applying the relocations.
+
+== External links [[external-links]]
+
+* Examples projects using ePIC:
+** https://github.com/lowRISC/epic-c-example[ePIC baremetal C program example].
+** https://github.com/lowRISC/epic-tock-c-example[ePIC TockOS C program example].
+** https://github.com/lowRISC/epic-tock-rs-example[ePIC TockOS Rust program example]. Needs to be updated to work with the latest toolchain implementation.
+* Toolchain implementations:
+** https://github.com/lowRISC/llvm-project/tree/epic[LLVM implementation] (work in progress).
