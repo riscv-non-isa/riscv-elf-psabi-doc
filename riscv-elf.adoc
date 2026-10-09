@@ -62,11 +62,15 @@ addi a0, a0, -0x800 # a0 = a0 + -2048 = 0xFFFFFFFF7FFFF800
 === Medium Any Code Model
 
 The medium any code model, or `medany`, allows the code to address the range
-between -2 GiB and +2 GiB from its position.  By using `auipc`
-and load / store instructions, when referring to an object, or
-`addi`, when calculating an address literal, for example,
+between -2 GiB and +2 GiB from its position. (More precisely between -0x80000800
+and 0x7FFFF7FF). By using `auipc` and load / store instructions, when referring
+to an object, or `addi`, when calculating an address literal, for example,
 a signed 32-bit offset, relative to the value of the `pc` register,
 can be produced.
+
+NOTE: The range is not exactly -2 GiB and +2 GiB due to RISC-V's sign-extension
+of immediates. This difference only matters on RV64. On RV32, the range still
+covers the whole address space.
 
 As a special edge-case, undefined weak symbols must still be supported, whose
 addresses will be 0 and may be out of range depending on the address at which
