@@ -27,13 +27,13 @@ appendix of the RISC-V "unprivileged" architecture specification as
 "Mappings from C/{Cpp} primitives to RISC-V Primitives", which we will
 refer to by their 2019 historical label of "Table A.6". That mapping may
 be used, _except_ that `atomic_store(memory_order_seq_cst)` must have an
-an extra trailing fence for compatibility with the "Hypothetical mappings ..."
+extra trailing fence for compatibility with the "Hypothetical mappings ..."
 table in the same section, which we similarly refer to as "Table A.7".
 As a result, we allow the "Table A.7" mappings as well.
 
 NOTE: Our primary design goal is to maximize performance of the "Table A.7"
 mappings. These require additional load-acquire and store-release instructions,
-and are this not immediately usable. By requiring the extra store fence.
+and are thus not immediately usable. By requiring the extra store fence,
 or equivalent, we avoid an ABI break when moving to the "Table A.7"
 mappings in the future, in return for a small performance penalty in the
 short term.
@@ -82,7 +82,7 @@ the `lr` and `sc` instructions.
 
 |`atomic_store(memory_order_seq_cst)` |`fence rw,w; s{b\|h\|w\|d}; fence rw,rw;` |
 
-|`atomic_store(memory_order_seq_cst)` |`amoswap.rl{w\|d};` |4
+|`atomic_store(memory_order_seq_cst)` |`amoswap.{w\|d}.rl;` |4
 
 |`atomic_store(memory_order_seq_cst)` |<RCsc atomic store-release> |1
 
