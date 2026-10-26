@@ -32,15 +32,14 @@ table in the same section, which we similarly refer to as "Table A.7".
 As a result, we allow the "Table A.7" mappings as well.
 
 NOTE: Our primary design goal is to maximize performance of the "Table A.7"
-mappings. These require additional load-acquire and store-release instructions,
-and are this not immediately usable. By requiring the extra store fence.
-or equivalent, we avoid an ABI break when moving to the "Table A.7"
-mappings in the future, in return for a small performance penalty in the
-short term.
+mappings. These require RCsc load-acquire and store-release instructions
+provided by Zalasr. By requiring the extra store fence, or an equivalent
+sequence, we avoid an ABI break when adopting the "Table A.7" mappings, at the
+cost of a small performance penalty for the modified "Table A.6" mapping.
 
 For each construct, we provide a mapping that assumes only the A extension.
-In some cases, we provide additional mappings that assume a future load-acquire
-and store-release extension, as denoted by note 1 in the table.
+In some cases, we provide additional mappings that use RCsc load-acquire and
+store-release instructions, as denoted by note 1 in the table.
 
 All mappings interoperate correctly, and with the original "Table A.6"
 mappings, _except_ that mappings marked with note 3 do not interoperate
@@ -137,8 +136,8 @@ the `lr` and `sc` instructions.
 === Meaning of Notes in Table
 
 1) Depends on a load instruction with an RCsc acquire annotation,
-or a store instruction with an RCsc release annotation. These are currently
-under discussion, but the specification has not yet been approved.
+or a store instruction with an RCsc release annotation. The ratified Zalasr
+1.0 extension provides such instructions.
 
 2) An RCpc load or store would also suffice, if it were to be introduced
 in the future.
