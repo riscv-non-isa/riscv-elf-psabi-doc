@@ -188,10 +188,10 @@ XLEN bits are widened to XLEN bits, with the upper bits undefined.
 
 When passed in registers or on the stack, `_BitInt(N)` types are handled as
 follows:
+
 - For N < XLEN: Types are widened to XLEN bits, with upper bits sign-extended
   for signed `_BitInt(N)` or zero-extended for unsigned `_BitInt(N)`.
   However, for N = 32 in RV64, both signed and unsigned types are sign-extended.
-+
 - For N = XLEN: Types are passed using the same rules as scalars that are XLEN
   bits wide.
 - For XLEN < N ≤ 2×XLEN: Types are passed using the same rules as scalars that
@@ -933,6 +933,7 @@ elemental type by the total number of elements within the vector.
 arbitrary-sized integer type, where N is a postive integer larger than zero.
 
 `_BitInt(N)` types are stored in memory as follows:
+
 - For N ≤ 2×XLEN: Types follow the standard scalar endianness rules.
 - For N > 2×XLEN: Types are divided into 2×XLEN-bit chunks. Each chunk follows
   the standard scalar endianness rules. The chunk ordering in memory follows
