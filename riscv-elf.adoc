@@ -230,7 +230,7 @@ For example:
 is mangled as
 [,c]
 ----
-    _Z3fooB12riscv_vls_cc_128v
+    _Z3fooB16riscv_vls_cc_128v
 ----
 
 === Name Mangling for Vector Data Types, Vector Mask Types and Vector Tuple Types.
