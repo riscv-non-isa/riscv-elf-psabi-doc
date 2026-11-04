@@ -84,6 +84,8 @@ Big-endian support has been implemented in GNU GCC and LLVM/Clang toolchains.
 The big-endian variants follow the same calling conventions as their
 little-endian counterparts, with only the data byte ordering differing.
 
+=== Status of Reserved Encodings
+
 Any encodings that are marked as reserved for a specific extension (ISA or
 purely ABI addition) should be treated by standard tools identically to any
 other encodings reserved for future standard extensions. Such reservations are
