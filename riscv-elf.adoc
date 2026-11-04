@@ -2927,7 +2927,7 @@ issues.
 [,asm]
 ----
     # Recommended way to initialize the jvt CSR.
-    .weak __jtv_base$
+    .weak __jvt_base$
     lla a0, __jvt_base$
     beqz a0, 1f
     csrw jvt, a0
