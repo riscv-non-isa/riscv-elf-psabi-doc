@@ -711,10 +711,8 @@ of a function call to ensure correct operation and data handling.
 
 === ILP32E Calling Convention
 
-IMPORTANT: RV32E is not a ratified base ISA and so we cannot guarantee the
-stability of ILP32E, in contrast with the rest of this document. This documents
-the current implementation in GCC as of the time of writing, but may be subject
-to change.
+IMPORTANT: This documents the current implementation in GCC as of the time of
+writing, but may be subject to change.
 
 The ILP32E calling convention is designed to be usable with the RV32E ISA. This
 calling convention is the same as the integer calling convention, except for the
@@ -728,7 +726,7 @@ these registers are considered temporaries.
 
 The ILP32E calling convention is not compatible with ISAs that have registers
 that require load and store alignments of more than 32 bits. In particular, this
-calling convention must not be used with the D ISA extension.
+calling convention cannot be used with the D ISA extension.
 
 === RV64ILP32* Calling Convention
 
