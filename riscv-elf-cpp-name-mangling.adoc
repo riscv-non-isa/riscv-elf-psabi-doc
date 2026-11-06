@@ -1,7 +1,7 @@
 == {Cpp} Name Mangling
 
 {Cpp} name mangling for RISC-V follows
-the _Itanium {Cpp} ABI_ <<itanium-cxx-abi>>;
+the _Itanium {Cpp} ABI_ xref:elf-bib.adoc#itanium-cxx-abi[];
 there are no RISC-V specific mangling rules.
 
 See the "Type encodings" section in _Itanium {Cpp} ABI_

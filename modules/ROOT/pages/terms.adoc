@@ -18,5 +18,5 @@ This specification uses the following terms and abbreviations:
 | NTBS              | Null-Terminated Byte String
 | XLEN              | The width of an integer register in bits
 | FLEN              | The width of a floating-point register in bits
-| Linker relaxation | A mechanism for optimizing programs at link-time, see <<Linker Relaxation>> for more detail.
+| Linker relaxation | A mechanism for optimizing programs at link-time, see xref:riscv-elf-linker-relaxation.adoc#sec_linker_relaxation[Linker Relaxation] for more detail.
 |===

@@ -1,8 +1,9 @@
+[[sec_dynamic_linking]]
 == Dynamic Linking
 
 Any functions that use registers in a way that is incompatible with
 the calling convention of the ABI in use must be annotated with
-`STO_RISCV_VARIANT_CC`, as defined in <<Symbol Table>>.
+`STO_RISCV_VARIANT_CC`, as defined in xref:riscv-elf-object-files.adoc#sec_symbol_table[Symbol Table].
 
 NOTE: Vector registers have a variable size depending on the hardware
 implementation and can be quite large. Saving/restoring all these vector
