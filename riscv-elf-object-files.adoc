@@ -129,6 +129,7 @@ sections.
 
 There are no RISC-V specific definitions relating to ELF string tables.
 
+[[sec_symbol_table]]
 === Symbol Table
 
 st_other:: The lower 2 bits are used to specify a symbol's visibility. The
@@ -148,7 +149,7 @@ The defined processor-specific `st_other` flags are listed in <<rv-st-other>>.
 | STO_RISCV_VARIANT_CC | 0x80
 |===
 +
-See <<Dynamic Linking>> for the meaning of `STO_RISCV_VARIANT_CC`.
+See xref:riscv-elf-dynamic-linking.adoc#sec_dynamic_linking[Dynamic Linking] for the meaning of `STO_RISCV_VARIANT_CC`.
 
 `__global_pointer$` must be exported in the dynamic symbol table of dynamically-linked
 executables if there are any GP-relative accesses present in the executable.
@@ -180,10 +181,10 @@ Type:: Whether the relocation is a static or dynamic relocation:
 - A dynamic relocation relocates a location in an executable or shared object, processed by a run-time linker.
 - `Both`: Some relocation types are used by both static relocations and dynamic relocations.
 
-Field:: Describes the set of bits affected by this relocation; see <<Field Symbols>> for the definitions of the individual types
+Field:: Describes the set of bits affected by this relocation; see <<sec_field_symbols>> for the definitions of the individual types
 
 Calculation:: Formula for how to resolve the relocation value; definitions of the
-              symbols can be found in <<Calculation Symbols>>
+              symbols can be found in <<sec_calculation_symbols>>
 
 Description:: Additional information about the relocation
 
@@ -309,6 +310,7 @@ This section and later ones contain fragments written in assembler. The precise
 assembler syntax, including that of the relocations, is described in the
 _RISC-V Assembly Programmer's Manual_ xref:elf-bib.adoc#rv-asm[].
 
+[[sec_calculation_symbols]]
 ==== Calculation Symbols
 
 <<var-reloc-calc>> provides details on the variables used in relocation
@@ -335,6 +337,7 @@ calculation:
 **Global Pointer**: It is assumed that program startup code will load the value
 of the `__global_pointer$` symbol into register `gp` (aka `x3`).
 
+[[sec_field_symbols]]
 ==== Field Symbols
 
 <<var-reloc-field>> provides details on the variables used in relocation fields:
@@ -402,6 +405,7 @@ The following assembly and relocations show loading an absolute address:
     addi a0, a0, %lo(symbol) # R_RISCV_LO12_I (symbol)
 ----
 
+[[sec_global_offset_table]]
 ==== Global Offset Table
 
 For position independent code in dynamically linked objects, each shared

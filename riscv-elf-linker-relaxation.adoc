@@ -1,3 +1,4 @@
+[[sec_linker_relaxation]]
 == Linker Relaxation
 
 At link time, when all the memory objects have been resolved, the code sequence
