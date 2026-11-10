@@ -1553,11 +1553,14 @@ optional and ignored:
     jalr  ra, ra, 0
 ----
 
+`R_RISCV_CALL_PLT` must use a PLT entry when the destination symbol is
+preemptible or of type `STT_GNU_IFUNC`. When neither of those cases apply,
 `R_RISCV_CALL_PLT` must not use a PLT entry when the destination symbol is in
-the same section and is not preemptible. This ensures that an `AUIPC+JALR`
-sequence with a `R_RISCV_CALL_PLT` can be used for direct jumps within large
-functions (over 1MiB), without any temporary registers (which may be live) being
-clobbered by the PLT entry.
+the same input section as the relocated instructions.
+
+NOTE: The latter ensures that an `AUIPC+JALR` sequence with a `R_RISCV_CALL_PLT`
+can be used for direct jumps within large functions (over 1MiB), without any
+temporary registers (which may be live) being clobbered by the PLT entry.
 
 NOTE: There may be additional cases where a linker may choose not to use a PLT
 entry for a symbol, including based on the symbol's visibility.
