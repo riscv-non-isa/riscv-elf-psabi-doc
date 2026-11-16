@@ -1041,7 +1041,7 @@ and the operating system, and the ABI differences are so significant they
 cannot be done with a .RISCV.attributes tag nor an ELF note, such as using a
 different syscall ABI.
 
-==== Policy for Merge Objects with Different File Headers
+==== Policy for Merging Objects with Different File Headers
 
 This section describe the behavior when the inputs files come with different
 file headers.
