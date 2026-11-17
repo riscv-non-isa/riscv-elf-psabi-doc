@@ -27,20 +27,20 @@ appendix of the RISC-V "unprivileged" architecture specification as
 "Mappings from C/{Cpp} primitives to RISC-V Primitives", which we will
 refer to by their 2019 historical label of "Table A.6". That mapping may
 be used, _except_ that `atomic_store(memory_order_seq_cst)` must have an
-an extra trailing fence for compatibility with the "Hypothetical mappings ..."
+extra trailing fence for compatibility with the "Hypothetical mappings ..."
 table in the same section, which we similarly refer to as "Table A.7".
 As a result, we allow the "Table A.7" mappings as well.
 
 NOTE: Our primary design goal is to maximize performance of the "Table A.7"
-mappings. These require additional load-acquire and store-release instructions,
-and are this not immediately usable. By requiring the extra store fence.
-or equivalent, we avoid an ABI break when moving to the "Table A.7"
-mappings in the future, in return for a small performance penalty in the
-short term.
+mappings. These require RCsc load-acquire and store-release instructions
+provided by Zalasr. Adding a trailing `fence rw,rw` to the "Table A.6"
+sequentially consistent store mapping, or using an equivalent sequence,
+makes the modified mapping compatible with the "Table A.7" mappings,
+at a potential performance cost.
 
 For each construct, we provide a mapping that assumes only the A extension.
-In some cases, we provide additional mappings that assume a future load-acquire
-and store-release extension, as denoted by note 1 in the table.
+In some cases, we provide additional mappings that use RCsc load-acquire and
+store-release instructions, as denoted by note 1 in the table.
 
 All mappings interoperate correctly, and with the original "Table A.6"
 mappings, _except_ that mappings marked with note 3 do not interoperate
@@ -66,11 +66,11 @@ the `lr` and `sc` instructions.
 
 |`atomic_load(memory_order_acquire)` |`l{b\|h\|w\|d}; fence r,rw` |
 
-|`atomic_load(memory_order_acquire)` |<RCsc atomic load-acquire> |1, 2
+|`atomic_load(memory_order_acquire)` |`l{b\|h\|w\|d}.aq` |1, 2
 
 |`atomic_load(memory_order_seq_cst)` |`fence rw,rw; l{b\|h\|w\|d}; fence r,rw` |
 
-|`atomic_load(memory_order_seq_cst)` |<RCsc atomic load-acquire> |1, 3
+|`atomic_load(memory_order_seq_cst)` |`l{b\|h\|w\|d}.aq` |1, 3
 
 |Non-atomic store |`s{b\|h\|w\|d}` |
 
@@ -78,13 +78,13 @@ the `lr` and `sc` instructions.
 
 |`atomic_store(memory_order_release)` |`fence rw,w; s{b\|h\|w\|d}` |
 
-|`atomic_store(memory_order_release)` |<RCsc atomic store-release> |1, 2
+|`atomic_store(memory_order_release)` |`s{b\|h\|w\|d}.rl` |1, 2
 
 |`atomic_store(memory_order_seq_cst)` |`fence rw,w; s{b\|h\|w\|d}; fence rw,rw;` |
 
-|`atomic_store(memory_order_seq_cst)` |`amoswap.rl{w\|d};` |4
+|`atomic_store(memory_order_seq_cst)` |`amoswap.{w\|d}.rl;` |4
 
-|`atomic_store(memory_order_seq_cst)` |<RCsc atomic store-release> |1
+|`atomic_store(memory_order_seq_cst)` |`s{b\|h\|w\|d}.rl` |1
 
 |`atomic_thread_fence(memory_order_acquire)` |`fence r,rw` |
 
@@ -137,8 +137,8 @@ the `lr` and `sc` instructions.
 === Meaning of Notes in Table
 
 1) Depends on a load instruction with an RCsc acquire annotation,
-or a store instruction with an RCsc release annotation. These are currently
-under discussion, but the specification has not yet been approved.
+or a store instruction with an RCsc release annotation. These are provided
+by the Zalasr extension.
 
 2) An RCpc load or store would also suffice, if it were to be introduced
 in the future.
